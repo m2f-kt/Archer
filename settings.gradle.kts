@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Archer"
-include(":shared")
+include(":arch")
