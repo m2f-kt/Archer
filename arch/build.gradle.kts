@@ -3,7 +3,6 @@ import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -82,7 +81,7 @@ android {
 }
 
 mavenPublishing {
-    coordinates("com.m2f-kt", "archer", "0.0.1-dev01")
+    coordinates("com.m2f-kt", "archer", "0.0.1-dev02")
 
     publishToMavenCentral(SonatypeHost.S01)
     signAllPublications()
