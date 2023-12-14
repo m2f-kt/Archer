@@ -37,14 +37,14 @@ suspend inline fun <reified K> PutDataSource<K, Unit>.put(param: K): Either<Fail
         Put(param, Unit),
     )
 
-inline fun <K, T> getDataSource(crossinline block: Raise<Failure>.(K) -> T): GetDataSource<K, T> =
+inline fun <K, T> getDataSource(crossinline block: suspend Raise<Failure>.(K) -> T): GetDataSource<K, T> =
     GetDataSource { query ->
         either {
             block(query.key)
         }
     }
 
-inline fun <K, T> putDataSource(crossinline block: Raise<Failure>.(K, T) -> T): PutDataSource<K, T> =
+inline fun <K, T> putDataSource(crossinline block: suspend Raise<Failure>.(K, T) -> T): PutDataSource<K, T> =
     PutDataSource { query ->
         either {
             val value = query.value ?: raise(DataEmpty)
@@ -52,7 +52,7 @@ inline fun <K, T> putDataSource(crossinline block: Raise<Failure>.(K, T) -> T): 
         }
     }
 
-inline fun <K> deleteDataSource(crossinline block: Raise<Failure>.(K) -> Unit): DeleteDataSource<K> =
+inline fun <K> deleteDataSource(crossinline block: suspend Raise<Failure>.(K) -> Unit): DeleteDataSource<K> =
     DeleteDataSource { query ->
         either {
             block(query.key)
