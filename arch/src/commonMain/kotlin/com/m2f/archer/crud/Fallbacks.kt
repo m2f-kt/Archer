@@ -2,6 +2,7 @@ package com.m2f.archer.crud
 
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Failure
+import com.m2f.archer.failure.Invalid
 import com.m2f.archer.failure.NoConnection
 import com.m2f.archer.failure.ServerFailure
 
@@ -11,7 +12,8 @@ import com.m2f.archer.failure.ServerFailure
 val mainAiraloFallbacks: List<Failure> = listOf(
     NoConnection,
     ServerFailure,
-    DataNotFound
+    DataNotFound,
+    Invalid
 )
 
 /**
@@ -19,4 +21,5 @@ val mainAiraloFallbacks: List<Failure> = listOf(
  */
 val storageAiraloFallbacks: List<Failure> = listOf(
     DataNotFound,
+    Invalid
 )

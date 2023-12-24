@@ -30,17 +30,8 @@ class CacheTest: BehaviorSpec({
 
         val store: StoreDataSource<Int, String> = get + put
 
-        When("When calling cache with default parameters") {
-
-            val repository = mainGet.cache(store)
-
-            Then("The repository should be StoreSyncRepository") {
-                repository.shouldBeInstanceOf<StoreSyncRepository<Int, String>>()
-            }
-        }
-
         When("Calling cache passing StoreSyncOperation") {
-            val repository = mainGet.cache(store, StoreSyncOperation)
+            val repository = mainGet.cache(store).create(StoreSyncOperation)
 
             Then("The repository should be StoreSyncRepository") {
                 repository.shouldBeInstanceOf<StoreSyncRepository<Int, String>>()
@@ -48,7 +39,7 @@ class CacheTest: BehaviorSpec({
         }
 
         When("Calling cache passing MainSyncOperation") {
-            val repository = mainGet.cache(store, MainSyncOperation)
+            val repository = mainGet.cache(store).create(MainSyncOperation)
 
             Then("The repository should be MainSyncRepository") {
                 repository.shouldBeInstanceOf<MainSyncRepository<Int, String>>()
@@ -56,7 +47,7 @@ class CacheTest: BehaviorSpec({
         }
 
         When("Calling cache passing MainOperation") {
-            val repository = mainGet.cache(store, MainOperation)
+            val repository = mainGet.cache(store).create(MainOperation)
 
             Then("The repository should be SingleDataSourceRepository") {
                 repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
@@ -68,7 +59,7 @@ class CacheTest: BehaviorSpec({
         }
 
         When("Calling cache passing StoreOperation") {
-            val repository = mainGet.cache(store, StoreOperation)
+            val repository = mainGet.cache(store).create(StoreOperation)
 
             Then("The repository should be SingleDataSourceRepository") {
                 repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
