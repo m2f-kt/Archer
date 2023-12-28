@@ -9,6 +9,7 @@ kotest-plugin = "5.7.2"
 kover = "0.7.4"
 com-vanniktech-maven-publish="0.25.3"
 binary-compatibility-validator = "0.13.2"
+coveralls = "1.2.18"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -45,3 +46,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest-plugin" }
 com-vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "com-vanniktech-maven-publish" }
 binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
+coverallsjacoco = { id = "com.github.nbaztec.coveralls-jacoco", version.ref = "coveralls"}

@@ -2,11 +2,11 @@ package com.m2f.archer.crud
 
 import arrow.core.Either
 import arrow.core.raise.Raise
-import arrow.core.raise.effect
 import arrow.core.raise.either
 import com.airalo.babel.architecture.datasource.DataSource
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.Failure
+import com.m2f.archer.failure.Invalid
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
@@ -32,6 +32,12 @@ suspend inline fun <reified K, reified A> PutDataSource<K, A>.put(
     Put(param, value),
 )
 
+suspend inline fun <reified K, reified A> PutDataSource<K, A>.post(
+    param: K
+): Either<Failure, A> = invoke(
+    Put(param, null),
+)
+
 suspend inline fun <reified K> PutDataSource<K, Unit>.put(param: K): Either<Failure, Unit> =
     invoke(
         Put(param, Unit),
@@ -49,6 +55,14 @@ inline fun <K, T> putDataSource(crossinline block: suspend Raise<Failure>.(K, T)
         either {
             val value = query.value ?: raise(DataEmpty)
             block(query.key, value)
+        }
+    }
+
+inline fun <K, T> postDataSource(crossinline block: suspend Raise<Failure>.(K) -> T): PutDataSource<K, T> =
+    PutDataSource { query ->
+        either {
+            if(query.value != null) raise(Invalid)
+            block(query.key)
         }
     }
 
