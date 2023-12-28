@@ -2,6 +2,9 @@ name: Calculate Coverage
 on:
   pull_request:
     types: [ opened, synchronize, reopened ]
+  push:
+    branches:
+      - main
 
 jobs:
   test:
@@ -9,8 +12,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: set up JDK
         uses: actions/setup-java@v4
