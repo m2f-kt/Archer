@@ -3,7 +3,7 @@ package com.m2f.archer.crud
 import arrow.core.Either
 import arrow.core.raise.Raise
 import arrow.core.raise.either
-import com.airalo.babel.architecture.datasource.DataSource
+import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid

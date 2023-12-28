@@ -6,11 +6,11 @@ import com.m2f.archer.repository.toDeleteRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 
-class DeleteRepository: BehaviorSpec({
+class DeleteRepository : BehaviorSpec({
 
     Given("A Delete Repository") {
         var deleteCalled = false
-        val detleteDataSource = deleteDataSource<Int> { key -> deleteCalled = true }
+        val detleteDataSource = deleteDataSource<Int> { _ -> deleteCalled = true }
         val repository = detleteDataSource.toDeleteRepository()
 
         When("Calling delete") {

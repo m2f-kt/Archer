@@ -1,9 +1,7 @@
 package com.m2f.archer.repository
 
 import arrow.core.Either
-import arrow.core.Some
 import arrow.core.flatMap
-import arrow.core.handleErrorWith
 import arrow.core.recover
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepository
@@ -30,5 +28,4 @@ class MainSyncRepository<K, A>(
                     raise(f)
                 }
             }
-
 }

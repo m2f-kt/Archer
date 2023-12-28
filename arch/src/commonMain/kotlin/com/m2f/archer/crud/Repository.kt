@@ -12,7 +12,6 @@ typealias GetRepository<K, A> = CRUDRepository<Get<K>, A>
 typealias DeleteRepository<K> = CRUDRepository<Delete<K>, Unit>
 typealias PutRepository<K, A> = CRUDRepository<Put<K, A>, A>
 
-
 suspend inline fun <reified K, reified A> GetRepository<K, A>.get(param: K): Either<Failure, A> =
     invoke(Get(param))
 

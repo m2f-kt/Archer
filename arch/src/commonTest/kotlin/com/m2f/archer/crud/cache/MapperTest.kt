@@ -37,6 +37,5 @@ class MapperTest : FunSpec({
 
         store.get(Unit) shouldBe storeMaped.get(Unit)
         store.put(Unit, "Hello") shouldBe storeMaped.put(Unit, "Hello")
-
     }
 })

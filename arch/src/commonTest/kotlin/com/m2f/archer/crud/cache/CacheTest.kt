@@ -11,24 +11,34 @@ import com.m2f.archer.crud.operation.StoreOperation
 import com.m2f.archer.crud.operation.StoreSyncOperation
 import com.m2f.archer.crud.plus
 import com.m2f.archer.crud.putDataSource
+import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.repository.MainSyncRepository
 import com.m2f.archer.repository.SingleDataSourceRepository
 import com.m2f.archer.repository.StoreSyncRepository
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
-class CacheTest: BehaviorSpec({
+class CacheTest : BehaviorSpec({
 
     Given("A main get data source and a store data source") {
-        val mainGet: GetDataSource<Int, String> = getDataSource { key -> "main" }
+        val mainGet: GetDataSource<Int, String> = getDataSource { "main" }
 
-        val get: GetDataSource<Int, String> = getDataSource { key -> "store get" }
+        val get: GetDataSource<Int, String> = getDataSource { "store get" }
 
-        val put: PutDataSource<Int, String> = putDataSource { key, value -> "store put" }
+        val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
 
         val store: StoreDataSource<Int, String> = get + put
+
+        When("calling cache with empty parameter") {
+            val repository = mainGet.cache()
+            Then("It uses a default InMemorydataSource") {
+                repository.get(StoreOperation, 0) shouldBeLeft DataNotFound
+                repository.get(MainSyncOperation, 0) shouldBe mainGet.get(0)
+            }
+        }
 
         When("Calling cache passing StoreSyncOperation") {
             val repository = mainGet.cache(store).create(StoreSyncOperation)
@@ -69,6 +79,5 @@ class CacheTest: BehaviorSpec({
                 repository.get(1) shouldBe store.get(1)
             }
         }
-
     }
 })

@@ -1,4 +1,4 @@
-package com.airalo.babel.architecture.datasource
+package com.m2f.archer.datasource
 
 import arrow.core.Either
 
