@@ -81,7 +81,7 @@ android {
 }
 
 mavenPublishing {
-    coordinates("com.m2f-kt", "archer", "0.0.1-dev02")
+    coordinates("com.m2f-kt", "archer", "0.0.1-dev03")
 
     publishToMavenCentral(SonatypeHost.S01)
     signAllPublications()
