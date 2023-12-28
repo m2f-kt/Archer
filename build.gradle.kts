@@ -4,4 +4,19 @@ plugins {
     alias(libs.plugins.kotest.multiplatform) apply false
     alias(libs.plugins.kotlinx.kover) apply false
     alias(libs.plugins.com.vanniktech.maven.publish) apply false
+    alias(libs.plugins.coverallsjacoco)
+    alias(libs.plugins.binary.compatibility.validator)
+}
+
+val sources: List<File> = subprojects.flatMap { project ->
+    file("${project.projectDir}/src/").walkBottomUp().maxDepth(2)
+        .filter { it.path.contains("kotlin", ignoreCase = true) }
+        .filter { it.path.contains("main", ignoreCase = true) }
+        .toSet()
+        .toList()
+}
+
+coverallsJacoco {
+    reportPath = "${layout.projectDirectory}/arch/build/reports/kover/report.xml"
+    reportSourceSets = sources
 }
