@@ -14,7 +14,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class PutDataSourceTest: FunSpec( {
+class PutDataSourceTest : FunSpec({
 
     context("Creation") {
         test("creating a putDataSource with the DSL") {
@@ -25,7 +25,7 @@ class PutDataSourceTest: FunSpec( {
         }
 
         test("Creating a post data source with DSL") {
-            val postDataSource = postDataSource<Int, String> { key -> "success"}
+            val postDataSource = postDataSource<Int, String> { _ -> "success" }
             postDataSource.post(0) shouldBeRight "success"
             postDataSource.invoke(Put(0, "success")) shouldBeLeft Invalid
         }
@@ -35,10 +35,9 @@ class PutDataSourceTest: FunSpec( {
         test("identity rule") {
 
             val identity = object : Bijection<String, String> {
-                override fun from(s: String): String  = s
+                override fun from(s: String): String = s
 
                 override fun to(t: String): String = t
-
             }
             val putDataSource = putDataSource<Int, String> { key, value -> "put $value with key $key" }
 
@@ -49,10 +48,9 @@ class PutDataSourceTest: FunSpec( {
 
         test("map does not add any side effect on null values") {
             val identity = object : Bijection<String, String> {
-                override fun from(s: String): String  = s
+                override fun from(s: String): String = s
 
                 override fun to(t: String): String = t
-
             }
             val putDataSource = putDataSource<Int, String> { key, value -> "put $value with key $key" }
 
@@ -61,6 +59,4 @@ class PutDataSourceTest: FunSpec( {
             putDataSource.post(0) shouldBe mappedPutDataSource.post(0)
         }
     }
-
-
 })

@@ -1,9 +1,9 @@
 package com.m2f.archer.mapper
 
-import com.airalo.babel.architecture.datasource.DataSource
-import com.m2f.archer.query.Get
 import com.m2f.archer.crud.PutDataSource
 import com.m2f.archer.crud.StoreDataSource
+import com.m2f.archer.datasource.DataSource
+import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 import com.m2f.archer.query.map
 import kotlin.jvm.JvmName

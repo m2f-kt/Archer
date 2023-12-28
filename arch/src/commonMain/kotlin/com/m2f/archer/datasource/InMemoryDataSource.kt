@@ -2,12 +2,12 @@ package com.m2f.archer.datasource
 
 import arrow.core.Either
 import arrow.core.raise.either
+import com.m2f.archer.crud.DeleteDataSource
+import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
-import com.m2f.archer.crud.DeleteDataSource
-import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 

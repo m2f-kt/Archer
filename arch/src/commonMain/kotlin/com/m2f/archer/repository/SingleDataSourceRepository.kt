@@ -1,9 +1,9 @@
 package com.m2f.archer.repository
 
 import arrow.core.Either
-import com.airalo.babel.architecture.datasource.DataSource
 import com.m2f.archer.crud.DeleteDataSource
 import com.m2f.archer.crud.DeleteRepository
+import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.query.Delete
 

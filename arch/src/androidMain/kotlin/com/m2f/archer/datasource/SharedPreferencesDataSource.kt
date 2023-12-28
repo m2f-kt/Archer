@@ -29,13 +29,15 @@ class SharedPreferencesDataSource<K, A>(
     private val bijection: Bijection<String, A>
 ) : StoreDataSource<K, A>, DeleteDataSource<K> {
 
-
     override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
         when (q) {
             is Get -> {
                 val json = sharedPreferences.getString(q.key.toString().prependIndent(prefix), "")
-                if (json.isNullOrBlank()) raise(DataNotFound)
-                else bijection.from(json)
+                if (json.isNullOrBlank()) {
+                    raise(DataNotFound)
+                } else {
+                    bijection.from(json)
+                }
             }
 
             is Put -> {
@@ -46,7 +48,6 @@ class SharedPreferencesDataSource<K, A>(
                             .apply()
                     } ?: raise(DataEmpty)
             }
-
         }
     }
 

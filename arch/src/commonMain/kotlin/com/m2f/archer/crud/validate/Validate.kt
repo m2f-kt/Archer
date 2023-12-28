@@ -1,7 +1,7 @@
 package com.m2f.archer.crud.validate
 
 import arrow.core.raise.either
-import com.airalo.babel.architecture.datasource.DataSource
+import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
 
