@@ -10,7 +10,6 @@ import arrow.core.Either
  * @param Q The type of the query that the data source needs to run.
  * @param A The type of the result that the data source returns.
  */
-@Suppress("FUN_INTERFACE_WITH_SUSPEND_FUNCTION")
 fun interface DataSource<out F, in Q, out A> {
     /**
      * Runs the data source with the given query.

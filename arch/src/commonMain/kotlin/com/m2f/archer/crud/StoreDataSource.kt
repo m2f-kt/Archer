@@ -4,10 +4,10 @@ import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 
 /**
- * Combines an [GetDataSource] and an [PutDataSource] into a single [StorageDataSource].
+ * Combines an [GetDataSource] and an [PutDataSource] into a single [StoreDataSource].
  *
  * This function overloads the `+` operator to facilitate the merging of a data source responsible for "get" operations
- * with another responsible for "put" operations. The resulting [StorageDataSource] will delegate `Get` queries to
+ * with another responsible for "put" operations. The resulting [StoreDataSource] will delegate `Get` queries to
  * [GetDataSource] and `Put` queries to [PutDataSource].
  *
  * @param K The type of the key used to identify data.
@@ -15,7 +15,7 @@ import com.m2f.archer.query.Put
  * @param put The [PutDataSource] instance responsible for handling "put" operations.
  * @receiver The [GetDataSource] instance responsible for handling "get" operations.
  *
- * @return A new [StorageDataSource] instance that delegates `Get` queries to the original [GetDataSource] and
+ * @return A new [StoreDataSource] instance that delegates `Get` queries to the original [GetDataSource] and
  * `Put` queries to the provided [PutDataSource].
  *
  * @sample
@@ -27,7 +27,7 @@ import com.m2f.archer.query.Put
  *
  * @see GetDataSource
  * @see PutDataSource
- * @see StorageDataSource
+ * @see StoreDataSource
  */
 operator fun <K, A> GetDataSource<K, A>.plus(put: PutDataSource<K, A>): StoreDataSource<K, A> =
     StoreDataSource { query ->
