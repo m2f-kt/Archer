@@ -1,5 +1,6 @@
 package com.m2f.archer.crud.cache
 
+import com.m2f.archer.crud.cache.CacheExpiration.Never
 import com.m2f.archer.crud.fallbackWith
 import com.m2f.archer.crud.get
 import com.m2f.archer.crud.getDataSource
@@ -45,7 +46,7 @@ class RepositoryStrategyTest : FunSpec({
         val storeGet = getDataSource<Int, String> { "store get" }
         val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
 
-        val strategy = mainGet.cache(storeGet + storePut)
+        val strategy = mainGet.cacheWith(storeGet + storePut) expires Never
 
         strategy.get(MainOperation, 0) shouldBeRight "main get"
         strategy.get(StoreOperation, 0) shouldBeRight "store get"
@@ -53,7 +54,7 @@ class RepositoryStrategyTest : FunSpec({
         strategy.get(StoreSyncOperation, 0) shouldBeRight "store get"
 
         val expiredStore = (storeGet.validate { false } + storePut)
-        val expiredStrategy = mainGet.cache(expiredStore)
+        val expiredStrategy = mainGet.cacheWith(expiredStore) expires Never
 
         expiredStrategy.get(StoreSyncOperation, 0) shouldBeRight "store put: main get"
     }
@@ -66,17 +67,17 @@ class RepositoryStrategyTest : FunSpec({
         val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
 
         test("StoreSync will return by default the stored data") {
-            val strategy = mainGet.cache(storeGet + storePut)
+            val strategy = mainGet.cacheWith(storeGet + storePut) expires Never
             strategy.get(StoreSyncOperation, 0) shouldBeRight "store get"
         }
 
         test("StoreSync will fail if there is an unrecoverable failure") {
-            val strategy = mainGet.cache(storeGetFailUnrecoverable + storePut)
+            val strategy = mainGet.cacheWith(storeGetFailUnrecoverable + storePut) expires Never
             strategy.get(StoreSyncOperation, 0) shouldBeLeft Unhandled
         }
 
         test("StoreSync will fallback to the main data source and save result if there is an recoverable failure") {
-            val strategy = mainGet.cache(storeGetFailRecoverable + storePut)
+            val strategy = mainGet.cacheWith(storeGetFailRecoverable + storePut) expires Never
             strategy.get(StoreSyncOperation, 0) shouldBeRight "store put: main get"
         }
     }

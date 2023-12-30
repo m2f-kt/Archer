@@ -58,21 +58,21 @@ class CacheExpirationTest : FunSpec({
             .map { "$it from Store" }
 
         test("create a never expiring strategy") {
-            val cacheStrategyNever = main.cache(store, Never)
+            val cacheStrategyNever = main cacheWith store expires Never
 
             //The cache never expires, so it should always return the value that we set in the default constructor
             cacheStrategyNever.get(StoreSyncOperation, 0) shouldBeRight "Test from Store"
         }
 
         test("creating an always expiring strategy") {
-            val cacheStrategyAlways = main.cache(store, Always)
+            val cacheStrategyAlways = main cacheWith store expires Always
 
             //The cache always expires, so it should always return the value after storing it.
             cacheStrategyAlways.get(StoreSyncOperation, 0) shouldBeRight "main from Store"
         }
 
         test("test expiration with a time expiring strategy") {
-            val cacheStrategyAfter = main.cache(store, After(50.milliseconds))
+            val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
 
             //Fetch the value from the main source and store it afterward
             cacheStrategyAfter.get(MainSyncOperation, 0) shouldBeRight "main from Store"
@@ -86,7 +86,7 @@ class CacheExpirationTest : FunSpec({
         }
 
         test("test no-expiration with a time expiring strategy") {
-            val cacheStrategyAfter = main.cache(store, After(50.milliseconds))
+            val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
 
             //Fetch the value from the main source and store it afterward
             cacheStrategyAfter.get(MainSyncOperation, 0) shouldBeRight "main from Store"
