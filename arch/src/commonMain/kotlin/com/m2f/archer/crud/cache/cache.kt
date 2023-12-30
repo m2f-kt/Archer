@@ -33,7 +33,7 @@ infix fun <K, A> StrategyBuilder<K, A>.expires(expiration: CacheExpiration): Get
     StrategyBuilder(mainDataSource, storeDataSource.expires(expiration)).build()
 
 infix fun <K, A> StrategyBuilder<K, A>.expiresIn(duration: Duration): GetRepositoryStrategy<K, A> =
-    StrategyBuilder(mainDataSource, storeDataSource.expires(After(duration))).build()
+    expires(After(duration))
 
 fun <K, A> StoreDataSource<K, A>.expires(
     expiration: CacheExpiration,
