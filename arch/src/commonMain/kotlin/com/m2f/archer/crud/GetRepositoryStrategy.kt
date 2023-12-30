@@ -16,11 +16,27 @@ fun interface GetRepositoryStrategy<K, out A> {
     fun create(operation: Operation): GetRepository<K, A>
 }
 
+class StrategyBuilder<K, A>(
+    val mainDataSource: GetDataSource<K, A>,
+    val storeDataSource: StoreDataSource<K, A>
+) {
+
+    val mainFallback: List<Failure> = mainFallbacks
+    val storeFallback: List<Failure> = storageFallbacks
+
+    fun build(): GetRepositoryStrategy<K, A> = cacheStrategy(
+        mainDataSource,
+        storeDataSource,
+        mainFallback,
+        storeFallback,
+    )
+}
+
 fun <K, A> cacheStrategy(
     mainDataSource: GetDataSource<K, A>,
     storeDataSource: StoreDataSource<K, A>,
-    mainFallback: List<Failure> = mainAiraloFallbacks,
-    storeFallback: List<Failure> = storageAiraloFallbacks,
+    mainFallback: List<Failure> = mainFallbacks,
+    storeFallback: List<Failure> = storageFallbacks,
 ): GetRepositoryStrategy<K, A> = GetRepositoryStrategy { operation ->
     when (operation) {
         is MainOperation -> mainDataSource.toRepository()

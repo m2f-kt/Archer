@@ -7,7 +7,7 @@ import com.m2f.archer.failure.Invalid
 /**
  * Failures that will be used for network calls to fallback into storage
  */
-val mainAiraloFallbacks: List<Failure> = listOf(
+val mainFallbacks: List<Failure> = listOf(
     DataNotFound,
     Invalid
 )
@@ -15,7 +15,7 @@ val mainAiraloFallbacks: List<Failure> = listOf(
 /**
  * Failures that will be used for storage calls to fallback into network
  */
-val storageAiraloFallbacks: List<Failure> = listOf(
+val storageFallbacks: List<Failure> = listOf(
     DataNotFound,
     Invalid
 )
