@@ -39,6 +39,7 @@ kotlin {
             //put your multiplatform dependencies here
             implementation(libs.bundles.arrow)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.time)
         }
         commonTest.dependencies {
             implementation(libs.bundles.kotest)
