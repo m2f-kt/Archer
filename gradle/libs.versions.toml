@@ -10,6 +10,8 @@ kover = "0.7.4"
 com-vanniktech-maven-publish="0.25.3"
 binary-compatibility-validator = "0.13.2"
 coveralls = "1.2.18"
+coroutinesTest = "1.8.0-RC2"
+time = "0.5.0"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -20,6 +22,10 @@ kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest"
 kotest-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotest-arrow" }
 kotest-arrow-fx = { module = "io.kotest.extensions:kotest-assertions-arrow-fx-coroutines", version.ref = "kotest-arrow" }
 kotest-runnerJUnit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest"}
+
+#Time
+time = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "time" }
 
 #Arrow
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -36,7 +42,8 @@ kotest = [
     "kotest-frameworkEngine",
     "kotest-property",
     "kotest-arrow",
-    "kotest-arrow-fx"
+    "kotest-arrow-fx",
+    "coroutines-test",
 ]
 
 [plugins]

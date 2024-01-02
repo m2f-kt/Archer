@@ -12,24 +12,24 @@ typealias GetRepository<K, A> = CRUDRepository<Get<K>, A>
 typealias DeleteRepository<K> = CRUDRepository<Delete<K>, Unit>
 typealias PutRepository<K, A> = CRUDRepository<Put<K, A>, A>
 
-suspend inline fun <reified K, reified A> GetRepository<K, A>.get(param: K): Either<Failure, A> =
+suspend fun <K, A> GetRepository<K, A>.get(param: K): Either<Failure, A> =
     invoke(Get(param))
 
-suspend inline fun <reified A> GetRepository<Unit, A>.get(): Either<Failure, A> =
+suspend fun <A> GetRepository<Unit, A>.get(): Either<Failure, A> =
     invoke(Get(Unit))
 
-suspend inline fun <reified K, reified A> PutRepository<K, A>.put(
+suspend fun <K, A> PutRepository<K, A>.put(
     param: K,
     value: A,
 ): Either<Failure, A> = invoke(
     Put(param, value),
 )
 
-suspend inline fun <reified K> PutRepository<K, Unit>.put(
+suspend fun <K> PutRepository<K, Unit>.put(
     value: K,
 ): Either<Failure, Unit> = invoke(
     Put(value, Unit),
 )
 
-suspend inline fun <reified K> DeleteRepository<K>.delete(param: K): Either<Failure, Unit> =
+suspend fun <K> DeleteRepository<K>.delete(param: K): Either<Failure, Unit> =
     invoke(Delete(param))
