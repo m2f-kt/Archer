@@ -3,6 +3,8 @@ package com.m2f.archer.crud.cache
 import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.raise.either
+import arrow.core.recover
+import com.m2f.archer.crud.DeleteDataSource
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepositoryStrategy
 import com.m2f.archer.crud.StoreDataSource
@@ -15,11 +17,14 @@ import com.m2f.archer.crud.get
 import com.m2f.archer.crud.put
 import com.m2f.archer.crud.validate.validate
 import com.m2f.archer.datasource.InMemoryDataSource
+import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
+
+interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 
 fun <K, A> GetDataSource<K, A>.cache(
     storage: StoreDataSource<K, A> = InMemoryDataSource(),
@@ -37,7 +42,7 @@ infix fun <K, A> StrategyBuilder<K, A>.expiresIn(duration: Duration): GetReposit
 
 fun <K, A> StoreDataSource<K, A>.expires(
     expiration: CacheExpiration,
-    expirationStore: StoreDataSource<K, Instant> = InMemoryDataSource()
+    cache: CacheDataSource<K, Instant> = InMemoryDataSource()
 ): StoreDataSource<K, A> = when (expiration) {
     Never -> this
     Always -> {
@@ -57,19 +62,25 @@ fun <K, A> StoreDataSource<K, A>.expires(
                 is Put -> {
                     val now = Clock.System.now()
                     val expirationDate = (now + expiration.time)
-                    expirationStore.put(query.key, expirationDate)
+                    cache.put(query.key, expirationDate)
                         .flatMap { invoke(query) }
                         .bind()
                 }
 
                 is Get -> {
                     val now = Clock.System.now()
-                    val expired = expirationStore.get(query.key)
+                    val expired = cache.get(query.key)
                         .map { now - it }
                         .map { it.isPositive() }
-                        .getOrElse { false }
+                        .getOrElse { true } // if there is no expiration date, it is expired
+
                     validate { !expired }
                         .invoke(query)
+                        .recover {
+                            //delete the expiration instant if there is no data
+                            cache.delete(Delete(query.key)).bind()
+                            raise(it)
+                        }
                         .bind()
                 }
             }

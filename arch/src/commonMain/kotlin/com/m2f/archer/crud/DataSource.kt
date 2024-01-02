@@ -21,9 +21,6 @@ fun interface DeleteDataSource<K> {
     suspend fun delete(q: Delete<K>): Either<Failure, Unit>
 }
 
-suspend fun <K, A> GetDataSource<K, A>.get(query: Get<K>): Either<Failure, A> =
-    invoke(query)
-
 suspend fun <K, A> GetDataSource<K, A>.get(queryKey: K): Either<Failure, A> =
     invoke(Get(queryKey))
 

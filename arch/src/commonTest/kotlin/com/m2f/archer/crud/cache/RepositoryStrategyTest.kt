@@ -11,6 +11,7 @@ import com.m2f.archer.crud.operation.StoreSyncOperation
 import com.m2f.archer.crud.plus
 import com.m2f.archer.crud.putDataSource
 import com.m2f.archer.crud.validate.validate
+import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.failure.Unhandled
@@ -80,5 +81,13 @@ class RepositoryStrategyTest : FunSpec({
             val strategy = mainGet.cacheWith(storeGetFailRecoverable + storePut) expires Never
             strategy.get(StoreSyncOperation, 0) shouldBeRight "store put: main get"
         }
+    }
+
+    test("MainSync will fail if there is an unrecoverable failure") {
+        val mainGetFailUnrecoverable = getDataSource<Int, String> { raise(Unhandled) }
+        val store = InMemoryDataSource<Int, String>()
+
+        val strategy = mainGetFailUnrecoverable cacheWith store expires Never
+        strategy.get(MainSyncOperation, 0) shouldBeLeft Unhandled
     }
 })
