@@ -5,7 +5,7 @@ import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
 
-inline fun <Q, A> DataSource<Failure, Q, A>.validate(crossinline validation: (A) -> Boolean) =
+inline fun <Q, A> DataSource<Failure, Q, A>.validate(crossinline validation: suspend (A) -> Boolean) =
     DataSource<Failure, Q, A> { query ->
         either {
             val result = invoke(query).bind()

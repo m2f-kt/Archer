@@ -26,7 +26,7 @@ inline fun <F, Q, A, B> DataSource<F, Q, A>.map(crossinline mapper: (A) -> B): D
  * @return A new DataSource with its output and input transformed by the [bijection].
  */
 @JvmName("mapPutDataSource")
-fun <K, A, B> PutDataSource<K, A>.map(bijection: Bijection<A, B>): PutDataSource<K, B> =
+fun <K, A, B> PutDataSource<K, A & Any>.map(bijection: Bijection<A & Any, B & Any>): PutDataSource<K, B & Any> =
     PutDataSource {
         invoke(it.map(bijection::to)).map(bijection::from)
     }
@@ -37,7 +37,7 @@ fun <K, A, B> PutDataSource<K, A>.map(bijection: Bijection<A, B>): PutDataSource
  * @param bijection A bijection that provides transformation functions between types A and B.
  * @return A new StorageDataSource with its data transformed by the [bijection].
  */
-fun <K, A, B> StoreDataSource<K, A>.map(bijection: Bijection<A, B>) = StoreDataSource<K, B> {
+fun <K, A, B> StoreDataSource<K, A & Any>.map(bijection: Bijection<A & Any, B & Any>) = StoreDataSource<K, B & Any> {
     when (it) {
         is Get -> invoke(it).map(bijection::from)
         is Put -> invoke(it.map(bijection::to)).map(bijection::from)

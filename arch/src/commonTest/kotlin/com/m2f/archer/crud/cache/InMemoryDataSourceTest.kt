@@ -74,13 +74,13 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    test("removing an un-existing value returns a DataNotFound") {
+    test("removing an un-existing value just runs") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val queries = Arb.deleteKeyQuery(Arb.string())
 
         checkAll(queries) { deleteQuery ->
             val result = dataSource.delete(deleteQuery)
-            result shouldBeLeft DataNotFound
+            result shouldBeRight Unit
         }
     }
 

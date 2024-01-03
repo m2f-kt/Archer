@@ -12,6 +12,8 @@ binary-compatibility-validator = "0.13.2"
 coveralls = "1.2.18"
 coroutinesTest = "1.8.0-RC2"
 time = "0.5.0"
+sqlDelight = "2.0.0"
+startup = "1.1.1"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -24,8 +26,18 @@ kotest-arrow-fx = { module = "io.kotest.extensions:kotest-assertions-arrow-fx-co
 kotest-runnerJUnit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest"}
 
+#startup
+startup = { module = "androidx.startup:startup-runtime", version.ref = "startup" }
+
 #Time
 time = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "time" }
+
+#databse
+sqlDelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+sqlDelight-driver-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
+sqlDelight-runtime = { module = "com.squareup.sqldelight:runtime", version.ref = "sqlDelight" }
 
 #Arrow
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -54,3 +66,5 @@ kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest-p
 com-vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "com-vanniktech-maven-publish" }
 binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
 coverallsjacoco = { id = "com.github.nbaztec.coveralls-jacoco", version.ref = "coveralls"}
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }

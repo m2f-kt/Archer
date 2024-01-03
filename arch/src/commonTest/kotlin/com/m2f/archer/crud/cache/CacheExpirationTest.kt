@@ -7,6 +7,8 @@ import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.crud.cache.CacheExpiration.After
 import com.m2f.archer.crud.cache.CacheExpiration.Always
 import com.m2f.archer.crud.cache.CacheExpiration.Never
+import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
+import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
 import com.m2f.archer.crud.get
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.operation.MainSyncOperation
@@ -49,7 +51,7 @@ class CacheExpirationTest : FunSpec({
 
         context("expires with time") {
             val time = 50.milliseconds
-            val expiresAfter10Millis = store.expires(After(time))
+            val expiresAfter10Millis = store.expires(After(time), InMemoryDataSource())
 
             test("fetching after time passed") {
                 expiresAfter10Millis.put(0, "test10")
@@ -104,7 +106,6 @@ class CacheExpirationTest : FunSpec({
             cacheStrategyAfter.get(MainSyncOperation, 0) shouldBeRight "main from Store"
 
             //there's no delay so the cache did not expire
-            //The cache is expired so if we enforce data from store should be invalid
             cacheStrategyAfter.get(StoreOperation, 0) shouldBeRight "main from Store"
 
         }
@@ -113,10 +114,10 @@ class CacheExpirationTest : FunSpec({
     context("expiration rules") {
         val main = getDataSource<Int, String> { "main" }
 
-        val fakeCacheInstant = object : CacheDataSource<Int, Instant> {
-            override suspend fun delete(q: Delete<Int>): Either<Failure, Unit> = Unit.right()
+        val fakeCacheInstant = object : CacheDataSource<CacheMetaInformation, Instant> {
+            override suspend fun delete(q: Delete<CacheMetaInformation>): Either<Failure, Unit> = Unit.right()
 
-            override suspend fun invoke(q: KeyQuery<Int, out Instant>): Either<Failure, Instant> = when (q) {
+            override suspend fun invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Either<Failure, Instant> = when (q) {
                 is Put -> q.value?.right() ?: DataEmpty.left()
                 is Get -> DataNotFound.left()
             }
@@ -126,13 +127,21 @@ class CacheExpirationTest : FunSpec({
         val store: StoreDataSource<Int, String> = InMemoryDataSource<Int, String>().map { "$it from Store" }
 
         test("with a time expiration if there is no stored expiration date, the data then is expired") {
+
+            val cacheRegistry = MemoizedExpirationCache()
             val cacheStrategyAfter = (main cacheWith store.expires(
-                expiration = After(24.hours),
-                cache = fakeCacheInstant //it never stores instants and always returns DataNotFound
+                After(24.hours),
+                cacheRegistry
             )).build()
 
             //get from main and store it
             cacheStrategyAfter.get(MainSyncOperation, 0) shouldBeRight "main from Store"
+
+            cacheRegistry.delete(Delete(CacheMetaInformation(
+                key = 0.toString(),
+                classIdentifier = String::class.simpleName.toString(),
+                classFullIdentifier = String::class.qualifiedName.toString()
+            )))
 
             //as we don't store the expirations the data should be expired
             cacheStrategyAfter.get(StoreOperation, 0) shouldBeLeft Invalid
@@ -140,8 +149,13 @@ class CacheExpirationTest : FunSpec({
 
         test("If the data is empty should remove the expiration date") {
 
+            val info = CacheMetaInformation(
+                key = "0",
+                classIdentifier = String::class.simpleName.toString(),
+                classFullIdentifier = String::class.qualifiedName.toString(),
+            )
 
-            val expiration = mapOf(0 to Clock.System.now() + 24.hours)
+            val expiration = mapOf(info to Clock.System.now() + 24.hours)
             val expirationCache = InMemoryDataSource(expiration)
 
             val store: StoreDataSource<Int, String> = InMemoryDataSource()
@@ -151,7 +165,7 @@ class CacheExpirationTest : FunSpec({
                 .get(0) shouldBeLeft DataNotFound
 
             //the stored expiration should be removed
-            expirationCache.get(0) shouldBeLeft DataNotFound
+            expirationCache.get(info) shouldBeLeft DataNotFound
         }
     }
 })

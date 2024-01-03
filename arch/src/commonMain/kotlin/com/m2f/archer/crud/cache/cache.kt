@@ -12,6 +12,8 @@ import com.m2f.archer.crud.StrategyBuilder
 import com.m2f.archer.crud.cache.CacheExpiration.After
 import com.m2f.archer.crud.cache.CacheExpiration.Always
 import com.m2f.archer.crud.cache.CacheExpiration.Never
+import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
+import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
 import com.m2f.archer.crud.cacheStrategy
 import com.m2f.archer.crud.get
 import com.m2f.archer.crud.put
@@ -26,24 +28,24 @@ import kotlin.time.Duration
 
 interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 
-fun <K, A> GetDataSource<K, A>.cache(
-    storage: StoreDataSource<K, A> = InMemoryDataSource(),
+inline fun <K, reified A> GetDataSource<K, A & Any>.cache(
+    storage: StoreDataSource<K, A & Any> = InMemoryDataSource(),
     expiration: CacheExpiration = Never
-): GetRepositoryStrategy<K, A> = cacheStrategy(this, storage.expires(expiration))
+): GetRepositoryStrategy<K, A & Any> = cacheStrategy(this, storage.expires(expiration))
 
-infix fun <K, A> GetDataSource<K, A>.cacheWith(storage: StoreDataSource<K, A>): StrategyBuilder<K, A> =
+infix fun <K, A> GetDataSource<K, A & Any>.cacheWith(storage: StoreDataSource<K, A & Any>): StrategyBuilder<K, A> =
     StrategyBuilder(this, storage)
 
-infix fun <K, A> StrategyBuilder<K, A>.expires(expiration: CacheExpiration): GetRepositoryStrategy<K, A> =
+inline infix fun <K, reified A> StrategyBuilder<K, A>.expires(expiration: CacheExpiration): GetRepositoryStrategy<K, A> =
     StrategyBuilder(mainDataSource, storeDataSource.expires(expiration)).build()
 
-infix fun <K, A> StrategyBuilder<K, A>.expiresIn(duration: Duration): GetRepositoryStrategy<K, A> =
+inline infix fun <K, reified A> StrategyBuilder<K, A & Any>.expiresIn(duration: Duration): GetRepositoryStrategy<K, A & Any> =
     expires(After(duration))
 
-fun <K, A> StoreDataSource<K, A>.expires(
+inline fun <K, reified A> StoreDataSource<K, A & Any>.expires(
     expiration: CacheExpiration,
-    cache: CacheDataSource<K, Instant> = InMemoryDataSource()
-): StoreDataSource<K, A> = when (expiration) {
+    cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache()
+): StoreDataSource<K, A & Any> = when (expiration) {
     Never -> this
     Always -> {
         StoreDataSource { query ->
@@ -58,27 +60,34 @@ fun <K, A> StoreDataSource<K, A>.expires(
 
     is After -> StoreDataSource { query ->
         either {
+            val info = CacheMetaInformation(
+                key = query.key.toString(),
+                classIdentifier = A::class.simpleName.toString(),
+                classFullIdentifier = A::class.qualifiedName.toString()
+            )
             when (query) {
+
                 is Put -> {
                     val now = Clock.System.now()
                     val expirationDate = (now + expiration.time)
-                    cache.put(query.key, expirationDate)
+                    cache.put(info, expirationDate)
                         .flatMap { invoke(query) }
                         .bind()
                 }
 
                 is Get -> {
-                    val now = Clock.System.now()
-                    val expired = cache.get(query.key)
-                        .map { now - it }
-                        .map { it.isPositive() }
-                        .getOrElse { true } // if there is no expiration date, it is expired
-
-                    validate { !expired }
+                    validate {
+                        val now = Clock.System.now()
+                        val expired = cache.get(info)
+                            .map { now - it }
+                            .map { it.isPositive() }
+                            .getOrElse { true } // if there is no expiration date, it is expired
+                        !expired
+                    }
                         .invoke(query)
                         .recover {
                             //delete the expiration instant if there is no data
-                            cache.delete(Delete(query.key)).bind()
+                            cache.delete(Delete(info)).bind()
                             raise(it)
                         }
                         .bind()

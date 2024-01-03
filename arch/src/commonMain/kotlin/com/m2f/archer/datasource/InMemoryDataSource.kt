@@ -19,7 +19,7 @@ import com.m2f.archer.query.Put
 class InMemoryDataSource<K, A>(initialValues: Map<K, A> = emptyMap()) :
     CacheDataSource<K, A> {
 
-    private val values: MutableMap<K, A> by lazy { initialValues.toMutableMap() }
+    private val values: MutableMap<K, A> = initialValues.toMutableMap()
 
     override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
         when (q) {
@@ -34,6 +34,6 @@ class InMemoryDataSource<K, A>(initialValues: Map<K, A> = emptyMap()) :
     }
 
     override suspend fun delete(q: Delete<K>): Either<Failure, Unit> = either {
-        values.remove(q.key) ?: raise(DataNotFound)
+        values.remove(q.key)
     }
 }

@@ -11,12 +11,12 @@ import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 
 class MainSyncRepository<K, A>(
-    private val mainDataSource: GetDataSource<K, A>,
-    private val storeDataSource: StoreDataSource<K, A>,
+    private val mainDataSource: GetDataSource<K, A & Any>,
+    private val storeDataSource: StoreDataSource<K, A & Any>,
     private val fallbackChecks: List<Failure> = emptyList(),
-) : GetRepository<K, A> {
+) : GetRepository<K, A & Any> {
 
-    override suspend fun invoke(q: Get<K>): Either<Failure, A> =
+    override suspend fun invoke(q: Get<K>): Either<Failure, A & Any> =
         mainDataSource(q)
             .flatMap { storeDataSource(Put(q.key, it)) }
             .recover { f ->
