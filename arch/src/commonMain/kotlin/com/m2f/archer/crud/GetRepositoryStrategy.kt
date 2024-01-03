@@ -15,14 +15,14 @@ fun interface GetRepositoryStrategy<K, out A> {
 }
 
 class StrategyBuilder<K, A>(
-    val mainDataSource: GetDataSource<K, A>,
-    val storeDataSource: StoreDataSource<K, A>
+    val mainDataSource: GetDataSource<K, A & Any>,
+    val storeDataSource: StoreDataSource<K, A & Any>
 ) {
 
     val mainFallback: List<Failure> = mainFallbacks
     val storeFallback: List<Failure> = storageFallbacks
 
-    fun build(): GetRepositoryStrategy<K, A> = cacheStrategy(
+    fun build(): GetRepositoryStrategy<K, A & Any> = cacheStrategy(
         mainDataSource,
         storeDataSource,
         mainFallback,
@@ -31,11 +31,11 @@ class StrategyBuilder<K, A>(
 }
 
 fun <K, A> cacheStrategy(
-    mainDataSource: GetDataSource<K, A>,
-    storeDataSource: StoreDataSource<K, A>,
+    mainDataSource: GetDataSource<K, A & Any>,
+    storeDataSource: StoreDataSource<K, A & Any>,
     mainFallback: List<Failure> = mainFallbacks,
     storeFallback: List<Failure> = storageFallbacks,
-): GetRepositoryStrategy<K, A> = GetRepositoryStrategy { operation ->
+): GetRepositoryStrategy<K, A & Any> = GetRepositoryStrategy { operation ->
     when (operation) {
         is MainOperation -> mainDataSource.toRepository()
         is StoreOperation -> storeDataSource.toRepository()
@@ -49,7 +49,7 @@ fun <K, A> cacheStrategy(
     }
 }
 
-infix fun <K, A> GetDataSource<K, A>.fallbackWith(store: StoreDataSource<K, A>): GetRepository<K, A> =
+infix fun <K, A> GetDataSource<K, A & Any>.fallbackWith(store: StoreDataSource<K, A & Any>): GetRepository<K, A & Any> =
     cacheStrategy(this, store).create(MainSyncOperation)
 
 suspend fun <K, A> GetRepositoryStrategy<K, A>.get(

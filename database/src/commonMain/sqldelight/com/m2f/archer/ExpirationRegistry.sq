@@ -1,0 +1,19 @@
+CREATE TABLE ExpirationRegistry (
+    key TEXT NOT NULL,
+    hash INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    fullName TEXT NOT NULL,
+    instant TEXT NOT NULL,
+    whenCreated TEXT NOT NULL,
+    PRIMARY KEY(key, hash)
+);
+
+getInstant:
+SELECT * FROM ExpirationRegistry WHERE key = ? AND hash = ?;
+
+insertInstant:
+INSERT OR REPLACE INTO ExpirationRegistry(key, hash, name, fullName, instant, whenCreated)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteInstant:
+DELETE FROM ExpirationRegistry WHERE key = ? AND hash = ?;

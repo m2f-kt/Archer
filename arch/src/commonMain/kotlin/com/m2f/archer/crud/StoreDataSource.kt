@@ -29,7 +29,7 @@ import com.m2f.archer.query.Put
  * @see PutDataSource
  * @see StoreDataSource
  */
-operator fun <K, A> GetDataSource<K, A>.plus(put: PutDataSource<K, A>): StoreDataSource<K, A> =
+operator fun <K, A> GetDataSource<K, A & Any>.plus(put: PutDataSource<K, A & Any>): StoreDataSource<K, A & Any> =
     StoreDataSource { query ->
         when (query) {
             is Get -> this(query)

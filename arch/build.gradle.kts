@@ -17,18 +17,12 @@ kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = JavaVersion.VERSION_1_8.toString()
             }
         }
     }
 
-    jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
-        }
-    }
+    jvm()
 
     iosX64()
     iosArm64()
@@ -36,7 +30,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
+            implementation(projects.database)
             implementation(libs.bundles.arrow)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.time)
