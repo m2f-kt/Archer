@@ -1,6 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-import com.vanniktech.maven.publish.SonatypeHost
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
@@ -73,38 +72,5 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 21
-    }
-}
-
-mavenPublishing {
-    coordinates("com.m2f-kt", "archer", "0.0.1-dev03")
-
-    publishToMavenCentral(SonatypeHost.S01)
-    signAllPublications()
-
-    pom {
-        name.set("Archer")
-        description.set("A KMP library to generate clean architecture components using Arrow")
-        inceptionYear.set("2023")
-        url.set("https://github.com/m2f-kt/Archer")
-        licenses {
-            license {
-                name.set("The Apache License, Version 2.0")
-                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-            }
-        }
-        developers {
-            developer {
-                id.set("Atternatt")
-                name.set("Marc Moreno Ferrer")
-                url.set("https://github.com/Atternatt/")
-            }
-        }
-        scm {
-            url.set("https://github.com/m2f-kt/Archer/tree/main")
-            connection.set("scm:git:github.com/m2f-kt/Archer.git")
-            developerConnection.set("scm:git:ssh://github.com/m2f-kt/Archer.git")
-        }
     }
 }
