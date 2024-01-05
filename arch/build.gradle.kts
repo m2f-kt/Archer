@@ -21,6 +21,11 @@ kotlin {
         }
     }
 
+    js {
+        browser()
+        binaries.executable()
+    }
+
     jvm()
 
     iosX64()

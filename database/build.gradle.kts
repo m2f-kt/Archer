@@ -18,6 +18,11 @@ kotlin {
         }
     }
 
+    js {
+        browser()
+        binaries.executable()
+    }
+
     jvm {
         compilations.all {
             kotlinOptions {
@@ -34,9 +39,19 @@ kotlin {
         databases {
             create(name = "CacheExpirationDatabase") {
                 packageName.set("com.m2f.archer.sqldelight")
+                generateAsync.set(true)
             }
         }
     }
+
+    tasks.withType(KotlinCompile::class).configureEach {
+        compilerOptions {
+            freeCompilerArgs.addAll("-Xexpect-actual-classes")
+        }
+
+        kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
+    }
+
 
     tasks.withType(KotlinCompile::class).configureEach {
         compilerOptions {
@@ -69,6 +84,11 @@ kotlin {
 
         jvmTest.dependencies {
             implementation(libs.kotest.runnerJUnit5)
+        }
+
+        jsMain.dependencies {
+            implementation(libs.web.worker.driver)
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
         }
     }
 }
