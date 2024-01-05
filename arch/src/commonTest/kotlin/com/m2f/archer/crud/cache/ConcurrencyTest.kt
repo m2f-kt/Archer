@@ -61,7 +61,7 @@ class ConcurrencyTest : FunSpec({
 
     test("InMemoryDataSource is thread safe") {
 
-        val dataSource = InMemoryDataSource<Int, Int>()
+        val dataSource = InMemoryDataSource<Int, Int>().mutex()
 
         val count = TVar.new(0)
 
@@ -85,7 +85,7 @@ class ConcurrencyTest : FunSpec({
     test("MemoizedExpirationCache is thread safe") {
         val dataSource = MemoizedExpirationCache()
         val countInt = TVar.new(0)
-        val count = CacheMetaInformation("0", "String", "String")
+        val count = CacheMetaInformation("0", "String")
 
         withContext(Dispatchers.Default) {
             massiveRun {

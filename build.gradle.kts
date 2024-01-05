@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlinx.kover) apply false
     alias(libs.plugins.com.vanniktech.maven.publish) apply false
     alias(libs.plugins.coverallsjacoco)
-    alias(libs.plugins.binary.compatibility.validator)
+    alias(libs.plugins.binary.compatibility.validator) apply false
 }
 
 val sources: List<File> = subprojects.flatMap { project ->

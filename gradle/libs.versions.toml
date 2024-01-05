@@ -1,11 +1,11 @@
 [versions]
 agp = "8.2.0"
-kotlin = "1.9.20"
+kotlin = "1.9.21"
 arrow = "1.2.1"
 kotlinx-coroutines = "1.7.3"
 kotest-arrow = "1.4.0"
 kotest = "5.8.0"
-kotest-plugin = "5.7.2"
+kotest-plugin = "5.8.0"
 kover = "0.7.4"
 com-vanniktech-maven-publish = "0.25.3"
 binary-compatibility-validator = "0.13.2"
@@ -18,6 +18,7 @@ webWorkerDriver = "2.0.1"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-core-js = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js", version.ref = "kotlinx-coroutines" }
 
 kotest-assertionsCore = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-frameworkEngine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }

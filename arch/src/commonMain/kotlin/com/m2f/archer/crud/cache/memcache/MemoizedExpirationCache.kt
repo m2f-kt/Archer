@@ -42,7 +42,6 @@ class MemoizedExpirationCache :
                         key = q.key.key,
                         hash = q.key.hashCode().toLong(),
                         name = q.key.classIdentifier,
-                        fullName = q.key.classFullIdentifier,
                         instant = instant.toString(),
                         whenCreated = now.toString()
                     )
