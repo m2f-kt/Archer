@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotest.multiplatform)
     alias(libs.plugins.kotlinx.kover)
-    //alias(libs.plugins.com.vanniktech.maven.publish)
+    alias(libs.plugins.com.vanniktech.maven.publish)
 }
 
 kotlin {
