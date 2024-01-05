@@ -74,3 +74,6 @@ android {
         minSdk = 21
     }
 }
+dependencies {
+    testImplementation(project(":arch"))
+}

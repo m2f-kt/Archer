@@ -13,6 +13,8 @@ import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
@@ -24,38 +26,42 @@ class MemoizedExpirationCache(private val databaseName: String = DATABASE_NAME) 
         const val DATABASE_NAME = "expiration_registry"
     }
 
+    private val mutex: Mutex = Mutex()
+
     override suspend fun invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Either<Failure, Instant> = either {
-
-        val queries = queriesRepo.get(databaseName).bind()
-        queries.transactionWithResult {
-            when (q) {
-                is Get -> queries.getInstant(
-                    key = q.key.key, hash = q.key.hashCode().toLong()
-                ).executeAsOneOrNull()?.instant?.toInstant() ?: raise(
-                    DataNotFound
-                )
-
-                is Put -> {
-                    val instant = q.value ?: raise(DataEmpty)
-                    val now = Clock.System.now()
-                    queries.insertInstant(
-                        key = q.key.key,
-                        hash = q.key.hashCode().toLong(),
-                        name = q.key.classIdentifier,
-                        fullName = q.key.classFullIdentifier,
-                        instant = instant.toString(),
-                        whenCreated = now.toString()
+        mutex.withLock {
+            val queries = queriesRepo.get(databaseName).bind()
+            queries.transactionWithResult {
+                when (q) {
+                    is Get -> queries.getInstant(
+                        key = q.key.key, hash = q.key.hashCode().toLong()
+                    ).executeAsOneOrNull()?.instant?.toInstant() ?: raise(
+                        DataNotFound
                     )
-                    instant
+
+                    is Put -> {
+                        val instant = q.value ?: raise(DataEmpty)
+                        val now = Clock.System.now()
+                        queries.insertInstant(
+                            key = q.key.key,
+                            hash = q.key.hashCode().toLong(),
+                            name = q.key.classIdentifier,
+                            fullName = q.key.classFullIdentifier,
+                            instant = instant.toString(),
+                            whenCreated = now.toString()
+                        )
+                        instant
+                    }
                 }
             }
         }
     }
 
     override suspend fun delete(q: Delete<CacheMetaInformation>): Either<Failure, Unit> = either {
-        val queries = queriesRepo.get(DATABASE_NAME).bind()
-        queries.transaction { queries.deleteInstant(key = q.key.key, hash = q.key.hashCode().toLong()) }
-        Unit.right()
+        mutex.withLock {
+            val queries = queriesRepo.get(DATABASE_NAME).bind()
+            queries.transaction { queries.deleteInstant(key = q.key.key, hash = q.key.hashCode().toLong()) }
+            Unit.right()
+        }
     }
-
 }
