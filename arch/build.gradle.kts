@@ -10,11 +10,12 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotest.multiplatform)
     alias(libs.plugins.kotlinx.kover)
-    alias(libs.plugins.com.vanniktech.maven.publish)
+    id(libs.plugins.com.vanniktech.maven.publish.get().pluginId)
 }
 
 kotlin {
     androidTarget {
+        publishAllLibraryVariants()
         compilations.all {
             kotlinOptions {
                 jvmTarget = JavaVersion.VERSION_1_8.toString()
@@ -24,7 +25,6 @@ kotlin {
 
     jvm()
 
-    iosX64()
     iosArm64()
     iosSimulatorArm64()
 
@@ -33,9 +33,6 @@ kotlin {
             // Add linker flag for SQLite. See:
             // https://github.com/touchlab/SQLiter/issues/77
             linkerOpts("-lsqlite3")
-
-            // KDoc comments to generated Objective-C header
-            compilations["main"].compilerOptions.options.freeCompilerArgs.add("-Xexport-kdoc")
         }
     }
 
@@ -87,7 +84,8 @@ android {
     defaultConfig {
         minSdk = 21
     }
-}
-dependencies {
-    testImplementation(project(":arch"))
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }

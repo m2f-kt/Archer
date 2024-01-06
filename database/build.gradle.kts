@@ -5,12 +5,13 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.sqlDelight)
-    alias(libs.plugins.com.vanniktech.maven.publish)
+    id(libs.plugins.com.vanniktech.maven.publish.get().pluginId)
 }
 
 kotlin {
 
     androidTarget {
+        publishAllLibraryVariants()
         compilations.all {
             kotlinOptions {
                 jvmTarget = JavaVersion.VERSION_1_8.toString()
@@ -26,7 +27,6 @@ kotlin {
         }
     }
 
-    iosX64()
     iosArm64()
     iosSimulatorArm64()
 
@@ -49,10 +49,7 @@ kotlin {
     sourceSets {
 
         commonMain.dependencies {
-            implementation(libs.time)
-            implementation(libs.bundles.arrow)
             implementation(libs.startup)
-            implementation(libs.bundles.kotest)
         }
 
         androidMain.dependencies {
@@ -66,10 +63,6 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.sqlDelight.driver.sqlite)
         }
-
-        jvmTest.dependencies {
-            implementation(libs.kotest.runnerJUnit5)
-        }
     }
 }
 
@@ -78,6 +71,10 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 21
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
