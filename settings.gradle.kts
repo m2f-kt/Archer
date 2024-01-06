@@ -15,5 +15,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Archer"
-include(":arch")
+include(":archer-core")
 include(":database")

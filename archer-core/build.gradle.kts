@@ -18,7 +18,7 @@ kotlin {
         publishAllLibraryVariants()
         compilations.all {
             kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_1_8.toString()
+                jvmTarget = JavaVersion.VERSION_17.toString()
             }
         }
     }
@@ -39,9 +39,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.database)
+            implementation(libs.time)
             implementation(libs.bundles.arrow)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.time)
         }
         commonTest.dependencies {
             implementation(libs.bundles.kotest)
@@ -88,11 +88,4 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-}
-
-val VERSION_NAME: String by project
-val GROUP: String by project
-
-mavenPublishing {
-    coordinates(GROUP, "archer", VERSION_NAME)
 }

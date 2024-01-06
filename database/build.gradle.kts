@@ -14,7 +14,7 @@ kotlin {
         publishAllLibraryVariants()
         compilations.all {
             kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_1_8.toString()
+                jvmTarget = JavaVersion.VERSION_17.toString()
             }
         }
     }
@@ -22,7 +22,7 @@ kotlin {
     jvm {
         compilations.all {
             kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_1_8.toString()
+                jvmTarget = JavaVersion.VERSION_17.toString()
             }
         }
     }
@@ -49,7 +49,10 @@ kotlin {
     sourceSets {
 
         commonMain.dependencies {
+            implementation(libs.time)
+            implementation(libs.bundles.arrow)
             implementation(libs.startup)
+            implementation(libs.bundles.kotest)
         }
 
         androidMain.dependencies {
