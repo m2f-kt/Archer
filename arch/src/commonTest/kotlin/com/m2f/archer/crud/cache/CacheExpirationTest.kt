@@ -117,10 +117,11 @@ class CacheExpirationTest : FunSpec({
         val fakeCacheInstant = object : CacheDataSource<CacheMetaInformation, Instant> {
             override suspend fun delete(q: Delete<CacheMetaInformation>): Either<Failure, Unit> = Unit.right()
 
-            override suspend fun invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Either<Failure, Instant> = when (q) {
-                is Put -> q.value?.right() ?: DataEmpty.left()
-                is Get -> DataNotFound.left()
-            }
+            override suspend fun invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Either<Failure, Instant> =
+                when (q) {
+                    is Put -> q.value?.right() ?: DataEmpty.left()
+                    is Get -> DataNotFound.left()
+                }
 
         }
 
@@ -137,11 +138,14 @@ class CacheExpirationTest : FunSpec({
             //get from main and store it
             cacheStrategyAfter.get(MainSyncOperation, 0) shouldBeRight "main from Store"
 
-            cacheRegistry.delete(Delete(CacheMetaInformation(
-                key = 0.toString(),
-                classIdentifier = String::class.simpleName.toString(),
-                classFullIdentifier = String::class.qualifiedName.toString()
-            )))
+            cacheRegistry.delete(
+                Delete(
+                    CacheMetaInformation(
+                        key = 0.toString(),
+                        classIdentifier = String::class.simpleName.toString()
+                    )
+                )
+            )
 
             //as we don't store the expirations the data should be expired
             cacheStrategyAfter.get(StoreOperation, 0) shouldBeLeft Invalid
@@ -151,8 +155,7 @@ class CacheExpirationTest : FunSpec({
 
             val info = CacheMetaInformation(
                 key = "0",
-                classIdentifier = String::class.simpleName.toString(),
-                classFullIdentifier = String::class.qualifiedName.toString(),
+                classIdentifier = String::class.simpleName.toString()
             )
 
             val expiration = mapOf(info to Clock.System.now() + 24.hours)

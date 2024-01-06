@@ -46,7 +46,6 @@ class MemoizedExpirationCache(private val databaseName: String = DATABASE_NAME) 
                             key = q.key.key,
                             hash = q.key.hashCode().toLong(),
                             name = q.key.classIdentifier,
-                            fullName = q.key.classFullIdentifier,
                             instant = instant.toString(),
                             whenCreated = now.toString()
                         )

@@ -82,10 +82,10 @@ class ConcurrencyTest : FunSpec({
         result.size shouldBe i * j
     }
 
-    xtest("MemoizedExpirationCache is thread safe") {
+    test("MemoizedExpirationCache is thread safe") {
         val dataSource = MemoizedExpirationCache()
         val countInt = TVar.new(0)
-        val count = CacheMetaInformation("0", "String", "String")
+        val count = CacheMetaInformation("0", "String")
 
         withContext(Dispatchers.Default) {
             massiveRun {
