@@ -42,7 +42,9 @@ kotlin {
             implementation(libs.kotest.runnerJUnit5)
         }
     }
+
 }
+
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
