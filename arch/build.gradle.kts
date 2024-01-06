@@ -89,3 +89,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+val VERSION_NAME: String by project
+val GROUP: String by project
+
+mavenPublishing {
+    coordinates(GROUP, "archer", VERSION_NAME)
+}
