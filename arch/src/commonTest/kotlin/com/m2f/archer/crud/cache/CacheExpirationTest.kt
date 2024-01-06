@@ -1,8 +1,5 @@
 package com.m2f.archer.crud.cache
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
 import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.crud.cache.CacheExpiration.After
 import com.m2f.archer.crud.cache.CacheExpiration.Always
@@ -16,21 +13,15 @@ import com.m2f.archer.crud.operation.StoreOperation
 import com.m2f.archer.crud.operation.StoreSyncOperation
 import com.m2f.archer.crud.put
 import com.m2f.archer.datasource.InMemoryDataSource
-import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.mapper.map
 import com.m2f.archer.query.Delete
-import com.m2f.archer.query.Get
-import com.m2f.archer.query.KeyQuery
-import com.m2f.archer.query.Put
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -113,17 +104,6 @@ class CacheExpirationTest : FunSpec({
 
     context("expiration rules") {
         val main = getDataSource<Int, String> { "main" }
-
-        val fakeCacheInstant = object : CacheDataSource<CacheMetaInformation, Instant> {
-            override suspend fun delete(q: Delete<CacheMetaInformation>): Either<Failure, Unit> = Unit.right()
-
-            override suspend fun invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Either<Failure, Instant> =
-                when (q) {
-                    is Put -> q.value?.right() ?: DataEmpty.left()
-                    is Get -> DataNotFound.left()
-                }
-
-        }
 
         val store: StoreDataSource<Int, String> = InMemoryDataSource<Int, String>().map { "$it from Store" }
 
