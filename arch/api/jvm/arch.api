@@ -1,0 +1,274 @@
+public final class com/m2f/archer/crud/DataSourceKt {
+	public static final fun deleteDataSource (Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/crud/DeleteDataSource;
+	public static final fun get (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun getDataSource (Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun post (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun postDataSource (Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun put (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun put (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun putDataSource (Lkotlin/jvm/functions/Function4;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public abstract interface class com/m2f/archer/crud/DeleteDataSource {
+	public abstract fun delete (Lcom/m2f/archer/query/Delete;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/FallbacksKt {
+	public static final fun getMainFallbacks ()Ljava/util/List;
+	public static final fun getStorageFallbacks ()Ljava/util/List;
+}
+
+public abstract interface class com/m2f/archer/crud/GetRepositoryStrategy {
+	public abstract fun create (Lcom/m2f/archer/crud/operation/Operation;)Lcom/m2f/archer/repository/Repository;
+}
+
+public final class com/m2f/archer/crud/GetRepositoryStrategyKt {
+	public static final fun cacheStrategy (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;)Lcom/m2f/archer/crud/GetRepositoryStrategy;
+	public static synthetic fun cacheStrategy$default (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/m2f/archer/crud/GetRepositoryStrategy;
+	public static final fun fallbackWith (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/repository/Repository;
+	public static final fun get (Lcom/m2f/archer/crud/GetRepositoryStrategy;Lcom/m2f/archer/crud/operation/Operation;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/RepositoryKt {
+	public static final fun delete (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun get (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun get (Lcom/m2f/archer/repository/Repository;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun put (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun put (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/StoreDataSourceKt {
+	public static final fun plus (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/crud/StrategyBuilder {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)V
+	public final fun build ()Lcom/m2f/archer/crud/GetRepositoryStrategy;
+	public final fun getMainDataSource ()Lcom/m2f/archer/datasource/DataSource;
+	public final fun getMainFallback ()Ljava/util/List;
+	public final fun getStoreDataSource ()Lcom/m2f/archer/datasource/DataSource;
+	public final fun getStoreFallback ()Ljava/util/List;
+}
+
+public abstract interface class com/m2f/archer/crud/cache/CacheDataSource : com/m2f/archer/crud/DeleteDataSource, com/m2f/archer/datasource/DataSource {
+}
+
+public abstract interface class com/m2f/archer/crud/cache/CacheExpiration {
+}
+
+public final class com/m2f/archer/crud/cache/CacheExpiration$After : com/m2f/archer/crud/cache/CacheExpiration {
+	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-UwyO8pc ()J
+	public final fun copy-LRDsOJo (J)Lcom/m2f/archer/crud/cache/CacheExpiration$After;
+	public static synthetic fun copy-LRDsOJo$default (Lcom/m2f/archer/crud/cache/CacheExpiration$After;JILjava/lang/Object;)Lcom/m2f/archer/crud/cache/CacheExpiration$After;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTime-UwyO8pc ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/CacheExpiration$Always : com/m2f/archer/crud/cache/CacheExpiration {
+	public static final field INSTANCE Lcom/m2f/archer/crud/cache/CacheExpiration$Always;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/CacheExpiration$Never : com/m2f/archer/crud/cache/CacheExpiration {
+	public static final field INSTANCE Lcom/m2f/archer/crud/cache/CacheExpiration$Never;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/CacheKt {
+	public static final fun cacheWith (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/crud/StrategyBuilder;
+}
+
+public final class com/m2f/archer/crud/cache/memcache/CacheMetaInformation {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/m2f/archer/crud/cache/memcache/CacheMetaInformation;
+	public static synthetic fun copy$default (Lcom/m2f/archer/crud/cache/memcache/CacheMetaInformation;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/m2f/archer/crud/cache/memcache/CacheMetaInformation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClassIdentifier ()Ljava/lang/String;
+	public final fun getKey ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/memcache/MemoizedExpirationCache : com/m2f/archer/crud/cache/CacheDataSource {
+	public static final field DATABASE_NAME Ljava/lang/String;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun delete (Lcom/m2f/archer/query/Delete;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun invoke (Lcom/m2f/archer/query/KeyQuery;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/operation/MainOperation : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/MainOperation;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/operation/MainSyncOperation : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/MainSyncOperation;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/m2f/archer/crud/operation/Operation {
+}
+
+public final class com/m2f/archer/crud/operation/StoreOperation : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/StoreOperation;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/operation/StoreSyncOperation : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/StoreSyncOperation;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/validate/ValidateKt {
+	public static final fun validate (Lcom/m2f/archer/datasource/DataSource;Lkotlin/jvm/functions/Function2;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public abstract interface class com/m2f/archer/datasource/DataSource {
+	public abstract fun invoke (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/datasource/InMemoryDataSource : com/m2f/archer/crud/cache/CacheDataSource {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun delete (Lcom/m2f/archer/query/Delete;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun invoke (Lcom/m2f/archer/query/KeyQuery;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/datasource/concurrency/MutexKt {
+	public static final fun mutex (Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun parallelism (Lcom/m2f/archer/datasource/DataSource;I)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/failure/DataEmpty : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/DataEmpty;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/DataNotFound : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/DataNotFound;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/m2f/archer/failure/Failure {
+}
+
+public final class com/m2f/archer/failure/Invalid : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/Invalid;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/Unhandled : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/Unhandled;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/m2f/archer/mapper/Bijection {
+	public abstract fun from (Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun to (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/mapper/DataSourceMapperKt {
+	public static final fun map (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/mapper/Bijection;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun map (Lcom/m2f/archer/datasource/DataSource;Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun mapPutDataSource (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/mapper/Bijection;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/query/Delete : com/m2f/archer/query/Query {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/m2f/archer/query/Delete;
+	public static synthetic fun copy$default (Lcom/m2f/archer/query/Delete;Ljava/lang/Object;ILjava/lang/Object;)Lcom/m2f/archer/query/Delete;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/query/Get : com/m2f/archer/query/KeyQuery {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/m2f/archer/query/Get;
+	public static synthetic fun copy$default (Lcom/m2f/archer/query/Get;Ljava/lang/Object;ILjava/lang/Object;)Lcom/m2f/archer/query/Get;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getKey ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class com/m2f/archer/query/KeyQuery : com/m2f/archer/query/Query {
+	public synthetic fun <init> (Ljava/lang/Object;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getKey ()Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/query/Put : com/m2f/archer/query/KeyQuery {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+	public fun getKey ()Ljava/lang/Object;
+	public final fun getValue ()Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/query/PutKt {
+	public static final fun map (Lcom/m2f/archer/query/Put;Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/query/Put;
+}
+
+public abstract interface class com/m2f/archer/query/Query {
+}
+
+public final class com/m2f/archer/repository/MainSyncRepository : com/m2f/archer/repository/Repository {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun invoke (Lcom/m2f/archer/query/Get;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/m2f/archer/repository/Repository {
+	public abstract fun invoke (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/repository/SingleDataSourceRepository : com/m2f/archer/repository/Repository {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;)V
+	public fun invoke (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/repository/SingleDataSourceRepositoryKt {
+	public static final fun toDataSource (Lcom/m2f/archer/crud/DeleteDataSource;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun toDeleteRepository (Lcom/m2f/archer/crud/DeleteDataSource;)Lcom/m2f/archer/repository/Repository;
+	public static final fun toRepository (Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/repository/Repository;
+}
+
+public final class com/m2f/archer/repository/StoreSyncRepository : com/m2f/archer/repository/Repository {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun invoke (Lcom/m2f/archer/query/Get;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+

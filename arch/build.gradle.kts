@@ -3,6 +3,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -27,6 +28,17 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.all {
+            // Add linker flag for SQLite. See:
+            // https://github.com/touchlab/SQLiter/issues/77
+            linkerOpts("-lsqlite3")
+
+            // KDoc comments to generated Objective-C header
+            compilations["main"].compilerOptions.options.freeCompilerArgs.add("-Xexport-kdoc")
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(projects.database)
@@ -42,7 +54,9 @@ kotlin {
             implementation(libs.kotest.runnerJUnit5)
         }
     }
+
 }
+
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
@@ -73,4 +87,7 @@ android {
     defaultConfig {
         minSdk = 21
     }
+}
+dependencies {
+    testImplementation(project(":arch"))
 }

@@ -1,18 +1,18 @@
 [versions]
-agp = "8.2.0"
+agp = "8.2.1"
 kotlin = "1.9.20"
 arrow = "1.2.1"
 kotlinx-coroutines = "1.7.3"
 kotest-arrow="1.4.0"
-kotest = "5.7.2"
-kotest-plugin = "5.7.2"
+kotest = "5.8.0"
+kotest-plugin = "5.8.0"
 kover = "0.7.4"
 com-vanniktech-maven-publish="0.25.3"
 binary-compatibility-validator = "0.13.2"
 coveralls = "1.2.18"
 coroutinesTest = "1.8.0-RC2"
 time = "0.5.0"
-sqlDelight = "2.0.0"
+sqlDelight = "2.0.1"
 startup = "1.1.1"
 
 [libraries]
@@ -36,17 +36,19 @@ time = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "time"
 sqlDelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 sqlDelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
-sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
-sqlDelight-runtime = { module = "com.squareup.sqldelight:runtime", version.ref = "sqlDelight" }
+#sqlDelight-driver-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
+#sqlDelight-runtime = { module = "com.squareup.sqldelight:runtime", version.ref = "sqlDelight" }
 
 #Arrow
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-fx = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+fx-stm = { module = "io.arrow-kt:arrow-fx-stm", version.ref = "arrow" }
 
 [bundles]
 arrow = [
     "arrow-core",
-    "arrow-fx"
+    "arrow-fx",
+    "fx-stm"
 ]
 
 kotest = [

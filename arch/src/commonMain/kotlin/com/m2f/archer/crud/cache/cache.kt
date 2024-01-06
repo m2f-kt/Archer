@@ -62,8 +62,7 @@ inline fun <K, reified A> StoreDataSource<K, A & Any>.expires(
         either {
             val info = CacheMetaInformation(
                 key = query.key.toString(),
-                classIdentifier = A::class.simpleName.toString(),
-                classFullIdentifier = A::class.qualifiedName.toString()
+                classIdentifier = A::class.simpleName.toString()
             )
             when (query) {
 
