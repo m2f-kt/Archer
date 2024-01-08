@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinx.kover) apply false
     alias(libs.plugins.coverallsjacoco)
     alias(libs.plugins.binary.compatibility.validator) apply false
+    alias(libs.plugins.com.vanniktech.maven.publish) apply false
 }
 
 val sources: List<File> = subprojects.flatMap { project ->
@@ -16,7 +17,7 @@ val sources: List<File> = subprojects.flatMap { project ->
 }
 
 coverallsJacoco {
-    reportPath = "${layout.projectDirectory}/arch/build/reports/kover/report.xml"
+    reportPath = "${layout.projectDirectory}/archer-core/build/reports/kover/report.xml"
     reportSourceSets = sources
 }
 
