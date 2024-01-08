@@ -17,7 +17,7 @@ val sources: List<File> = subprojects.flatMap { project ->
 }
 
 coverallsJacoco {
-    reportPath = "${layout.projectDirectory}/arch/build/reports/kover/report.xml"
+    reportPath = "${layout.projectDirectory}/archer-core/build/reports/kover/report.xml"
     reportSourceSets = sources
 }
 
