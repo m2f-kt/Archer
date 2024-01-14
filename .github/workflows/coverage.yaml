@@ -31,10 +31,7 @@ jobs:
           key: ${{ runner.os }}-v1-${{ hashFiles('*.gradle.kts') }}
 
       - name: Test
-        run: ./gradlew test
-
-      - name: Generate coverage report
-        run: ./gradlew koverXmlReport
+        run: ./gradlew check
 
       - name: (Fail-only) Bundle test reports
         if: failure()

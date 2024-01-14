@@ -1,5 +1,6 @@
 package com.m2f.archer.crud.cache.memcache
 
+import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.right
@@ -19,7 +20,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
 
-class MemoizedExpirationCache(private val databaseName: String = "") :
+class MemoizedExpirationCache :
     CacheDataSource<CacheMetaInformation, Instant> {
 
     private val mutex: Mutex = Mutex()
@@ -31,7 +32,7 @@ class MemoizedExpirationCache(private val databaseName: String = "") :
                 when (q) {
                     is Get -> queries.getInstant(
                         key = q.key.key, hash = q.key.hashCode().toLong()
-                    ).executeAsOneOrNull()?.instant?.toInstant() ?: raise(
+                    ).awaitAsOneOrNull()?.instant?.toInstant() ?: raise(
                         DataNotFound
                     )
 
