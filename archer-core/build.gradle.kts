@@ -3,6 +3,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -29,8 +30,13 @@ kotlin {
     iosSimulatorArm64()
 
     js {
-        browser()
-        binaries.executable()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
     }
 
     targets.withType<KotlinNativeTarget>().configureEach {
@@ -39,6 +45,12 @@ kotlin {
             // https://github.com/touchlab/SQLiter/issues/77
             linkerOpts("-lsqlite3")
         }
+    }
+
+    tasks.withType<KotlinJsCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += listOf(
+            "-Xklib-enable-signature-clash-checks=false",
+        )
     }
 
     sourceSets {

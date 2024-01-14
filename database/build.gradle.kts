@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -31,8 +32,19 @@ kotlin {
     iosSimulatorArm64()
 
     js {
-        browser()
-        binaries.executable()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
+    }
+
+    tasks.withType<KotlinJsCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += listOf(
+            "-Xklib-enable-signature-clash-checks=false",
+        )
     }
 
     sqldelight {
