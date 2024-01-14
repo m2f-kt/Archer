@@ -14,7 +14,7 @@ import com.m2f.archer.crud.validate.validate
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Invalid
-import com.m2f.archer.failure.Unhandled
+import com.m2f.archer.failure.Unknown
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -60,34 +60,39 @@ class RepositoryStrategyTest : FunSpec({
         expiredStrategy.get(StoreSyncOperation, 0) shouldBeRight "store put: main get"
     }
 
-    context("StoreSync strategy") {
+
+    test("StoreSync will return by default the stored data") {
         val mainGet = getDataSource<Int, String> { key -> if (key == 0) "main get" else raise(DataNotFound) }
         val storeGet = getDataSource<Int, String> { "store get" }
-        val storeGetFailUnrecoverable = getDataSource<Int, String> { raise(Unhandled) }
+        val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
+
+        val strategy = mainGet.cacheWith(storeGet + storePut) expires Never
+        strategy.get(StoreSyncOperation, 0) shouldBeRight "store get"
+    }
+
+    test("StoreSync will fail if there is an unrecoverable failure") {
+        val mainGet = getDataSource<Int, String> { key -> if (key == 0) "main get" else raise(DataNotFound) }
+        val storeGetFailUnrecoverable = getDataSource<Int, String> { raise(Unknown) }
+        val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
+
+        val strategy = mainGet.cacheWith(storeGetFailUnrecoverable + storePut) expires Never
+        strategy.get(StoreSyncOperation, 0) shouldBeLeft Unknown
+    }
+
+    test("StoreSync will fallback to the main data source and save result if there is an recoverable failure") {
+        val mainGet = getDataSource<Int, String> { key -> if (key == 0) "main get" else raise(DataNotFound) }
         val storeGetFailRecoverable = getDataSource<Int, String> { raise(Invalid) }
         val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
 
-        test("StoreSync will return by default the stored data") {
-            val strategy = mainGet.cacheWith(storeGet + storePut) expires Never
-            strategy.get(StoreSyncOperation, 0) shouldBeRight "store get"
-        }
-
-        test("StoreSync will fail if there is an unrecoverable failure") {
-            val strategy = mainGet.cacheWith(storeGetFailUnrecoverable + storePut) expires Never
-            strategy.get(StoreSyncOperation, 0) shouldBeLeft Unhandled
-        }
-
-        test("StoreSync will fallback to the main data source and save result if there is an recoverable failure") {
-            val strategy = mainGet.cacheWith(storeGetFailRecoverable + storePut) expires Never
-            strategy.get(StoreSyncOperation, 0) shouldBeRight "store put: main get"
-        }
+        val strategy = mainGet.cacheWith(storeGetFailRecoverable + storePut) expires Never
+        strategy.get(StoreSyncOperation, 0) shouldBeRight "store put: main get"
     }
 
     test("MainSync will fail if there is an unrecoverable failure") {
-        val mainGetFailUnrecoverable = getDataSource<Int, String> { raise(Unhandled) }
+        val mainGetFailUnrecoverable = getDataSource<Int, String> { raise(Unknown) }
         val store = InMemoryDataSource<Int, String>()
 
         val strategy = mainGetFailUnrecoverable cacheWith store expires Never
-        strategy.get(MainSyncOperation, 0) shouldBeLeft Unhandled
+        strategy.get(MainSyncOperation, 0) shouldBeLeft Unknown
     }
 })

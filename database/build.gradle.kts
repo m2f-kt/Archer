@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -30,10 +31,27 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    js {
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
+    }
+
+    tasks.withType<KotlinJsCompile>().configureEach {
+        kotlinOptions.freeCompilerArgs += listOf(
+            "-Xklib-enable-signature-clash-checks=false",
+        )
+    }
+
     sqldelight {
         databases {
             create(name = "CacheExpirationDatabase") {
                 packageName.set("com.m2f.archer.sqldelight")
+                generateAsync.set(true)
             }
         }
     }
@@ -65,6 +83,13 @@ kotlin {
 
         jvmMain.dependencies {
             implementation(libs.sqlDelight.driver.sqlite)
+        }
+
+        jsMain.dependencies {
+            api(libs.web.worker.driver)
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.0"))
+            implementation(npm("sql.js", "1.8.0"))
+            api(devNpm("copy-webpack-plugin", "9.1.0"))
         }
     }
 }

@@ -11,4 +11,4 @@ data object DataNotFound : Failure
 /** Data is empty */
 data object DataEmpty : Failure
 
-data object Unhandled : Failure
+data object Unknown : Failure

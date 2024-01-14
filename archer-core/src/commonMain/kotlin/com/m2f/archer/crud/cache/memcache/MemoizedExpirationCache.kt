@@ -1,5 +1,6 @@
 package com.m2f.archer.crud.cache.memcache
 
+import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.right
@@ -19,23 +20,19 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
 
-class MemoizedExpirationCache(private val databaseName: String = DATABASE_NAME) :
+class MemoizedExpirationCache :
     CacheDataSource<CacheMetaInformation, Instant> {
-
-    private companion object {
-        const val DATABASE_NAME = "expiration_registry"
-    }
 
     private val mutex: Mutex = Mutex()
 
     override suspend fun invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Either<Failure, Instant> = either {
         mutex.withLock {
-            val queries = queriesRepo.get(databaseName).bind()
+            val queries = queriesRepo.get().bind()
             queries.transactionWithResult {
                 when (q) {
                     is Get -> queries.getInstant(
                         key = q.key.key, hash = q.key.hashCode().toLong()
-                    ).executeAsOneOrNull()?.instant?.toInstant() ?: raise(
+                    ).awaitAsOneOrNull()?.instant?.toInstant() ?: raise(
                         DataNotFound
                     )
 
@@ -58,7 +55,7 @@ class MemoizedExpirationCache(private val databaseName: String = DATABASE_NAME) 
 
     override suspend fun delete(q: Delete<CacheMetaInformation>): Either<Failure, Unit> = either {
         mutex.withLock {
-            val queries = queriesRepo.get(DATABASE_NAME).bind()
+            val queries = queriesRepo.get().bind()
             queries.transaction { queries.deleteInstant(key = q.key.key, hash = q.key.hashCode().toLong()) }
             Unit.right()
         }
