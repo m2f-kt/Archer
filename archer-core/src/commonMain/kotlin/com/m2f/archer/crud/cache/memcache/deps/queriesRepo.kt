@@ -9,7 +9,7 @@ import com.m2f.archer.crud.operation.StoreSyncOperation
 import com.m2f.archer.data.storage.DatabaseDriverFactory.Companion.createDriver
 import com.m2f.archer.sqldelight.CacheExpirationDatabase
 
-internal val queriesRepo by lazy {
+val queriesRepo by lazy {
     getDatabase()
 }
 
