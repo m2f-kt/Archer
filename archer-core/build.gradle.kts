@@ -28,6 +28,11 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    js {
+        browser()
+        binaries.executable()
+    }
+
     targets.withType<KotlinNativeTarget>().configureEach {
         binaries.all {
             // Add linker flag for SQLite. See:

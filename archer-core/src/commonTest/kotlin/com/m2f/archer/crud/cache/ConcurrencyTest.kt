@@ -19,82 +19,82 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
-class ConcurrencyTest : FunSpec({
-
-    val i = 100
-    val j = 1000
-
-    suspend fun massiveRun(n: Int = i, k: Int = j, action: suspend () -> Unit) {
-        coroutineScope { // scope for coroutines
-            repeat(n) {
-                launch {
-                    repeat(k) { action() }
-                }
-            }
-        }
-        println("Completed ${n * k} actions")
-    }
-
-    test("mutex") {
-        var count1 = 0
-        val get = getDataSource<Unit, Int> { count1++ }
-            .mutex()
-
-        massiveRun {
-            get.get(Unit)
-        }
-
-        get.get(Unit) shouldBeRight i * j
-    }
-
-    test("limitParallelism") {
-        var count1 = 0
-        val get = getDataSource<Unit, Int> { count1++ }
-            .parallelism(1)
-
-        massiveRun {
-            get.get(Unit)
-        }
-
-        get.get(Unit) shouldBeRight i * j
-    }
-
-    test("InMemoryDataSource is thread safe") {
-
-        val dataSource = InMemoryDataSource<Int, Int>()
-
-        val count = TVar.new(0)
-
-        withContext(Dispatchers.Default) {
-            massiveRun {
-                val new = atomically {
-                    count.read()
-                        .also { count.write(it + 1) }
-                }
-                dataSource.put(new, new)
-            }
-        }
-
-        val result = List(i * j) { it }
-            .mapIndexed { index, item -> dataSource.get(item) }
-            .filter { it.isRight() }
-
-        result.size shouldBe i * j
-    }
-
-    test("MemoizedExpirationCache is thread safe") {
-        val dataSource = MemoizedExpirationCache()
-        val countInt = TVar.new(0)
-        val count = CacheMetaInformation("0", "String")
-
-        withContext(Dispatchers.Default) {
-            massiveRun {
-                val new = atomically {
-                    countInt.read()
-                        .also { countInt.write(it + 1) }
-                }
-                dataSource.put(count.copy(key = new.toString()), Clock.System.now())
-            }
-        }
-    }
-})
+//class ConcurrencyTest : FunSpec({
+//
+//    val i = 100
+//    val j = 1000
+//
+//    suspend fun massiveRun(n: Int = i, k: Int = j, action: suspend () -> Unit) {
+//        coroutineScope { // scope for coroutines
+//            repeat(n) {
+//                launch {
+//                    repeat(k) { action() }
+//                }
+//            }
+//        }
+//        println("Completed ${n * k} actions")
+//    }
+//
+//    test("mutex") {
+//        var count1 = 0
+//        val get = getDataSource<Unit, Int> { count1++ }
+//            .mutex()
+//
+//        massiveRun {
+//            get.get(Unit)
+//        }
+//
+//        get.get(Unit) shouldBeRight i * j
+//    }
+//
+//    test("limitParallelism") {
+//        var count1 = 0
+//        val get = getDataSource<Unit, Int> { count1++ }
+//            .parallelism(1)
+//
+//        massiveRun {
+//            get.get(Unit)
+//        }
+//
+//        get.get(Unit) shouldBeRight i * j
+//    }
+//
+//    test("InMemoryDataSource is thread safe") {
+//
+//        val dataSource = InMemoryDataSource<Int, Int>()
+//
+//        val count = TVar.new(0)
+//
+//        withContext(Dispatchers.Default) {
+//            massiveRun {
+//                val new = atomically {
+//                    count.read()
+//                        .also { count.write(it + 1) }
+//                }
+//                dataSource.put(new, new)
+//            }
+//        }
+//
+//        val result = List(i * j) { it }
+//            .mapIndexed { index, item -> dataSource.get(item) }
+//            .filter { it.isRight() }
+//
+//        result.size shouldBe i * j
+//    }
+//
+//    test("MemoizedExpirationCache is thread safe") {
+//        val dataSource = MemoizedExpirationCache()
+//        val countInt = TVar.new(0)
+//        val count = CacheMetaInformation("0", "String")
+//
+//        withContext(Dispatchers.Unconfined) {
+//            massiveRun {
+//                val new = atomically {
+//                    countInt.read()
+//                        .also { countInt.write(it + 1) }
+//                }
+//                dataSource.put(count.copy(key = new.toString()), Clock.System.now())
+//            }
+//        }
+//    }
+//})

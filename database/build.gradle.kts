@@ -30,10 +30,16 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    js {
+        browser()
+        binaries.executable()
+    }
+
     sqldelight {
         databases {
             create(name = "CacheExpirationDatabase") {
                 packageName.set("com.m2f.archer.sqldelight")
+                generateAsync.set(true)
             }
         }
     }
@@ -65,6 +71,12 @@ kotlin {
 
         jvmMain.dependencies {
             implementation(libs.sqlDelight.driver.sqlite)
+        }
+
+        jsMain.dependencies {
+            implementation(libs.web.worker.driver)
+            api(npm("sql.js", "1.6.2"))
+            api(devNpm("copy-webpack-plugin", "9.1.0"))
         }
     }
 }
