@@ -2,11 +2,13 @@ package com.m2f.archer.crud
 
 import arrow.core.Either
 import arrow.core.raise.Raise
+import arrow.core.raise.catch
 import arrow.core.raise.either
 import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
+import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
@@ -36,11 +38,17 @@ suspend fun <K> PutDataSource<K, Unit>.put(param: K): Either<Failure, Unit> =
 inline fun <K, T> getDataSource(crossinline block: suspend Raise<Failure>.(K) -> T & Any): GetDataSource<K, T & Any> =
     GetDataSource { query ->
         either {
-            block(query.key)
+            catch(block = {
+                block(query.key)
+            }) {
+                raise(Unhandled(it))
+            }
         }
     }
 
-inline fun <K, T> putDataSource(crossinline block: suspend Raise<Failure>.(K, T) -> T & Any): PutDataSource<K, T & Any> =
+inline fun <K, T> putDataSource(
+    crossinline block: suspend Raise<Failure>.(K, T) -> T & Any
+): PutDataSource<K, T & Any> =
     PutDataSource { query ->
         either {
             val value = query.value ?: raise(DataEmpty)
@@ -51,7 +59,7 @@ inline fun <K, T> putDataSource(crossinline block: suspend Raise<Failure>.(K, T)
 inline fun <K, T> postDataSource(crossinline block: suspend Raise<Failure>.(K) -> T & Any): PutDataSource<K, T & Any> =
     PutDataSource { query ->
         either {
-            if(query.value != null) raise(Invalid)
+            if (query.value != null) raise(Invalid)
             block(query.key)
         }
     }
@@ -62,7 +70,3 @@ inline fun <K> deleteDataSource(crossinline block: suspend Raise<Failure>.(K) ->
             block(query.key)
         }
     }
-
-
-
-
