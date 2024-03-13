@@ -96,7 +96,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.m2f.archer"
+    namespace = "com.m2f.archer.database"
     compileSdk = 34
     defaultConfig {
         minSdk = 21
