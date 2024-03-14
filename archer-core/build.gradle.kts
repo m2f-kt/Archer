@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotest.multiplatform)
     alias(libs.plugins.kotlinx.kover)
+    alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.com.vanniktech.maven.publish)
 }
 
@@ -60,6 +61,7 @@ kotlin {
             implementation(libs.time)
             implementation(libs.bundles.arrow)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlin.serilization)
         }
         commonTest.dependencies {
             implementation(libs.bundles.kotest)
