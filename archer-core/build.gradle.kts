@@ -71,9 +71,16 @@ kotlin {
             implementation(libs.kotest.runnerJUnit5)
         }
     }
-
 }
 
+koverReport {
+    verify {
+        rule("at least 95% coverage") {
+            isEnabled = true
+            minBound(95)
+        }
+    }
+}
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
