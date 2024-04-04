@@ -1,15 +1,11 @@
 package com.m2f.archer.crud.cache.memcache
 
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
-import arrow.core.Either
-import arrow.core.raise.either
-import arrow.core.right
+import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.crud.cache.memcache.deps.queriesRepo
-import com.m2f.archer.crud.get
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.failure.Failure
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
@@ -25,9 +21,9 @@ class MemoizedExpirationCache :
 
     private val mutex: Mutex = Mutex()
 
-    override suspend fun invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Either<Failure, Instant> = either {
+    override suspend fun ArcherRaise.invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Instant =
         mutex.withLock {
-            val queries = queriesRepo.get().bind()
+            val queries = queriesRepo.get(Unit)
             queries.transactionWithResult {
                 when (q) {
                     is Get -> queries.getInstant(
@@ -51,13 +47,10 @@ class MemoizedExpirationCache :
                 }
             }
         }
-    }
 
-    override suspend fun delete(q: Delete<CacheMetaInformation>): Either<Failure, Unit> = either {
+    override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) =
         mutex.withLock {
-            val queries = queriesRepo.get().bind()
+            val queries = queriesRepo.get(Unit)
             queries.transaction { queries.deleteInstant(key = q.key.key, hash = q.key.hashCode().toLong()) }
-            Unit.right()
         }
-    }
 }

@@ -1,11 +1,12 @@
 package com.m2f.archer.repository
 
-import arrow.core.Either
-import arrow.core.recover
+import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepository
 import com.m2f.archer.crud.StoreDataSource
+import com.m2f.archer.crud.archerRecover
 import com.m2f.archer.failure.Failure
+import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.query.Get
 
 class StoreSyncRepository<K, A>(
@@ -15,17 +16,22 @@ class StoreSyncRepository<K, A>(
     private val mainFallbackChecks: List<Failure> = emptyList(),
 ) : GetRepository<K, A> {
 
-    override suspend fun invoke(q: Get<K>): Either<Failure, A> =
-        storeDataSource(q)
-            .recover { f ->
-                if (f in fallbackChecks) {
+    override suspend fun ArcherRaise.invoke(q: Get<K>): A & Any =
+        archerRecover(
+            block = {
+                storeDataSource.get(q.key)
+            },
+            recover = { failure ->
+                if (failure in fallbackChecks) {
                     MainSyncRepository(
                         mainDataSource,
                         storeDataSource,
                         mainFallbackChecks,
-                    )(q).bind()
+                    ).get(q.key)
                 } else {
-                    raise(f)
+                    raise(failure)
                 }
-            }
+            },
+            catch = { exception -> raise(Unhandled(exception)) }
+        )
 }

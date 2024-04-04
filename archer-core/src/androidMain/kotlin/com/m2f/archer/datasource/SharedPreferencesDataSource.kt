@@ -1,13 +1,13 @@
 package com.m2f.archer.datasource
 
 import android.content.SharedPreferences
-import arrow.core.Either
-import arrow.core.raise.either
-import com.m2f.archer.crud.DeleteDataSource
-import com.m2f.archer.crud.StoreDataSource
+import arrow.core.raise.catch
+import arrow.core.raise.ensureNotNull
+import com.m2f.archer.crud.ArcherRaise
+import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.failure.Failure
+import com.m2f.archer.failure.Invalid
 import com.m2f.archer.mapper.Bijection
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
@@ -27,16 +27,15 @@ class SharedPreferencesDataSource<K, A>(
     private val sharedPreferences: SharedPreferences,
     private val prefix: String = "",
     private val bijection: Bijection<String, A>
-) : StoreDataSource<K, A>, DeleteDataSource<K> {
+) : CacheDataSource<K, A> {
 
-    override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
+    override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A & Any =
         when (q) {
             is Get -> {
                 val json = sharedPreferences.getString(q.key.toString().prependIndent(prefix), "")
-                if (json.isNullOrBlank()) {
-                    raise(DataNotFound)
-                } else {
-                    bijection.from(json)
+                ensureNotNull(json) { raise(DataNotFound) }
+                catch({ bijection.from(json) }) {
+                    raise(Invalid)
                 }
             }
 
@@ -49,9 +48,7 @@ class SharedPreferencesDataSource<K, A>(
                     } ?: raise(DataEmpty)
             }
         }
-    }
 
-    override suspend fun delete(q: Delete<K>): Either<Failure, Unit> = either {
+    override suspend fun ArcherRaise.delete(q: Delete<K>) =
         sharedPreferences.edit().remove(q.key.toString().prependIndent(prefix)).apply()
-    }
 }

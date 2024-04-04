@@ -32,14 +32,8 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
-    js {
-        browser {
-            testTask {
-                useKarma {
-                    useChromeHeadless()
-                }
-            }
-        }
+    js(IR) {
+        browser()
     }
 
     tasks.withType<KotlinJsCompile>().configureEach {

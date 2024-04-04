@@ -5,6 +5,6 @@ package com.m2f.archer.mapper
  */
 interface Bijection<S, T> {
 
-    fun from(s: S): T
-    fun to(t: T): S
+    fun from(s: S): T & Any
+    fun to(t: T): S & Any
 }

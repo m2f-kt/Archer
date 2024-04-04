@@ -10,6 +10,6 @@ import com.m2f.archer.startup.applicationContext
 actual class DatabaseDriverFactory {
     actual companion object {
         actual suspend fun createDriver(schema: SqlSchema<AsyncValue<Unit>>): SqlDriver =
-            AndroidSqliteDriver(schema.synchronous(), applicationContext, "${databaseName}.db")
+            AndroidSqliteDriver(schema.synchronous(), applicationContext, "$databaseName.db")
     }
 }

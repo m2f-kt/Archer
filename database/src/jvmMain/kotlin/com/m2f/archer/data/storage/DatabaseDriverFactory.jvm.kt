@@ -13,5 +13,4 @@ actual class DatabaseDriverFactory {
                 schema.synchronous().create(it)
             }
     }
-
 }

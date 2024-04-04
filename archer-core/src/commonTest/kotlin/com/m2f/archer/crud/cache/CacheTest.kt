@@ -3,12 +3,12 @@ package com.m2f.archer.crud.cache
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.PutDataSource
 import com.m2f.archer.crud.StoreDataSource
-import com.m2f.archer.crud.get
+import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
-import com.m2f.archer.crud.operation.MainOperation
-import com.m2f.archer.crud.operation.MainSyncOperation
-import com.m2f.archer.crud.operation.StoreOperation
-import com.m2f.archer.crud.operation.StoreSyncOperation
+import com.m2f.archer.crud.operation.Main
+import com.m2f.archer.crud.operation.MainSync
+import com.m2f.archer.crud.operation.Store
+import com.m2f.archer.crud.operation.StoreSync
 import com.m2f.archer.crud.plus
 import com.m2f.archer.crud.putDataSource
 import com.m2f.archer.failure.DataNotFound
@@ -23,54 +23,57 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 
 class CacheTest : FunSpec({
 
-
-    test("calling cache with empty parameter It uses a default InMemorydataSource") {
+    test("Calling cache with empty parameter It uses a default InMemorydataSource") {
         val mainGet: GetDataSource<Int, String> = getDataSource { "main" }
         val repository = mainGet.cache()
-        repository.get(StoreOperation, 0) shouldBeLeft DataNotFound
-        repository.get(MainSyncOperation, 0) shouldBe mainGet.get(0)
+        either { repository.get(Store, 0) } shouldBeLeft DataNotFound
+        either { repository.get(MainSync, 0) } shouldBe either { mainGet.get(0) }
     }
 
-    test("Calling cache passing StoreSyncOperation The repository should be StoreSyncRepository") {
+    test("Calling cache passing StoreSync The repository should be StoreSyncRepository") {
         val mainGet: GetDataSource<Int, String> = getDataSource { "main" }
         val get: GetDataSource<Int, String> = getDataSource { "store get" }
         val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
         val store: StoreDataSource<Int, String> = get + put
-        val repository = mainGet.cache(store).create(StoreSyncOperation)
+        val repository = mainGet.cache(store).create(StoreSync)
         repository.shouldBeInstanceOf<StoreSyncRepository<Int, String>>()
     }
 
-    test("Calling cache passing MainSyncOperation The repository should be MainSyncRepository") {
+    test("Calling cache passing MainSync The repository should be MainSyncRepository") {
         val mainGet: GetDataSource<Int, String> = getDataSource { "main" }
         val get: GetDataSource<Int, String> = getDataSource { "store get" }
         val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
         val store: StoreDataSource<Int, String> = get + put
-        val repository = mainGet.cache(store).create(MainSyncOperation)
+        val repository = mainGet.cache(store).create(MainSync)
 
         repository.shouldBeInstanceOf<MainSyncRepository<Int, String>>()
     }
 
-    test("Calling cache passing MainOperation The repository should be SingleDataSourceRepository and The repository get output should be the same as the mainGet") {
+    test(
+        "Calling cache passing Main The repository should be SingleDataSourceRepository and The repository get output should be the same as the mainGet"
+    ) {
         val mainGet: GetDataSource<Int, String> = getDataSource { "main" }
         val get: GetDataSource<Int, String> = getDataSource { "store get" }
         val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
         val store: StoreDataSource<Int, String> = get + put
 
-        val repository = mainGet.cache(store).create(MainOperation)
+        val repository = mainGet.cache(store).create(Main)
 
         repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
-        repository.get(1) shouldBe mainGet.get(1)
+        either { repository.get(1) } shouldBe either { mainGet.get(1) }
     }
 
-    test("Calling cache passing StoreOperation The repository should be SingleDataSourceRepository and The repository get output should be the same as the store") {
+    test(
+        "Calling cache passing Store The repository should be SingleDataSourceRepository and The repository get output should be the same as the store"
+    ) {
         val mainGet: GetDataSource<Int, String> = getDataSource { "main" }
         val get: GetDataSource<Int, String> = getDataSource { "store get" }
         val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
         val store: StoreDataSource<Int, String> = get + put
-        val repository = mainGet.cache(store).create(StoreOperation)
+        val repository = mainGet.cache(store).create(Store)
 
         repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
 
-        repository.get(1) shouldBe store.get(1)
+        either { repository.get(1) } shouldBe either { store.get(1) }
     }
 })

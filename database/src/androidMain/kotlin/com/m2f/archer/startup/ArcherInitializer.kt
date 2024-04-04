@@ -8,7 +8,7 @@ internal lateinit var applicationContext: Context
 
 object ArcherContext
 
-class ArcherInitializer: Initializer<ArcherContext> {
+class ArcherInitializer : Initializer<ArcherContext> {
     override fun create(context: Context): ArcherContext {
         applicationContext = context.applicationContext
         return ArcherContext

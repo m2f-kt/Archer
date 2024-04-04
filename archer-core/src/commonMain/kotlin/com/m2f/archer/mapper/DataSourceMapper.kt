@@ -14,9 +14,9 @@ import kotlin.jvm.JvmName
  * @param mapper A function to transform data
  * @return A new DataSource with its output transformed by the [mapper] function.
  */
-inline fun <F, Q, A, B> DataSource<F, Q, A>.map(crossinline mapper: (A) -> B): DataSource<F, Q, B> =
+inline fun <F, Q, A, B> DataSource<F, Q, A>.map(crossinline mapper: (A) -> B & Any): DataSource<F, Q, B & Any> =
     DataSource {
-        invoke(it).map(mapper)
+        invoke(it).let(mapper)
     }
 
 /**
@@ -28,7 +28,7 @@ inline fun <F, Q, A, B> DataSource<F, Q, A>.map(crossinline mapper: (A) -> B): D
 @JvmName("mapPutDataSource")
 fun <K, A, B> PutDataSource<K, A & Any>.map(bijection: Bijection<A & Any, B & Any>): PutDataSource<K, B & Any> =
     PutDataSource {
-        invoke(it.map(bijection::to)).map(bijection::from)
+        invoke(it.map(bijection::to)).let(bijection::from)
     }
 
 /**
@@ -39,7 +39,7 @@ fun <K, A, B> PutDataSource<K, A & Any>.map(bijection: Bijection<A & Any, B & An
  */
 fun <K, A, B> StoreDataSource<K, A & Any>.map(bijection: Bijection<A & Any, B & Any>) = StoreDataSource<K, B & Any> {
     when (it) {
-        is Get -> invoke(it).map(bijection::from)
-        is Put -> invoke(it.map(bijection::to)).map(bijection::from)
+        is Get -> invoke(it).let(bijection::from)
+        is Put -> invoke(it.map(bijection::to)).let(bijection::from)
     }
 }

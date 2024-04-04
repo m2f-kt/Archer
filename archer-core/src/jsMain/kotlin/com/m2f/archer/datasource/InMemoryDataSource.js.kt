@@ -1,11 +1,9 @@
 package com.m2f.archer.datasource
 
-import arrow.core.Either
-import arrow.core.raise.either
 import arrow.fx.stm.atomically
+import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.failure.Failure
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
@@ -22,7 +20,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
 
     private val values: MutableMap<K, A> = initialValues.toMutableMap()
 
-    override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
+    override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A & Any =
         when (q) {
             is Put -> {
                 q.value?.also { values[q.key] = it } ?: raise(DataNotFound)
@@ -32,11 +30,8 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
                 values[q.key] ?: raise(DataNotFound)
             }
         }
-    }
 
-    override suspend fun delete(q: Delete<K>): Either<Failure, Unit> = either {
+    override suspend fun ArcherRaise.delete(q: Delete<K>) {
         atomically { values.remove(q.key) }
     }
-
-
 }

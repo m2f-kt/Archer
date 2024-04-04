@@ -1,6 +1,6 @@
 package com.m2f.archer.datasource
 
-import arrow.core.Either
+import com.m2f.archer.crud.ArcherRaise
 
 /**
  * A data source is a component that provides data to the application.
@@ -20,6 +20,5 @@ fun interface DataSource<out F, in Q, out A> {
      * Either is a branched type that can be Left<F> or Right<A>.
      * Normally, the Left side is used for errors and the Right side is used for success.
      */
-    suspend operator fun invoke(q: Q): Either<F, A>
+    suspend operator fun ArcherRaise.invoke(q: Q): A & Any
 }
-

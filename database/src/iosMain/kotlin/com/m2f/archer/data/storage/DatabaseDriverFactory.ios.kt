@@ -9,6 +9,6 @@ import app.cash.sqldelight.driver.native.NativeSqliteDriver
 actual class DatabaseDriverFactory {
     actual companion object {
         actual suspend fun createDriver(schema: SqlSchema<AsyncValue<Unit>>): SqlDriver =
-            NativeSqliteDriver(schema.synchronous(), "${databaseName}.db")
+            NativeSqliteDriver(schema.synchronous(), "$databaseName.db")
     }
 }

@@ -9,7 +9,4 @@ import com.m2f.archer.crud.cache.CacheDataSource
  * @param A The type of the data that the data source stores.
  */
 expect class InMemoryDataSource<K, A>(initialValues: Map<K, A> = emptyMap()) :
-    CacheDataSource<K, A> {
-
-
-}
+    CacheDataSource<K, A>
