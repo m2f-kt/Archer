@@ -2,13 +2,12 @@ package com.m2f.archer.crud.cache
 
 import com.m2f.archer.crud.cache.generator.deleteKeyQuery
 import com.m2f.archer.crud.cache.generator.getKeyQuery
-import com.m2f.archer.crud.cache.generator.keyQuery
 import com.m2f.archer.crud.cache.generator.putKeyQuery
+import com.m2f.archer.crud.either
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
-import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -22,28 +21,13 @@ import io.kotest.property.checkAll
 
 class InMemoryDataSourceTest : FunSpec({
 
-    test("InMemoryDataSource returns either right or left") {
-        val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
-        // This is generating several different keys (get, put delete) with different values
-        val getQueries: Arb<KeyQuery<String, out Int>> =
-            Arb.keyQuery(Arb.string(), Arb.int())
-
-        getQueries.checkAll { query ->
-            val result = dataSource(query)
-
-            result.run {
-                (isRight() || isLeft()) shouldBe true
-            }
-        }
-    }
-
     test("Adding Some object returns the added object") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val valueToAdd = 1
         val queries = Arb.putKeyQuery(Arb.string(), valueToAdd)
 
         checkAll(queries) { putQuery ->
-            val result = dataSource(putQuery)
+            val result = either { dataSource.run { invoke(putQuery) } }
             result shouldBeRight valueToAdd
         }
     }
@@ -58,9 +42,11 @@ class InMemoryDataSourceTest : FunSpec({
         // Put is performing a side effect so the oder of call matters.
         // If we call a get before putting the value, the result will be DataNotFound
         checkAll(queries) { (getQuery, putQuery) ->
-            val putResult = dataSource(putQuery)
-            val getResult = dataSource(getQuery)
-            putResult shouldBe getResult
+            either {
+                val putResult = dataSource.run { invoke(putQuery) }
+                val getResult = dataSource.run { invoke(getQuery) }
+                putResult shouldBe getResult
+            }
         }
     }
 
@@ -69,7 +55,7 @@ class InMemoryDataSourceTest : FunSpec({
         val queries = Arb.getKeyQuery(Arb.string())
 
         checkAll(queries) { getQuery ->
-            val result = dataSource(getQuery)
+            val result = either { dataSource.get(getQuery.key) }
             result shouldBeLeft DataNotFound
         }
     }
@@ -79,7 +65,7 @@ class InMemoryDataSourceTest : FunSpec({
         val queries = Arb.deleteKeyQuery(Arb.string())
 
         checkAll(queries) { deleteQuery ->
-            val result = dataSource.delete(deleteQuery)
+            val result = either { dataSource.run { delete(deleteQuery) } }
             result shouldBeRight Unit
         }
     }
@@ -92,8 +78,12 @@ class InMemoryDataSourceTest : FunSpec({
         ) { k, v -> Delete(k) to Put(k, v) }
 
         checkAll(queries) { (deleteQuery, putQuery) ->
-            dataSource(putQuery)
-            val deleteResult = dataSource.delete(deleteQuery)
+            val deleteResult = either {
+                dataSource.run {
+                    invoke(putQuery)
+                    delete(deleteQuery)
+                }
+            }
             deleteResult shouldBeRight Unit
         }
     }
@@ -112,9 +102,14 @@ class InMemoryDataSourceTest : FunSpec({
         }
 
         checkAll(queries) { (getQuery, putQuery, deleteQuery) ->
-            dataSource(putQuery)
-            dataSource.delete(deleteQuery)
-            dataSource(getQuery) shouldBeLeft DataNotFound
+            val result = either {
+                dataSource.run {
+                    invoke(putQuery)
+                    delete(deleteQuery)
+                    invoke(getQuery)
+                }
+            }
+            result shouldBeLeft DataNotFound
         }
     }
 })

@@ -1,10 +1,10 @@
 package com.m2f.archer.crud
 
-import com.m2f.archer.crud.operation.MainOperation
-import com.m2f.archer.crud.operation.MainSyncOperation
+import com.m2f.archer.crud.operation.Main
+import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Operation
-import com.m2f.archer.crud.operation.StoreOperation
-import com.m2f.archer.crud.operation.StoreSyncOperation
+import com.m2f.archer.crud.operation.Store
+import com.m2f.archer.crud.operation.StoreSync
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.repository.MainSyncRepository
 import com.m2f.archer.repository.StoreSyncRepository
@@ -37,10 +37,10 @@ fun <K, A> cacheStrategy(
     storeFallback: List<Failure> = storageFallbacks,
 ): GetRepositoryStrategy<K, A & Any> = GetRepositoryStrategy { operation ->
     when (operation) {
-        is MainOperation -> mainDataSource.toRepository()
-        is StoreOperation -> storeDataSource.toRepository()
-        is MainSyncOperation -> MainSyncRepository(mainDataSource, storeDataSource, mainFallback)
-        is StoreSyncOperation -> StoreSyncRepository(
+        is Main -> mainDataSource.toRepository()
+        is Store -> storeDataSource.toRepository()
+        is MainSync -> MainSyncRepository(mainDataSource, storeDataSource, mainFallback)
+        is StoreSync -> StoreSyncRepository(
             storeDataSource,
             mainDataSource,
             storeFallback,
@@ -50,9 +50,4 @@ fun <K, A> cacheStrategy(
 }
 
 infix fun <K, A> GetDataSource<K, A & Any>.fallbackWith(store: StoreDataSource<K, A & Any>): GetRepository<K, A & Any> =
-    cacheStrategy(this, store).create(MainSyncOperation)
-
-suspend fun <K, A> GetRepositoryStrategy<K, A>.get(
-    operation: Operation,
-    q: K,
-) = create(operation).get(q)
+    cacheStrategy(this, store).create(MainSync)

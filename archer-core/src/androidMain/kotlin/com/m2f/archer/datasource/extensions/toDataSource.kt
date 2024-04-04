@@ -5,7 +5,7 @@ import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepository
 import com.m2f.archer.crud.StrategyBuilder
 import com.m2f.archer.crud.cacheStrategy
-import com.m2f.archer.crud.operation.MainSyncOperation
+import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Operation
 import com.m2f.archer.datasource.SharedPreferencesDataSource
 import com.m2f.archer.datasource.stringToSerializableBijection
@@ -18,7 +18,7 @@ inline fun <K, reified A> SharedPreferences.toDataSource(
 
 inline fun <reified K, reified A> GetDataSource<K, A & Any>.cache(
     preferences: SharedPreferences,
-    operation: Operation = MainSyncOperation,
+    operation: Operation = MainSync,
 ): GetRepository<K, A> =
     cacheStrategy(this, preferences.toDataSource()).create(operation)
 

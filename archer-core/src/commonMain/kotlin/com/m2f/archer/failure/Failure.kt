@@ -29,3 +29,5 @@ sealed interface NetworkFailure : Failure {
 
 data object Unknown : Failure
 data class Unhandled(val exception: Throwable) : Failure
+
+data object Idle : Failure

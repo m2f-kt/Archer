@@ -1,6 +1,6 @@
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.crud.get
+import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.repository.toRepository
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -12,6 +12,6 @@ class GetRepositoryTest : FunSpec({
         val get = getDataSource<Unit, String> { "main" }
         val repository = get.toRepository()
 
-        repository.get() shouldBeRight "main"
+        either { repository.get(Unit) } shouldBeRight "main"
     }
 })

@@ -1,6 +1,6 @@
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.crud.get
+import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.failure.Message
 import com.m2f.archer.failure.NetworkFailure
@@ -11,7 +11,7 @@ import io.kotest.core.spec.style.FunSpec
 
 class HandleExceptionsTest : FunSpec({
 
-    test("datasource should eturn Unhandled if the is an exception") {
+    test("datasource should return Unhandled if the is an exception") {
 
         val runtimeException = RuntimeException()
         fun crash(): Nothing {
@@ -20,7 +20,7 @@ class HandleExceptionsTest : FunSpec({
 
         val ds = getDataSource<Int, Int> { crash() }
 
-        ds.get(0) shouldBeLeft Unhandled(runtimeException)
+        either { ds.get(0) } shouldBeLeft Unhandled(runtimeException)
     }
 
     test("Network error with 3 kind of messages") {
@@ -30,7 +30,7 @@ class HandleExceptionsTest : FunSpec({
             raise(NetworkFailure.NetworkError(message = Message.Simple("Network Failure")))
         }
 
-        dataSourceSimpleMessage.get(0) shouldBeLeft NetworkFailure.NetworkError(
+        either { dataSourceSimpleMessage.get(0) } shouldBeLeft NetworkFailure.NetworkError(
             message = Message.Simple("Network Failure")
         )
 
@@ -45,7 +45,7 @@ class HandleExceptionsTest : FunSpec({
             )
         }
 
-        dataSourceCodeMessage.get(0) shouldBeLeft NetworkFailure.NetworkError(
+        either { dataSourceCodeMessage.get(0) } shouldBeLeft NetworkFailure.NetworkError(
             message = Message.NetworkCodeMessage(
                 code = "123", message = "Error due to code 123"
             )
@@ -63,7 +63,7 @@ class HandleExceptionsTest : FunSpec({
             )
         }
 
-        dataSourceCodeTitleMessage.get(0) shouldBeLeft NetworkFailure.NetworkError(
+        either { dataSourceCodeTitleMessage.get(0) } shouldBeLeft NetworkFailure.NetworkError(
             message = Message.NetworkCodeAndTitleMessage(
                 code = "123",
                 title = "Error 123",
@@ -76,6 +76,6 @@ class HandleExceptionsTest : FunSpec({
 
         val dataSource = getDataSource<Int, String> { raise(NoConnection) }
 
-        dataSource.get(0) shouldBeLeft NoConnection
+        either { dataSource.get(0) } shouldBeLeft NoConnection
     }
 })

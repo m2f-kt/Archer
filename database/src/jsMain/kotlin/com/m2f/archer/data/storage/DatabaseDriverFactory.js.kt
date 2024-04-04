@@ -14,8 +14,6 @@ actual class DatabaseDriverFactory {
                     js("""new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url)""")
                 )
             ).also { schema.create(it).await() }
-
         }
     }
-
 }

@@ -2,13 +2,11 @@ package com.m2f.archer.crud.cache
 
 import arrow.fx.stm.TVar
 import arrow.fx.stm.atomically
-import com.m2f.archer.crud.get
+import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
-import com.m2f.archer.crud.put
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.datasource.concurrency.mutex
 import com.m2f.archer.datasource.concurrency.parallelism
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
@@ -32,48 +30,53 @@ class ConcurrencyTest : FunSpec({
         println("Completed ${n * k} actions")
     }
 
-    test("mutex") {
+     test("mutex") {
         var count1 = 0
         val get = getDataSource<Unit, Int> { count1++ }
             .mutex()
 
-        massiveRun {
-            get.get(Unit)
-        }
+        either {
+            massiveRun {
+                get.get(Unit)
+            }
 
-        get.get(Unit) shouldBeRight i * j
+            get.get(Unit) shouldBe i * j
+        }
     }
 
-    test("limitParallelism") {
+     test("limitParallelism") {
         var count1 = 0
         val get = getDataSource<Unit, Int> { count1++ }
             .parallelism(1)
 
-        massiveRun {
-            get.get(Unit)
-        }
+        either {
+            massiveRun {
+                get.get(Unit)
+            }
 
-        get.get(Unit) shouldBeRight i * j
+            get.get(Unit) shouldBe i * j
+        }
     }
 
-    test("InMemoryDataSource is thread safe") {
+     test("InMemoryDataSource is thread safe") {
 
         val dataSource = InMemoryDataSource<Int, Int>()
 
         val count = TVar.new(0)
 
         withContext(Dispatchers.Default) {
-            massiveRun {
-                val new = atomically {
-                    count.read()
-                        .also { count.write(it + 1) }
+            either {
+                massiveRun {
+                    val new = atomically {
+                        count.read()
+                            .also { count.write(it + 1) }
+                    }
+                    dataSource.put(new, new)
                 }
-                dataSource.put(new, new)
             }
         }
 
-        val result = List(i * j) { it }
-            .mapIndexed { index, item -> dataSource.get(item) }
+        val result = List(i * j) { it }.mapIndexed { _, item -> either { dataSource.get(item) } }
             .filter { it.isRight() }
 
         result.size shouldBe i * j

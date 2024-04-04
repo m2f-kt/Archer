@@ -1,9 +1,8 @@
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.crud.get
+import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.plus
-import com.m2f.archer.crud.put
 import com.m2f.archer.crud.putDataSource
 import com.m2f.archer.mapper.Bijection
 import com.m2f.archer.mapper.map
@@ -19,7 +18,7 @@ class MapperTest : FunSpec({
 
         val getMapped = get.map { identity(it) }
 
-        get.get(0) shouldBe getMapped.get(0)
+        either { get.get(0) shouldBe getMapped.get(0) }
     }
 
     test("bijection identity") {
@@ -35,7 +34,7 @@ class MapperTest : FunSpec({
         val store = get + put
         val storeMaped = store.map(identity)
 
-        store.get(Unit) shouldBe storeMaped.get(Unit)
-        store.put(Unit, "Hello") shouldBe storeMaped.put(Unit, "Hello")
+        either { store.get(Unit) } shouldBe either { storeMaped.get(Unit) }
+        either { store.put(Unit, "Hello") } shouldBe either { storeMaped.put(Unit, "Hello") }
     }
 })

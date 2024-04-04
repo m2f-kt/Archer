@@ -1,9 +1,8 @@
 package com.m2f.archer.crud
 
-import arrow.core.Either
-import arrow.core.raise.Raise
 import arrow.core.raise.catch
-import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.Failure
@@ -20,53 +19,33 @@ typealias PutDataSource<K, A> = CRUDDataSource<Put<K, out A & Any>, A & Any>
 typealias StoreDataSource<K, A> = CRUDDataSource<KeyQuery<K, out A & Any>, A & Any>
 
 fun interface DeleteDataSource<K> {
-    suspend fun delete(q: Delete<K>): Either<Failure, Unit>
+    suspend fun ArcherRaise.delete(q: Delete<K>)
 }
 
-suspend fun <K, A> GetDataSource<K, A>.get(queryKey: K): Either<Failure, A> =
-    invoke(Get(queryKey))
-
-suspend fun <K, A> PutDataSource<K, A>.post(param: K): Either<Failure, A> =
-    invoke(Put(param, null))
-
-suspend fun <K, A> PutDataSource<K, A>.put(param: K, value: A): Either<Failure, A> =
-    invoke(Put(param, value))
-
-suspend fun <K> PutDataSource<K, Unit>.put(param: K): Either<Failure, Unit> =
-    invoke(Put(param, Unit))
-
-inline fun <K, T> getDataSource(crossinline block: suspend Raise<Failure>.(K) -> T & Any): GetDataSource<K, T & Any> =
+inline fun <K, T> getDataSource(crossinline block: suspend ArcherRaise.(K) -> T & Any): GetDataSource<K, T & Any> =
     GetDataSource { query ->
-        either {
-            catch(block = {
-                block(query.key)
-            }) {
-                raise(Unhandled(it))
-            }
+        catch(block = {
+            block(query.key)
+        }) {
+            raise(Unhandled(it))
         }
     }
 
 inline fun <K, T> putDataSource(
-    crossinline block: suspend Raise<Failure>.(K, T) -> T & Any
+    crossinline block: suspend ArcherRaise.(K, T & Any) -> T & Any
 ): PutDataSource<K, T & Any> =
-    PutDataSource { query ->
-        either {
-            val value = query.value ?: raise(DataEmpty)
-            block(query.key, value)
-        }
+    PutDataSource { (key, value) ->
+        ensureNotNull(value) { raise(DataEmpty) }
+        block(key, value)
     }
 
-inline fun <K, T> postDataSource(crossinline block: suspend Raise<Failure>.(K) -> T & Any): PutDataSource<K, T & Any> =
+inline fun <K, T> postDataSource(crossinline block: suspend ArcherRaise.(K) -> T & Any): PutDataSource<K, T & Any> =
     PutDataSource { query ->
-        either {
-            if (query.value != null) raise(Invalid)
-            block(query.key)
-        }
+        ensure(query.value == null) { Invalid }
+        block(query.key)
     }
 
-inline fun <K> deleteDataSource(crossinline block: suspend Raise<Failure>.(K) -> Unit): DeleteDataSource<K> =
+inline fun <K> deleteDataSource(crossinline block: suspend ArcherRaise.(K) -> Unit): DeleteDataSource<K> =
     DeleteDataSource { query ->
-        either {
-            block(query.key)
-        }
+        block(query.key)
     }
