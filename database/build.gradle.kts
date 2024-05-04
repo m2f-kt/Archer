@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -31,6 +32,14 @@ kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
+
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.all {
+            // Add linker flag for SQLite. See:
+            // https://github.com/touchlab/SQLiter/issues/77
+            linkerOpts("-lsqlite3")
+        }
+    }
 
     js(IR) {
         browser()
