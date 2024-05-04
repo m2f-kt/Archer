@@ -27,7 +27,7 @@ val VERSION_NAME: String by project
 allprojects {
 
     group = GROUP
-    version= VERSION_NAME
+    version = VERSION_NAME
 
     extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension>()?.apply {
         sourceSets.all {
