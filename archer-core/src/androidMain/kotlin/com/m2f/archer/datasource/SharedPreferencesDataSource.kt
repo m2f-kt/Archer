@@ -29,7 +29,7 @@ class SharedPreferencesDataSource<K, A>(
     private val bijection: Bijection<String, A>
 ) : CacheDataSource<K, A> {
 
-    override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A & Any =
+    override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A =
         when (q) {
             is Get -> {
                 val json = sharedPreferences.getString(q.key.toString().prependIndent(prefix), "")

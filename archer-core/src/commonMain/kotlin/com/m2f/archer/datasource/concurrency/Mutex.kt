@@ -9,7 +9,7 @@ import kotlinx.coroutines.sync.withLock
 fun <F, Q, A> DataSource<F, Q, A>.mutex(): DataSource<F, Q, A> =
     object : DataSource<F, Q, A> {
         val mutex by lazy { Mutex() }
-        override suspend fun ArcherRaise.invoke(q: Q): A & Any = mutex.withLock { this@mutex.run { invoke(q) } }
+        override suspend fun ArcherRaise.invoke(q: Q): A = mutex.withLock { this@mutex.run { invoke(q) } }
     }
 
 @OptIn(ExperimentalCoroutinesApi::class)

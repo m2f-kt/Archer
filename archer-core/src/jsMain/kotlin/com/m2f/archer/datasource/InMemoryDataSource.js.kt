@@ -20,7 +20,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
 
     private val values: MutableMap<K, A> = initialValues.toMutableMap()
 
-    override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A & Any =
+    actual override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A =
         when (q) {
             is Put -> {
                 q.value?.also { values[q.key] = it } ?: raise(DataNotFound)
@@ -31,7 +31,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
             }
         }
 
-    override suspend fun ArcherRaise.delete(q: Delete<K>) {
+    actual override suspend fun ArcherRaise.delete(q: Delete<K>) {
         atomically { values.remove(q.key) }
     }
 }

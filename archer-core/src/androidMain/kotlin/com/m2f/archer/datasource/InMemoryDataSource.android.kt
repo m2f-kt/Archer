@@ -29,7 +29,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
             }
     }
 
-    override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A & Any =
+    actual override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A>): A =
         atomically {
             when (q) {
                 is Put -> {
@@ -42,7 +42,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
             }
         }
 
-    override suspend fun ArcherRaise.delete(q: Delete<K>) {
+    actual override suspend fun ArcherRaise.delete(q: Delete<K>) {
         atomically { values.remove(q.key) }
     }
 }

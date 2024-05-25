@@ -10,6 +10,6 @@ import kotlinx.coroutines.withContext
 actual fun <F, Q, A> DataSource<F, Q, A>.parallelism(parallelism: Int): DataSource<F, Q, A> =
     object : DataSource<F, Q, A> {
         val dispatcher = Dispatchers.IO.limitedParallelism(parallelism)
-        override suspend fun ArcherRaise.invoke(q: Q): A & Any =
+        override suspend fun ArcherRaise.invoke(q: Q): A =
             withContext(dispatcher) { this@parallelism.run { invoke(q) } }
     }

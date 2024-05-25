@@ -17,12 +17,12 @@ public final class com/m2f/archer/ExpirationRegistry {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class com/m2f/archer/ExpirationRegistryQueries : app/cash/sqldelight/TransacterImpl {
+public final class com/m2f/archer/ExpirationRegistryQueries : app/cash/sqldelight/SuspendingTransacterImpl {
 	public fun <init> (Lapp/cash/sqldelight/db/SqlDriver;)V
-	public final fun deleteInstant (Ljava/lang/String;J)V
+	public final fun deleteInstant (Ljava/lang/String;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getInstant (Ljava/lang/String;J)Lapp/cash/sqldelight/Query;
 	public final fun getInstant (Ljava/lang/String;JLkotlin/jvm/functions/Function5;)Lapp/cash/sqldelight/Query;
-	public final fun insertInstant (Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun insertInstant (Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class com/m2f/archer/data/storage/DatabaseDriverFactory {
@@ -31,10 +31,10 @@ public final class com/m2f/archer/data/storage/DatabaseDriverFactory {
 }
 
 public final class com/m2f/archer/data/storage/DatabaseDriverFactory$Companion {
-	public final fun createDriver (Ljava/lang/String;)Lapp/cash/sqldelight/db/SqlDriver;
+	public final fun createDriver (Lapp/cash/sqldelight/db/SqlSchema;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public abstract interface class com/m2f/archer/sqldelight/CacheExpirationDatabase : app/cash/sqldelight/Transacter {
+public abstract interface class com/m2f/archer/sqldelight/CacheExpirationDatabase : app/cash/sqldelight/SuspendingTransacter {
 	public static final field Companion Lcom/m2f/archer/sqldelight/CacheExpirationDatabase$Companion;
 	public abstract fun getExpirationRegistryQueries ()Lcom/m2f/archer/ExpirationRegistryQueries;
 }
