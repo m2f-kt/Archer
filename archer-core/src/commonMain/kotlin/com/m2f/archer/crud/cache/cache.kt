@@ -28,24 +28,24 @@ import kotlin.time.Duration
 
 interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 
-inline fun <K, reified A> GetDataSource<K, A & Any>.cache(
-    storage: StoreDataSource<K, A & Any> = InMemoryDataSource(),
+inline fun <K, reified A> GetDataSource<K, A>.cache(
+    storage: StoreDataSource<K, A> = InMemoryDataSource(),
     expiration: CacheExpiration = Never
-): GetRepositoryStrategy<K, A & Any> = cacheStrategy(this, storage.expires(expiration))
+): GetRepositoryStrategy<K, A> = cacheStrategy(this, storage.expires(expiration))
 
-infix fun <K, A> GetDataSource<K, A & Any>.cacheWith(storage: StoreDataSource<K, A & Any>): StrategyBuilder<K, A> =
+infix fun <K, A> GetDataSource<K, A>.cacheWith(storage: StoreDataSource<K, A>): StrategyBuilder<K, A> =
     StrategyBuilder(this, storage)
 
 inline infix fun <K, reified A> StrategyBuilder<K, A>.expires(expiration: CacheExpiration): GetRepositoryStrategy<K, A> =
     StrategyBuilder(mainDataSource, storeDataSource.expires(expiration)).build()
 
-inline infix fun <K, reified A> StrategyBuilder<K, A & Any>.expiresIn(duration: Duration): GetRepositoryStrategy<K, A & Any> =
+inline infix fun <K, reified A> StrategyBuilder<K, A>.expiresIn(duration: Duration): GetRepositoryStrategy<K, A> =
     expires(After(duration))
 
-inline fun <K, reified A> StoreDataSource<K, A & Any>.expires(
+inline fun <K, reified A> StoreDataSource<K, A>.expires(
     expiration: CacheExpiration,
     cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache()
-): StoreDataSource<K, A & Any> = when (expiration) {
+): StoreDataSource<K, A> = when (expiration) {
     Never -> this
     Always -> {
         StoreDataSource { query ->

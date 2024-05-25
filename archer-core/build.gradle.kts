@@ -82,13 +82,6 @@ koverReport {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        languageVersion = "1.9"
-        apiVersion = "1.9"
-    }
-}
-
 tasks.named<Test>("jvmTest") {
     useJUnitPlatform()
     filter {

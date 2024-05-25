@@ -30,7 +30,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
             }
     }
 
-    override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
+    actual override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
         atomically {
             when (q) {
                 is Put -> {
@@ -44,7 +44,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
         }
     }
 
-    override suspend fun delete(q: Delete<K>): Either<Failure, Unit> = either {
+    actual override suspend fun delete(q: Delete<K>): Either<Failure, Unit> = either {
         atomically { values.remove(q.key) }
     }
 

@@ -22,7 +22,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
 
     private val values: MutableMap<K, A> = initialValues.toMutableMap()
 
-    override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
+    actual override suspend fun invoke(q: KeyQuery<K, out A>): Either<Failure, A> = either {
         when (q) {
             is Put -> {
                 q.value?.also { values[q.key] = it } ?: raise(DataNotFound)
@@ -34,7 +34,7 @@ actual class InMemoryDataSource<K, A> actual constructor(initialValues: Map<K, A
         }
     }
 
-    override suspend fun delete(q: Delete<K>): Either<Failure, Unit> = either {
+    actual override suspend fun delete(q: Delete<K>): Either<Failure, Unit> = either {
         atomically { values.remove(q.key) }
     }
 

@@ -14,10 +14,10 @@ import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 
-typealias CRUDDataSource<Q, A> = DataSource<Failure, Q, A & Any>
-typealias GetDataSource<K, A> = CRUDDataSource<Get<K>, A & Any>
-typealias PutDataSource<K, A> = CRUDDataSource<Put<K, out A & Any>, A & Any>
-typealias StoreDataSource<K, A> = CRUDDataSource<KeyQuery<K, out A & Any>, A & Any>
+typealias CRUDDataSource<Q, A> = DataSource<Failure, Q, A>
+typealias GetDataSource<K, A> = CRUDDataSource<Get<K>, A>
+typealias PutDataSource<K, A> = CRUDDataSource<Put<K, out A>, A>
+typealias StoreDataSource<K, A> = CRUDDataSource<KeyQuery<K, out A>, A>
 
 fun interface DeleteDataSource<K> {
     suspend fun delete(q: Delete<K>): Either<Failure, Unit>
@@ -35,7 +35,7 @@ suspend fun <K, A> PutDataSource<K, A>.put(param: K, value: A): Either<Failure, 
 suspend fun <K> PutDataSource<K, Unit>.put(param: K): Either<Failure, Unit> =
     invoke(Put(param, Unit))
 
-inline fun <K, T> getDataSource(crossinline block: suspend Raise<Failure>.(K) -> T & Any): GetDataSource<K, T & Any> =
+inline fun <K, T> getDataSource(crossinline block: suspend Raise<Failure>.(K) -> T): GetDataSource<K, T> =
     GetDataSource { query ->
         either {
             catch(block = {
@@ -47,8 +47,8 @@ inline fun <K, T> getDataSource(crossinline block: suspend Raise<Failure>.(K) ->
     }
 
 inline fun <K, T> putDataSource(
-    crossinline block: suspend Raise<Failure>.(K, T) -> T & Any
-): PutDataSource<K, T & Any> =
+    crossinline block: suspend Raise<Failure>.(K, T) -> T
+): PutDataSource<K, T> =
     PutDataSource { query ->
         either {
             val value = query.value ?: raise(DataEmpty)
@@ -56,7 +56,7 @@ inline fun <K, T> putDataSource(
         }
     }
 
-inline fun <K, T> postDataSource(crossinline block: suspend Raise<Failure>.(K) -> T & Any): PutDataSource<K, T & Any> =
+inline fun <K, T> postDataSource(crossinline block: suspend Raise<Failure>.(K) -> T): PutDataSource<K, T> =
     PutDataSource { query ->
         either {
             if (query.value != null) raise(Invalid)
