@@ -35,10 +35,16 @@ class CacheExpirationTest : FunSpec({
         either { neverExpires.get(0) } shouldBeRight "Test"
     }
 
-    test("always expires") {
+    test("always expires get") {
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
         val alwaysExpires = store.expires(Always)
         either { alwaysExpires.get(0) } shouldBeLeft Invalid
+    }
+
+    test("always expires put") {
+        val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
+        val alwaysExpires = store.expires(Always)
+        either { alwaysExpires.put(0, "hello") } shouldBeRight "hello"
     }
 
     // "expires with time"

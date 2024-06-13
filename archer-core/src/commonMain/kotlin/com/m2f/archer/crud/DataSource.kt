@@ -13,16 +13,16 @@ import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 
-typealias CRUDDataSource<Q, A> = DataSource<Failure, Q, A & Any>
-typealias GetDataSource<K, A> = CRUDDataSource<Get<K>, A & Any>
-typealias PutDataSource<K, A> = CRUDDataSource<Put<K, out A & Any>, A & Any>
-typealias StoreDataSource<K, A> = CRUDDataSource<KeyQuery<K, out A & Any>, A & Any>
+typealias CRUDDataSource<Q, A> = DataSource<Failure, Q, A>
+typealias GetDataSource<K, A> = CRUDDataSource<Get<K>, A>
+typealias PutDataSource<K, A> = CRUDDataSource<Put<K, out A>, A>
+typealias StoreDataSource<K, A> = CRUDDataSource<KeyQuery<K, out A>, A>
 
 fun interface DeleteDataSource<K> {
     suspend fun ArcherRaise.delete(q: Delete<K>)
 }
 
-inline fun <K, T> getDataSource(crossinline block: suspend ArcherRaise.(K) -> T & Any): GetDataSource<K, T & Any> =
+inline fun <K, T> getDataSource(crossinline block: suspend ArcherRaise.(K) -> T): GetDataSource<K, T> =
     GetDataSource { query ->
         catch(block = {
             block(query.key)
@@ -32,14 +32,14 @@ inline fun <K, T> getDataSource(crossinline block: suspend ArcherRaise.(K) -> T 
     }
 
 inline fun <K, T> putDataSource(
-    crossinline block: suspend ArcherRaise.(K, T & Any) -> T & Any
-): PutDataSource<K, T & Any> =
+    crossinline block: suspend ArcherRaise.(K, T) -> T
+): PutDataSource<K, T> =
     PutDataSource { (key, value) ->
         ensureNotNull(value) { raise(DataEmpty) }
         block(key, value)
     }
 
-inline fun <K, T> postDataSource(crossinline block: suspend ArcherRaise.(K) -> T & Any): PutDataSource<K, T & Any> =
+inline fun <K, T> postDataSource(crossinline block: suspend ArcherRaise.(K) -> T): PutDataSource<K, T> =
     PutDataSource { query ->
         ensure(query.value == null) { Invalid }
         block(query.key)

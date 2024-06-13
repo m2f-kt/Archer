@@ -1,21 +1,22 @@
 [versions]
-agp = "8.2.1"
-kotlin = "1.9.22"
-arrow = "1.2.1"
-kotlinx-coroutines = "1.7.3"
+agp = "8.2.2"
+kotlin = "2.0.0"
+arrow = "2.0.0-alpha.2"
+arrowContinuations = "1.2.4"
+kotlinx-coroutines = "1.8.1"
 kotest-arrow = "1.4.0"
-kotest = "5.8.0"
-kotest-plugin = "5.8.0"
-kover = "0.7.4"
+kotest = "5.9.0"
+kotest-plugin = "5.9.0"
+kover = "0.7.6"
 com-vanniktech-maven-publish = "0.25.3"
-binary-compatibility-validator = "0.13.2"
+binary-compatibility-validator = "0.15.0-Beta.2"
 coveralls = "1.2.18"
-coroutinesTest = "1.8.0-RC2"
+coroutinesTest = "1.8.1"
 time = "0.5.0"
 sqlDelight = "2.0.1"
 startup = "1.1.1"
 webWorkerDriver = "2.0.1"
-kotlinSerialization = "1.6.2"
+kotlinSerialization = "1.6.3"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -43,6 +44,7 @@ web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver", version.
 
 #Arrow
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-continuations = { module = "io.arrow-kt:arrow-continuations", version.ref = "arrowContinuations" }
 arrow-fx = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 fx-stm = { module = "io.arrow-kt:arrow-fx-stm", version.ref = "arrow" }
 
@@ -50,7 +52,8 @@ fx-stm = { module = "io.arrow-kt:arrow-fx-stm", version.ref = "arrow" }
 arrow = [
     "arrow-core",
     "arrow-fx",
-    "fx-stm"
+    "fx-stm",
+    "arrow-continuations"
 ]
 
 kotest = [

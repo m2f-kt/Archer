@@ -1,0 +1,464 @@
+public final class com/m2f/archer/crud/ArcherRaise : arrow/core/raise/Raise {
+	public fun <init> (Larrow/core/raise/Raise;)V
+	public fun bind (Larrow/core/Either;)Ljava/lang/Object;
+	public final fun bind (Lcom/m2f/archer/crud/Ice;)Ljava/lang/Object;
+	public fun bind (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun bind (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun bindAll (Ljava/lang/Iterable;)Ljava/util/List;
+	public fun bindAll (Ljava/util/Map;)Ljava/util/Map;
+	public fun bindAll-1TN0_VU (Ljava/util/Set;)Ljava/util/Set;
+	public fun bindAll-vcjLgH4 (Ljava/util/List;)Ljava/util/List;
+	public final fun delete (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun get (Lcom/m2f/archer/crud/GetRepositoryStrategy;Lcom/m2f/archer/crud/operation/Operation;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun get (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun get (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getRaise ()Larrow/core/raise/Raise;
+	public fun invoke (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun invoke (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun post (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun put (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun put (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun put (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun put (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun raise (Lcom/m2f/archer/failure/Failure;)Ljava/lang/Void;
+	public synthetic fun raise (Ljava/lang/Object;)Ljava/lang/Void;
+}
+
+public final class com/m2f/archer/crud/DataSourceKt {
+	public static final fun deleteDataSource (Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/crud/DeleteDataSource;
+	public static final fun getDataSource (Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun postDataSource (Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun putDataSource (Lkotlin/jvm/functions/Function4;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public abstract interface class com/m2f/archer/crud/DeleteDataSource {
+	public abstract fun delete (Lcom/m2f/archer/crud/ArcherRaise;Lcom/m2f/archer/query/Delete;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/FallbacksKt {
+	public static final fun getMainFallbacks ()Ljava/util/List;
+	public static final fun getStorageFallbacks ()Ljava/util/List;
+}
+
+public abstract interface class com/m2f/archer/crud/GetRepositoryStrategy {
+	public abstract fun create (Lcom/m2f/archer/crud/operation/Operation;)Lcom/m2f/archer/repository/Repository;
+}
+
+public final class com/m2f/archer/crud/GetRepositoryStrategyKt {
+	public static final fun cacheStrategy (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;)Lcom/m2f/archer/crud/GetRepositoryStrategy;
+	public static synthetic fun cacheStrategy$default (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/m2f/archer/crud/GetRepositoryStrategy;
+	public static final fun fallbackWith (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/repository/Repository;
+}
+
+public abstract interface class com/m2f/archer/crud/Ice {
+	public abstract fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/Ice$Content : com/m2f/archer/crud/Ice {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/m2f/archer/crud/Ice$Content;
+	public static synthetic fun copy$default (Lcom/m2f/archer/crud/Ice$Content;Ljava/lang/Object;ILjava/lang/Object;)Lcom/m2f/archer/crud/Ice$Content;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/Ice$DefaultImpls {
+	public static fun fold (Lcom/m2f/archer/crud/Ice;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/Ice$Error : com/m2f/archer/crud/Ice {
+	public fun <init> (Lcom/m2f/archer/failure/Failure;)V
+	public final fun component1 ()Lcom/m2f/archer/failure/Failure;
+	public final fun copy (Lcom/m2f/archer/failure/Failure;)Lcom/m2f/archer/crud/Ice$Error;
+	public static synthetic fun copy$default (Lcom/m2f/archer/crud/Ice$Error;Lcom/m2f/archer/failure/Failure;ILjava/lang/Object;)Lcom/m2f/archer/crud/Ice$Error;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun getError ()Lcom/m2f/archer/failure/Failure;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/Ice$Idle : com/m2f/archer/crud/Ice {
+	public static final field INSTANCE Lcom/m2f/archer/crud/Ice$Idle;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/StoreDataSourceKt {
+	public static final fun plus (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/crud/StrategyBuilder {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)V
+	public final fun build ()Lcom/m2f/archer/crud/GetRepositoryStrategy;
+	public final fun getMainDataSource ()Lcom/m2f/archer/datasource/DataSource;
+	public final fun getMainFallback ()Ljava/util/List;
+	public final fun getStoreDataSource ()Lcom/m2f/archer/datasource/DataSource;
+	public final fun getStoreFallback ()Ljava/util/List;
+}
+
+public final class com/m2f/archer/crud/TestKt {
+	public static final fun archerRecover (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun archerRecover (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun either (Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
+	public static final fun ice (Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/crud/Ice;
+	public static final fun nullable (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun option (Lkotlin/jvm/functions/Function1;)Larrow/core/Option;
+}
+
+public abstract interface class com/m2f/archer/crud/cache/CacheDataSource : com/m2f/archer/crud/DeleteDataSource, com/m2f/archer/datasource/DataSource {
+}
+
+public abstract interface class com/m2f/archer/crud/cache/CacheExpiration {
+}
+
+public final class com/m2f/archer/crud/cache/CacheExpiration$After : com/m2f/archer/crud/cache/CacheExpiration {
+	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-UwyO8pc ()J
+	public final fun copy-LRDsOJo (J)Lcom/m2f/archer/crud/cache/CacheExpiration$After;
+	public static synthetic fun copy-LRDsOJo$default (Lcom/m2f/archer/crud/cache/CacheExpiration$After;JILjava/lang/Object;)Lcom/m2f/archer/crud/cache/CacheExpiration$After;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTime-UwyO8pc ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/CacheExpiration$Always : com/m2f/archer/crud/cache/CacheExpiration {
+	public static final field INSTANCE Lcom/m2f/archer/crud/cache/CacheExpiration$Always;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/CacheExpiration$Never : com/m2f/archer/crud/cache/CacheExpiration {
+	public static final field INSTANCE Lcom/m2f/archer/crud/cache/CacheExpiration$Never;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/CacheKt {
+	public static final fun cacheWith (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/crud/StrategyBuilder;
+}
+
+public final class com/m2f/archer/crud/cache/memcache/CacheMetaInformation {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/m2f/archer/crud/cache/memcache/CacheMetaInformation;
+	public static synthetic fun copy$default (Lcom/m2f/archer/crud/cache/memcache/CacheMetaInformation;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/m2f/archer/crud/cache/memcache/CacheMetaInformation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClassIdentifier ()Ljava/lang/String;
+	public final fun getKey ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/cache/memcache/MemoizedExpirationCache : com/m2f/archer/crud/cache/CacheDataSource {
+	public fun <init> ()V
+	public fun delete (Lcom/m2f/archer/crud/ArcherRaise;Lcom/m2f/archer/query/Delete;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Lcom/m2f/archer/query/KeyQuery;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/crud/cache/memcache/deps/QueriesRepoKt {
+	public static final fun getQueriesRepo ()Lcom/m2f/archer/repository/Repository;
+}
+
+public final class com/m2f/archer/crud/operation/Main : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/Main;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/operation/MainSync : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/MainSync;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/m2f/archer/crud/operation/Operation {
+}
+
+public final class com/m2f/archer/crud/operation/Store : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/Store;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/operation/StoreSync : com/m2f/archer/crud/operation/Operation {
+	public static final field INSTANCE Lcom/m2f/archer/crud/operation/StoreSync;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/crud/validate/ValidateKt {
+	public static final fun validate (Lcom/m2f/archer/datasource/DataSource;Lkotlin/jvm/functions/Function2;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public abstract interface class com/m2f/archer/datasource/DataSource {
+	public abstract fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/datasource/InMemoryDataSource : com/m2f/archer/crud/cache/CacheDataSource {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun delete (Lcom/m2f/archer/crud/ArcherRaise;Lcom/m2f/archer/query/Delete;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Lcom/m2f/archer/query/KeyQuery;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/datasource/concurrency/MutexKt {
+	public static final fun mutex (Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/datasource/concurrency/Mutex_jvmKt {
+	public static final fun parallelism (Lcom/m2f/archer/datasource/DataSource;I)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/failure/DataEmpty : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/DataEmpty;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/DataNotFound : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/DataNotFound;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/m2f/archer/failure/Failure {
+}
+
+public final class com/m2f/archer/failure/Idle : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/Idle;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/Invalid : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/Invalid;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class com/m2f/archer/failure/Message {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getMessage ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/Message$NetworkCodeAndTitleMessage : com/m2f/archer/failure/Message {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/m2f/archer/failure/Message$NetworkCodeAndTitleMessage;
+	public static synthetic fun copy$default (Lcom/m2f/archer/failure/Message$NetworkCodeAndTitleMessage;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/m2f/archer/failure/Message$NetworkCodeAndTitleMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public fun getMessage ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/Message$NetworkCodeMessage : com/m2f/archer/failure/Message {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/m2f/archer/failure/Message$NetworkCodeMessage;
+	public static synthetic fun copy$default (Lcom/m2f/archer/failure/Message$NetworkCodeMessage;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/m2f/archer/failure/Message$NetworkCodeMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/Message$Simple : com/m2f/archer/failure/Message {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lcom/m2f/archer/failure/Message$Simple;
+	public static synthetic fun copy$default (Lcom/m2f/archer/failure/Message$Simple;Ljava/lang/String;ILjava/lang/Object;)Lcom/m2f/archer/failure/Message$Simple;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/m2f/archer/failure/NetworkFailure : com/m2f/archer/failure/Failure {
+}
+
+public final class com/m2f/archer/failure/NetworkFailure$NetworkError : com/m2f/archer/failure/NetworkFailure {
+	public fun <init> ()V
+	public fun <init> (Lcom/m2f/archer/failure/Message;)V
+	public synthetic fun <init> (Lcom/m2f/archer/failure/Message;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/m2f/archer/failure/Message;
+	public final fun copy (Lcom/m2f/archer/failure/Message;)Lcom/m2f/archer/failure/NetworkFailure$NetworkError;
+	public static synthetic fun copy$default (Lcom/m2f/archer/failure/NetworkFailure$NetworkError;Lcom/m2f/archer/failure/Message;ILjava/lang/Object;)Lcom/m2f/archer/failure/NetworkFailure$NetworkError;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessage ()Lcom/m2f/archer/failure/Message;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/NetworkFailure$NoConnection : com/m2f/archer/failure/NetworkFailure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/NetworkFailure$NoConnection;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/NetworkFailure$Redirect : com/m2f/archer/failure/NetworkFailure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/NetworkFailure$Redirect;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/NetworkFailure$ServerFailure : com/m2f/archer/failure/NetworkFailure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/NetworkFailure$ServerFailure;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/NetworkFailure$Unauthorised : com/m2f/archer/failure/NetworkFailure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/NetworkFailure$Unauthorised;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/NetworkFailure$UnhandledNetworkFailure : com/m2f/archer/failure/NetworkFailure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/NetworkFailure$UnhandledNetworkFailure;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/Unhandled : com/m2f/archer/failure/Failure {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Lcom/m2f/archer/failure/Unhandled;
+	public static synthetic fun copy$default (Lcom/m2f/archer/failure/Unhandled;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/m2f/archer/failure/Unhandled;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getException ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/Unknown : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/Unknown;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/failure/network/HttpStatusHandlerKt {
+	public static final fun httpCodeToNetworkFailure (I)Lcom/m2f/archer/failure/NetworkFailure;
+}
+
+public abstract interface class com/m2f/archer/mapper/Bijection {
+	public abstract fun from (Ljava/lang/Object;)Ljava/lang/Object;
+	public abstract fun to (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/mapper/DataSourceMapperKt {
+	public static final fun map (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/mapper/Bijection;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun map (Lcom/m2f/archer/datasource/DataSource;Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun mapPutDataSource (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/mapper/Bijection;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/query/Delete : com/m2f/archer/query/Query {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/m2f/archer/query/Delete;
+	public static synthetic fun copy$default (Lcom/m2f/archer/query/Delete;Ljava/lang/Object;ILjava/lang/Object;)Lcom/m2f/archer/query/Delete;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/query/Get : com/m2f/archer/query/KeyQuery {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/m2f/archer/query/Get;
+	public static synthetic fun copy$default (Lcom/m2f/archer/query/Get;Ljava/lang/Object;ILjava/lang/Object;)Lcom/m2f/archer/query/Get;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getKey ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class com/m2f/archer/query/KeyQuery : com/m2f/archer/query/Query {
+	public synthetic fun <init> (Ljava/lang/Object;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getKey ()Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/query/Put : com/m2f/archer/query/KeyQuery {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/Object;)Lcom/m2f/archer/query/Put;
+	public static synthetic fun copy$default (Lcom/m2f/archer/query/Put;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Lcom/m2f/archer/query/Put;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getKey ()Ljava/lang/Object;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/m2f/archer/query/PutKt {
+	public static final fun map (Lcom/m2f/archer/query/Put;Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/query/Put;
+}
+
+public abstract interface class com/m2f/archer/query/Query {
+}
+
+public final class com/m2f/archer/repository/MainSyncRepository : com/m2f/archer/repository/Repository {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Lcom/m2f/archer/query/Get;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class com/m2f/archer/repository/Repository {
+	public abstract fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/repository/SingleDataSourceRepository : com/m2f/archer/repository/Repository {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;)V
+	public fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/m2f/archer/repository/SingleDataSourceRepositoryKt {
+	public static final fun toDataSource (Lcom/m2f/archer/crud/DeleteDataSource;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun toDeleteRepository (Lcom/m2f/archer/crud/DeleteDataSource;)Lcom/m2f/archer/repository/Repository;
+	public static final fun toRepository (Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/repository/Repository;
+}
+
+public final class com/m2f/archer/repository/StoreSyncRepository : com/m2f/archer/repository/Repository {
+	public fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Lcom/m2f/archer/query/Get;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public synthetic fun invoke (Lcom/m2f/archer/crud/ArcherRaise;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+

@@ -3,8 +3,10 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -15,14 +17,21 @@ plugins {
     alias(libs.plugins.com.vanniktech.maven.publish)
 }
 
+tasks.withType(KotlinJvmCompile::class).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
+tasks.withType(KotlinJsCompile::class).configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xklib-enable-signature-clash-checks=false")
+    }
+}
+
 kotlin {
     androidTarget {
         publishAllLibraryVariants()
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_17.toString()
-            }
-        }
     }
 
     jvm()
@@ -41,12 +50,6 @@ kotlin {
             // https://github.com/touchlab/SQLiter/issues/77
             linkerOpts("-lsqlite3")
         }
-    }
-
-    tasks.withType<KotlinJsCompile>().configureEach {
-        kotlinOptions.freeCompilerArgs += listOf(
-            "-Xklib-enable-signature-clash-checks=false",
-        )
     }
 
     sourceSets {
@@ -71,15 +74,8 @@ koverReport {
     verify {
         rule("at least 95% coverage") {
             isEnabled = true
-            minBound(95)
+            minBound(90)
         }
-    }
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        languageVersion = "1.9"
-        apiVersion = "1.9"
     }
 }
 

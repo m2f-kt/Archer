@@ -10,13 +10,13 @@ import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.query.Get
 
 class StoreSyncRepository<K, A>(
-    private val storeDataSource: StoreDataSource<K, A & Any>,
-    private val mainDataSource: GetDataSource<K, A & Any>,
+    private val storeDataSource: StoreDataSource<K, A>,
+    private val mainDataSource: GetDataSource<K, A>,
     private val fallbackChecks: List<Failure> = emptyList(),
     private val mainFallbackChecks: List<Failure> = emptyList(),
 ) : GetRepository<K, A> {
 
-    override suspend fun ArcherRaise.invoke(q: Get<K>): A & Any =
+    override suspend fun ArcherRaise.invoke(q: Get<K>): A =
         archerRecover(
             block = {
                 storeDataSource.get(q.key)

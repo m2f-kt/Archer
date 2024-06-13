@@ -25,13 +25,13 @@ class ArcherRaise(val raise: Raise<Failure>) : Raise<Failure> by raise {
         ifError = { raise(it) },
     )
 
-    suspend fun <K, A> GetRepository<K, A & Any>.get(param: K): A & Any =
+    suspend fun <K, A> GetRepository<K, A>.get(param: K): A =
         invoke(Get(param))
 
-    suspend fun <K, A> PutRepository<K, A & Any>.put(
+    suspend fun <K, A> PutRepository<K, A>.put(
         param: K,
-        value: A & Any,
-    ): A & Any = invoke(
+        value: A,
+    ): A = invoke(
         Put(param, value),
     )
 
@@ -44,13 +44,13 @@ class ArcherRaise(val raise: Raise<Failure>) : Raise<Failure> by raise {
     suspend fun <K> DeleteRepository<K>.delete(param: K) =
         invoke(Delete(param))
 
-    suspend fun <K, A> GetDataSource<K, A>.get(queryKey: K): A & Any =
+    suspend fun <K, A> GetDataSource<K, A>.get(queryKey: K): A =
         invoke(Get(queryKey))
 
-    suspend fun <K, A> PutDataSource<K, A>.post(param: K): A & Any =
+    suspend fun <K, A> PutDataSource<K, A>.post(param: K): A =
         invoke(Put(param, null))
 
-    suspend fun <K, A> PutDataSource<K, A>.put(param: K, value: A & Any): A & Any =
+    suspend fun <K, A> PutDataSource<K, A>.put(param: K, value: A): A =
         invoke(Put(param, value))
 
     suspend fun <K> PutDataSource<K, Unit>.put(param: K) =

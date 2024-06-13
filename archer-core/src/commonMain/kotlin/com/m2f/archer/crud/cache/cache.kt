@@ -1,6 +1,5 @@
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.DeleteDataSource
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepositoryStrategy
@@ -18,7 +17,6 @@ import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
-import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -26,67 +24,63 @@ import kotlin.time.Duration
 
 interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 
-inline fun <K, reified A> GetDataSource<K, A & Any>.cache(
-    storage: StoreDataSource<K, A & Any> = InMemoryDataSource(),
+inline fun <K, reified A> GetDataSource<K, A>.cache(
+    storage: StoreDataSource<K, A> = InMemoryDataSource(),
     expiration: CacheExpiration = Never
-): GetRepositoryStrategy<K, A & Any> = cacheStrategy(this, storage.expires(expiration))
+): GetRepositoryStrategy<K, A> = cacheStrategy(this, storage.expires(expiration))
 
-infix fun <K, A> GetDataSource<K, A & Any>.cacheWith(storage: StoreDataSource<K, A & Any>): StrategyBuilder<K, A> =
+infix fun <K, A> GetDataSource<K, A>.cacheWith(storage: StoreDataSource<K, A>): StrategyBuilder<K, A> =
     StrategyBuilder(this, storage)
 
 inline infix fun <K, reified A> StrategyBuilder<K, A>.expires(expiration: CacheExpiration):
         GetRepositoryStrategy<K, A> =
     StrategyBuilder(mainDataSource, storeDataSource.expires(expiration)).build()
 
-inline infix fun <K, reified A> StrategyBuilder<K, A & Any>.expiresIn(duration: Duration):
-        GetRepositoryStrategy<K, A & Any> =
+inline infix fun <K, reified A> StrategyBuilder<K, A>.expiresIn(duration: Duration):
+        GetRepositoryStrategy<K, A> =
     expires(After(duration))
 
-inline fun <K, reified A> StoreDataSource<K, A & Any>.expires(
+inline fun <K, reified A> StoreDataSource<K, A>.expires(
     expiration: CacheExpiration,
     cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache()
-): StoreDataSource<K, A & Any> =
+): StoreDataSource<K, A> =
     when (expiration) {
         Never -> this
-        Always -> object : StoreDataSource<K, A & Any> {
-            override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A & Any>): A & Any {
-                return when (q) {
-                    is Put -> {
-                        this@expires.put(q.key, q.value ?: raise(DataEmpty))
-                    }
+        Always -> StoreDataSource { q ->
+            when (q) {
+                is Put -> {
+                    this@expires.put(q.key, q.value ?: raise(DataEmpty))
+                }
 
-                    is Get -> {
-                        raise(Invalid)
-                    }
+                is Get -> {
+                    raise(Invalid)
                 }
             }
         }
 
-        is After -> object : StoreDataSource<K, A & Any> {
-            override suspend fun ArcherRaise.invoke(q: KeyQuery<K, out A & Any>): A & Any {
-                val info = CacheMetaInformation(
-                    key = q.key.toString(),
-                    classIdentifier = A::class.simpleName.toString()
-                )
-                return when (q) {
-                    is Put -> {
-                        val now = Clock.System.now()
-                        val expirationDate = (now + expiration.time)
-                        cache.put(info, expirationDate)
-                        this@expires.run { invoke(q) }
-                    }
+        is After -> StoreDataSource { q ->
+            val info = CacheMetaInformation(
+                key = q.key.toString(),
+                classIdentifier = A::class.simpleName.toString()
+            )
+            when (q) {
+                is Put -> {
+                    val now = Clock.System.now()
+                    val expirationDate = (now + expiration.time)
+                    cache.put(info, expirationDate)
+                    this@expires.run { invoke(q) }
+                }
 
-                    is Get -> {
-                        val now = Clock.System.now()
-                        val isValid: Boolean = archerRecover({ cache.get(info).let { now - it }.isNegative() }) {
-                            false
-                        }
-                        archerRecover(
-                            block = { this@expires.get(q.key).takeIf { isValid } ?: raise(Invalid) },
-                        ) { failure ->
-                            cache.run { delete(Delete(info)) }
-                            raise(failure)
-                        }
+                is Get -> {
+                    val now = Clock.System.now()
+                    val isValid: Boolean = archerRecover({ cache.get(info).let { now - it }.isNegative() }) {
+                        false
+                    }
+                    archerRecover(
+                        block = { this@expires.get(q.key).takeIf { isValid } ?: raise(Invalid) },
+                    ) { failure ->
+                        cache.run { delete(Delete(info)) }
+                        raise(failure)
                     }
                 }
             }

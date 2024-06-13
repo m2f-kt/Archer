@@ -20,5 +20,5 @@ fun interface DataSource<out F, in Q, out A> {
      * Either is a branched type that can be Left<F> or Right<A>.
      * Normally, the Left side is used for errors and the Right side is used for success.
      */
-    suspend operator fun ArcherRaise.invoke(q: Q): A & Any
+    suspend operator fun ArcherRaise.invoke(q: Q): A
 }

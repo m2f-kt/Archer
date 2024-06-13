@@ -1,12 +1,25 @@
+import kotlinx.validation.ExperimentalBCVApi
+
 plugins {
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotest.multiplatform) apply false
     alias(libs.plugins.kotlinx.kover) apply false
     alias(libs.plugins.coverallsjacoco)
-    alias(libs.plugins.binary.compatibility.validator) apply false
+    alias(libs.plugins.binary.compatibility.validator)
     alias(libs.plugins.com.vanniktech.maven.publish) apply false
 }
+
+apiValidation {
+
+    @OptIn(ExperimentalBCVApi::class)
+    klib {
+        enabled = true
+        strictValidation = true
+    }
+}
+
+
 
 val sources: List<File> = subprojects.flatMap { project ->
     file("${project.projectDir}/src/").walkBottomUp().maxDepth(2)

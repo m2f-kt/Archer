@@ -13,14 +13,14 @@ import com.m2f.archer.mapper.Bijection
 
 inline fun <K, reified A> SharedPreferences.toDataSource(
     prefix: String = "",
-    bijection: Bijection<String, A & Any> = stringToSerializableBijection(),
-): SharedPreferencesDataSource<K, A & Any> = SharedPreferencesDataSource(this, prefix, bijection)
+    bijection: Bijection<String, A> = stringToSerializableBijection(),
+): SharedPreferencesDataSource<K, A> = SharedPreferencesDataSource(this, prefix, bijection)
 
-inline fun <reified K, reified A> GetDataSource<K, A & Any>.cache(
+inline fun <reified K, reified A> GetDataSource<K, A>.cache(
     preferences: SharedPreferences,
     operation: Operation = MainSync,
 ): GetRepository<K, A> =
     cacheStrategy(this, preferences.toDataSource()).create(operation)
 
-inline infix fun <K, reified A> GetDataSource<K, A & Any>.cacheWith(storage: SharedPreferences): StrategyBuilder<K, A> =
+inline infix fun <K, reified A> GetDataSource<K, A>.cacheWith(storage: SharedPreferences): StrategyBuilder<K, A> =
     StrategyBuilder(this, storage.toDataSource())
