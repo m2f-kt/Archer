@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.kotlinx.kover)
     alias(libs.plugins.com.vanniktech.maven.publish)
 }
 

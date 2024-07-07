@@ -1,13 +1,14 @@
 package com.m2f.archer.crud.cache
 
+import com.m2f.archer.configuration.Configuration
+import com.m2f.archer.configuration.DefaultConfiguration
 import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
-import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
 import kotlinx.datetime.Instant
 
 suspend inline fun <reified A> ArcherRaise.invalidateCache(
+    configuration: Configuration = DefaultConfiguration,
     key: Any,
-    cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache(),
 ) {
     @Suppress("NullableToStringCall")
     val info = CacheMetaInformation(
@@ -15,5 +16,5 @@ suspend inline fun <reified A> ArcherRaise.invalidateCache(
         classIdentifier = A::class.simpleName.toString(),
     )
 
-    cache.put(info, Instant.DISTANT_PAST)
+    configuration.cache.put(info, Instant.DISTANT_PAST)
 }

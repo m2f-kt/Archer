@@ -1,6 +1,8 @@
 package com.m2f.archer.datasource.extensions
 
 import android.content.SharedPreferences
+import com.m2f.archer.configuration.Configuration
+import com.m2f.archer.configuration.DefaultConfiguration
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepository
 import com.m2f.archer.crud.StrategyBuilder
@@ -17,10 +19,11 @@ inline fun <K, reified A> SharedPreferences.toDataSource(
 ): SharedPreferencesDataSource<K, A> = SharedPreferencesDataSource(this, prefix, bijection)
 
 inline fun <reified K, reified A> GetDataSource<K, A>.cache(
+    configuration: Configuration = DefaultConfiguration,
     preferences: SharedPreferences,
     operation: Operation = MainSync,
 ): GetRepository<K, A> =
-    cacheStrategy(this, preferences.toDataSource()).create(operation)
+    cacheStrategy(configuration, this, preferences.toDataSource()).create(operation)
 
 inline infix fun <K, reified A> GetDataSource<K, A>.cacheWith(storage: SharedPreferences): StrategyBuilder<K, A> =
     StrategyBuilder(this, storage.toDataSource())

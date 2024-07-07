@@ -8,6 +8,8 @@ import arrow.core.raise.Raise
 import arrow.core.raise.RaiseDSL
 import arrow.core.raise.recover
 import arrow.core.some
+import com.m2f.archer.configuration.Configuration
+import com.m2f.archer.configuration.DefaultConfiguration
 import com.m2f.archer.crud.cache.invalidateCache
 import com.m2f.archer.crud.operation.Operation
 import com.m2f.archer.failure.Failure
@@ -61,8 +63,11 @@ class ArcherRaise(val raise: Raise<Failure>) : Raise<Failure> by raise {
         q: K,
     ) = create(operation).get(q)
 
-    suspend inline fun <K : Any, reified A> GetRepositoryStrategy<K, A>.invalidate(key: K) {
-        invalidateCache<A>(key)
+    suspend inline fun <K : Any, reified A> GetRepositoryStrategy<K, A>.invalidate(
+        configuration: Configuration = DefaultConfiguration,
+        key: K
+    ) {
+        invalidateCache<A>(configuration, key)
     }
 }
 

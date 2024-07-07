@@ -12,7 +12,7 @@ import com.m2f.archer.query.Get
 class MainSyncRepository<K, A>(
     private val mainDataSource: GetDataSource<K, A>,
     private val storeDataSource: StoreDataSource<K, A>,
-    private val fallbackChecks: List<Failure> = emptyList(),
+    private val fallbackChecks: (Failure) -> Boolean = { false },
 ) : GetRepository<K, A> {
 
     override suspend fun ArcherRaise.invoke(q: Get<K>): A =
@@ -21,7 +21,7 @@ class MainSyncRepository<K, A>(
                 storeDataSource.put(q.key, mainDataSource.get(q.key))
             },
             recover = { failure ->
-                if (failure in fallbackChecks) {
+                if (fallbackChecks(failure)) {
                     archerRecover(
                         block = { storeDataSource.get(q.key) },
                         recover = {

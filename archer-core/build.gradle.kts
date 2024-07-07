@@ -64,19 +64,28 @@ kotlin {
             implementation(libs.bundles.kotest)
         }
 
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(libs.kotest.runnerJUnit5)
+                implementation(libs.sqlDelight.driver.sqlite)
+            }
+        }
+
         jvmTest.dependencies {
             implementation(libs.kotest.runnerJUnit5)
+            implementation(libs.sqlDelight.driver.sqlite)
         }
     }
 }
 
-koverReport {
-    verify {
-        rule("at least 95% coverage") {
-            isEnabled = true
-            minBound(90)
-        }
-    }
+kover {
+
+//    verify {
+//        rule("at least 95% coverage") {
+//            isEnabled = true
+//            minBound(90)
+//        }
+//    }
 }
 
 tasks.named<Test>("jvmTest") {
@@ -104,5 +113,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
     }
 }

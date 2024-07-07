@@ -2,6 +2,7 @@ package com.m2f.archer.crud.cache
 
 import com.m2f.archer.crud.Ice
 import com.m2f.archer.crud.StoreDataSource
+import com.m2f.archer.crud.cache.configuration.testConfiguration
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.ice
 import com.m2f.archer.crud.operation.MainSync
@@ -15,40 +16,46 @@ import kotlin.time.Duration.Companion.minutes
 
 class InvalidationTest : FunSpec({
 
-    test("Invalidating key enforces a stored data to return invalid") {
+    with(testConfiguration) {
 
-        val main = getDataSource<Int, _> { 1 }
-        val store = StoreDataSource<Int, Int> { query ->
-            when (query) {
-                is Get -> query.key * 2
-                is Put -> query.key
+        test("Invalidating key enforces a stored data to return invalid") {
+
+            val main = getDataSource<Int, _> { 1 }
+            val store = StoreDataSource<Int, Int> { query ->
+                when (query) {
+                    is Get -> query.key * 2
+                    is Put -> query.key
+                }
             }
+
+            val strategy = with(testConfiguration) {
+                main cacheWith store expiresIn 5.minutes
+            }
+
+            ice {
+                strategy.get(MainSync, 1)
+                invalidateCache<Int>(testConfiguration, 1)
+                strategy.get(Store, 1)
+            } shouldBe Ice.Error(Invalid)
         }
 
-        val strategy = main cacheWith store expiresIn 5.minutes
-
-        ice {
-            strategy.get(MainSync, 1)
-            invalidateCache<Int>(1)
-            strategy.get(Store, 1)
-        } shouldBe Ice.Error(Invalid)
-    }
-
-    test("Invalidate a strategy directly") {
-        val main = getDataSource<Int, _> { 1 }
-        val store = StoreDataSource<Int, Int> { query ->
-            when (query) {
-                is Get -> query.key * 2
-                is Put -> query.key
+        test("Invalidate a strategy directly") {
+            val main = getDataSource<Int, _> { 1 }
+            val store = StoreDataSource<Int, Int> { query ->
+                when (query) {
+                    is Get -> query.key * 2
+                    is Put -> query.key
+                }
             }
+
+            val strategy = main cacheWith store expiresIn 5.minutes
+
+            ice {
+                strategy.get(MainSync, 1)
+                strategy.invalidate(testConfiguration, 1)
+                strategy.get(Store, 1)
+            } shouldBe Ice.Error(Invalid)
         }
-
-        val strategy = main cacheWith store expiresIn 5.minutes
-
-        ice {
-            strategy.get(MainSync, 1)
-            strategy.invalidate(1)
-            strategy.get(Store, 1)
-        } shouldBe Ice.Error(Invalid)
     }
+
 })
