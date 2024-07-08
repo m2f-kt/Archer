@@ -1,7 +1,9 @@
 package com.m2f.archer.crud.cache.memcache
 
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
+import com.m2f.archer.ExpirationRegistryQueries
 import com.m2f.archer.crud.ArcherRaise
+import com.m2f.archer.crud.GetRepository
 import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.crud.cache.memcache.deps.queriesRepo
 import com.m2f.archer.failure.DataEmpty
@@ -16,14 +18,16 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
 
-class MemoizedExpirationCache :
+class MemoizedExpirationCache(
+    private val repo: GetRepository<Unit, ExpirationRegistryQueries> = queriesRepo
+) :
     CacheDataSource<CacheMetaInformation, Instant> {
 
     private val mutex: Mutex = Mutex()
 
     override suspend fun ArcherRaise.invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Instant =
         mutex.withLock {
-            val queries = queriesRepo.get(Unit)
+            val queries = repo.get(Unit)
             queries.transactionWithResult {
                 when (q) {
                     is Get -> queries.getInstant(
@@ -50,7 +54,7 @@ class MemoizedExpirationCache :
 
     override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) =
         mutex.withLock {
-            val queries = queriesRepo.get(Unit)
+            val queries = repo.get(Unit)
             queries.transaction { queries.deleteInstant(key = q.key.key, hash = q.key.hashCode().toLong()) }
         }
 }

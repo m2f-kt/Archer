@@ -1,5 +1,6 @@
 package com.m2f.archer.crud.cache
 
+import com.m2f.archer.configuration.DefaultConfiguration.expires
 import com.m2f.archer.crud.cache.CacheExpiration.Never
 import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
