@@ -8,7 +8,7 @@ import com.m2f.archer.crud.cache.CacheExpiration.After
 import com.m2f.archer.crud.cache.build
 import com.m2f.archer.crud.cache.expires
 import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
-import com.m2f.archer.datasource.InMemoryDataSource
+import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
@@ -60,5 +60,5 @@ object DefaultConfiguration : Configuration() {
                 failure is Invalid
     }
 
-    override val cache: CacheDataSource<CacheMetaInformation, Instant> = InMemoryDataSource()//MemoizedExpirationCache()
+    override val cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache()
 }
