@@ -101,30 +101,36 @@ class CacheExpirationTest : FunSpec({
         test("test expiration with a time expiring strategy") {
             val main = getDataSource<Int, String> { "main" }
 
-            val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
-            val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
+            with(testConfiguration) {
+                val store: StoreDataSource<Int, String> =
+                    InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
+                val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
 
-            // Fetch the value from the main source and store it afterward
-            either { cacheStrategyAfter.get(MainSync, 0) } shouldBeRight "main from Store"
+                // Fetch the value from the main source and store it afterward
+                either { cacheStrategyAfter.get(MainSync, 0) } shouldBeRight "main from Store"
 
-            // Wait few milliseconds to let the cache expire
-            delay(100L)
+                // Wait few milliseconds to let the cache expire
+                delay(100L)
 
-            // The cache is expired so if we enforce data from store should be invalid
-            either { cacheStrategyAfter.get(Store, 0) } shouldBeLeft Invalid
+                // The cache is expired so if we enforce data from store should be invalid
+                either { cacheStrategyAfter.get(Store, 0) } shouldBeLeft Invalid
+            }
         }
 
         test("test no-expiration with a time expiring strategy") {
             val main = getDataSource<Int, String> { "main" }
 
-            val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
-            val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
+            with(testConfiguration) {
+                val store: StoreDataSource<Int, String> =
+                    InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
+                val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
 
-            // Fetch the value from the main source and store it afterward
-            either { cacheStrategyAfter.get(MainSync, 0) } shouldBeRight "main from Store"
+                // Fetch the value from the main source and store it afterward
+                either { cacheStrategyAfter.get(MainSync, 0) } shouldBeRight "main from Store"
 
-            // there's no delay so the cache did not expire
-            either { cacheStrategyAfter.get(Store, 0) } shouldBeRight "main from Store"
+                // there's no delay so the cache did not expire
+                either { cacheStrategyAfter.get(Store, 0) } shouldBeRight "main from Store"
+            }
         }
 
         // "expiration rules"
