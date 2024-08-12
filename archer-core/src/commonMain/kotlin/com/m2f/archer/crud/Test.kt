@@ -10,6 +10,8 @@ import arrow.core.raise.recover
 import arrow.core.some
 import com.m2f.archer.configuration.Configuration
 import com.m2f.archer.configuration.DefaultConfiguration
+import com.m2f.archer.crud.Ice.Content
+import com.m2f.archer.crud.Ice.Error
 import com.m2f.archer.crud.cache.invalidateCache
 import com.m2f.archer.crud.operation.Operation
 import com.m2f.archer.failure.DataNotFound
@@ -51,6 +53,9 @@ class ArcherRaise(val raise: Raise<Failure>) : Raise<Failure> by raise {
     suspend fun <K> DeleteRepository<K>.delete(param: K) =
         invoke(Delete(param))
 
+    suspend fun <K> DeleteDataSource<K>.delete(param: K) =
+        delete(Delete(param))
+
     suspend fun <K, A> GetDataSource<K, A>.get(queryKey: K): A =
         invoke(Get(queryKey))
 
@@ -80,16 +85,16 @@ sealed interface Ice<out A> {
     data object Idle : Ice<Nothing>
     data class Content<A>(val value: A) : Ice<A>
     data class Error(val error: Failure) : Ice<Nothing>
+}
 
-    fun <T> fold(
-        ifIdle: () -> T,
-        ifContent: (A) -> T,
-        ifError: (Failure) -> T,
-    ): T = when (this) {
-        is Idle -> ifIdle()
-        is Content -> ifContent(value)
-        is Error -> ifError(error)
-    }
+inline fun <A, T> Ice<A>.fold(
+    ifIdle: () -> T,
+    ifContent: (A) -> T,
+    ifError: (Failure) -> T,
+): T = when (this) {
+    is Ice.Idle -> ifIdle()
+    is Content -> ifContent(value)
+    is Error -> ifError(error)
 }
 
 @OptIn(ExperimentalTypeInference::class)
