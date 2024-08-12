@@ -23,6 +23,7 @@ public final class com/m2f/archer/crud/ArcherRaise : arrow/core/raise/Raise {
 	public fun bindAll (Ljava/util/Map;)Ljava/util/Map;
 	public fun bindAll-1TN0_VU (Ljava/util/Set;)Ljava/util/Set;
 	public fun bindAll-vcjLgH4 (Ljava/util/List;)Ljava/util/List;
+	public final fun delete (Lcom/m2f/archer/crud/DeleteDataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun delete (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/crud/GetRepositoryStrategy;Lcom/m2f/archer/crud/operation/Operation;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -61,7 +62,6 @@ public final class com/m2f/archer/crud/GetRepositoryStrategyKt {
 }
 
 public abstract interface class com/m2f/archer/crud/Ice {
-	public abstract fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
 public final class com/m2f/archer/crud/Ice$Content : com/m2f/archer/crud/Ice {
@@ -70,14 +70,9 @@ public final class com/m2f/archer/crud/Ice$Content : com/m2f/archer/crud/Ice {
 	public final fun copy (Ljava/lang/Object;)Lcom/m2f/archer/crud/Ice$Content;
 	public static synthetic fun copy$default (Lcom/m2f/archer/crud/Ice$Content;Ljava/lang/Object;ILjava/lang/Object;)Lcom/m2f/archer/crud/Ice$Content;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final fun getValue ()Ljava/lang/Object;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
-}
-
-public final class com/m2f/archer/crud/Ice$DefaultImpls {
-	public static fun fold (Lcom/m2f/archer/crud/Ice;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
 
 public final class com/m2f/archer/crud/Ice$Error : com/m2f/archer/crud/Ice {
@@ -86,7 +81,6 @@ public final class com/m2f/archer/crud/Ice$Error : com/m2f/archer/crud/Ice {
 	public final fun copy (Lcom/m2f/archer/failure/Failure;)Lcom/m2f/archer/crud/Ice$Error;
 	public static synthetic fun copy$default (Lcom/m2f/archer/crud/Ice$Error;Lcom/m2f/archer/failure/Failure;ILjava/lang/Object;)Lcom/m2f/archer/crud/Ice$Error;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public final fun getError ()Lcom/m2f/archer/failure/Failure;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -95,7 +89,6 @@ public final class com/m2f/archer/crud/Ice$Error : com/m2f/archer/crud/Ice {
 public final class com/m2f/archer/crud/Ice$Idle : com/m2f/archer/crud/Ice {
 	public static final field INSTANCE Lcom/m2f/archer/crud/Ice$Idle;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun fold (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -115,6 +108,7 @@ public final class com/m2f/archer/crud/TestKt {
 	public static final fun archerRecover (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun bool (Lkotlin/jvm/functions/Function1;)Z
 	public static final fun either (Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
+	public static final fun fold (Lcom/m2f/archer/crud/Ice;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun ice (Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/crud/Ice;
 	public static final fun nil (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun nullable (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
