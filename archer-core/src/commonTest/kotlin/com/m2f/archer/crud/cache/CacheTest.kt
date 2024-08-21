@@ -4,7 +4,6 @@ import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.PutDataSource
 import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.crud.cache.configuration.testConfiguration
-import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.operation.Main
 import com.m2f.archer.crud.operation.MainSync
@@ -24,7 +23,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 
 class CacheTest : FunSpec({
 
-    with(testConfiguration) {
+    with(testConfiguration()) {
 
         test("Calling cache with empty parameter It uses a default InMemorydataSource") {
             val mainGet: GetDataSource<Int, String> = getDataSource { "main" }
@@ -38,7 +37,7 @@ class CacheTest : FunSpec({
             val get: GetDataSource<Int, String> = getDataSource { "store get" }
             val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
             val store: StoreDataSource<Int, String> = get + put
-            val repository = mainGet.cache(testConfiguration, store).create(StoreSync)
+            val repository = mainGet.cache(testConfiguration(), store).create(StoreSync)
             repository.shouldBeInstanceOf<StoreSyncRepository<Int, String>>()
         }
 
@@ -47,7 +46,7 @@ class CacheTest : FunSpec({
             val get: GetDataSource<Int, String> = getDataSource { "store get" }
             val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
             val store: StoreDataSource<Int, String> = get + put
-            val repository = mainGet.cache(testConfiguration, store).create(MainSync)
+            val repository = mainGet.cache(testConfiguration(), store).create(MainSync)
 
             repository.shouldBeInstanceOf<MainSyncRepository<Int, String>>()
         }
@@ -60,7 +59,7 @@ class CacheTest : FunSpec({
             val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
             val store: StoreDataSource<Int, String> = get + put
 
-            val repository = mainGet.cache(testConfiguration, store).create(Main)
+            val repository = mainGet.cache(testConfiguration(), store).create(Main)
 
             repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
             either { repository.get(1) } shouldBe either { mainGet.get(1) }
@@ -73,7 +72,7 @@ class CacheTest : FunSpec({
             val get: GetDataSource<Int, String> = getDataSource { "store get" }
             val put: PutDataSource<Int, String> = putDataSource { _, _ -> "store put" }
             val store: StoreDataSource<Int, String> = get + put
-            val repository = mainGet.cache(testConfiguration, store).create(Store)
+            val repository = mainGet.cache(testConfiguration(), store).create(Store)
 
             repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
 

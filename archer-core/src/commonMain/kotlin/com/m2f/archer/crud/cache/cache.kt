@@ -2,7 +2,6 @@ package com.m2f.archer.crud.cache
 
 import com.m2f.archer.configuration.Configuration
 import com.m2f.archer.configuration.DefaultConfiguration
-import com.m2f.archer.configuration.DefaultConfiguration.expires
 import com.m2f.archer.crud.DeleteDataSource
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepositoryStrategy
@@ -20,7 +19,6 @@ import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 import kotlinx.datetime.Clock.System
-import kotlin.time.Duration
 
 interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 
@@ -33,10 +31,6 @@ fun <K, A> StrategyBuilder<K, A>.build(configuration: Configuration = DefaultCon
         mainDataSource,
         storeDataSource,
     )
-
-inline infix fun <K, reified A> StrategyBuilder<K, A>.expiresIn(duration: Duration):
-        GetRepositoryStrategy<K, A> =
-    expires(After(duration))
 
 inline fun <K, reified A> GetDataSource<K, A>.cache(
     configuration: Configuration = DefaultConfiguration,
@@ -78,7 +72,7 @@ inline fun <K, reified A> StoreDataSource<K, A>.expires(
                 is Get -> {
                     val now = System.now()
                     val isValid: Boolean =
-                        archerRecover({ configuration.cache.get(info).let { now - it }.isNegative() }) {
+                        archerRecover(block = { configuration.cache.get(info).let { now - it }.isNegative() }) {
                             false
                         }
                     archerRecover(

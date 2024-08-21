@@ -4,7 +4,6 @@ import com.m2f.archer.crud.Ice
 import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.crud.cache.configuration.testConfiguration
 import com.m2f.archer.crud.getDataSource
-import com.m2f.archer.crud.ice
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Store
 import com.m2f.archer.failure.Invalid
@@ -16,7 +15,7 @@ import kotlin.time.Duration.Companion.minutes
 
 class InvalidationTest : FunSpec({
 
-    with(testConfiguration) {
+    with(testConfiguration()) {
 
         test("Invalidating key enforces a stored data to return invalid") {
 
@@ -28,13 +27,13 @@ class InvalidationTest : FunSpec({
                 }
             }
 
-            val strategy = with(testConfiguration) {
+            val strategy = with(testConfiguration()) {
                 main cacheWith store expiresIn 5.minutes
             }
 
             ice {
                 strategy.get(MainSync, 1)
-                invalidateCache<Int>(testConfiguration, 1)
+                invalidateCache<Int>(1)
                 strategy.get(Store, 1)
             } shouldBe Ice.Error(Invalid)
         }
@@ -52,9 +51,8 @@ class InvalidationTest : FunSpec({
 
             ice {
                 strategy.get(MainSync, 1)
-                strategy.invalidate(testConfiguration, 1)
-                strategy.get(Store, 1)
-            } shouldBe Ice.Error(Invalid)
+                strategy.invalidate(1)
+            } shouldBe Ice.Content(1)
         }
     }
 
