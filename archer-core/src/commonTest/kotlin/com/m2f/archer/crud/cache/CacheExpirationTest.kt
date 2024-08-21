@@ -41,19 +41,19 @@ class CacheExpirationTest : FunSpec({
 
         test("never expires") {
             val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
-            val neverExpires = store.expires(testConfiguration, Never)
+            val neverExpires = store.expires(testConfiguration(), Never)
             either { neverExpires.get(0) } shouldBeRight "Test"
         }
 
         test("always expires get") {
             val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
-            val alwaysExpires = store.expires(testConfiguration, Always)
+            val alwaysExpires = store.expires(testConfiguration(), Always)
             either { alwaysExpires.get(0) } shouldBeLeft Invalid
         }
 
         test("always expires put") {
             val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
-            val alwaysExpires = store.expires(testConfiguration, Always)
+            val alwaysExpires = store.expires(testConfiguration(), Always)
             either { alwaysExpires.put(0, "hello") } shouldBeRight "hello"
         }
 
@@ -61,7 +61,7 @@ class CacheExpirationTest : FunSpec({
         test("fetching after time passed") {
             val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
             val time = 10.milliseconds
-            val expiresAfter10Millis = store.expires(testConfiguration, After(time))
+            val expiresAfter10Millis = store.expires(testConfiguration(), After(time))
             either { expiresAfter10Millis.put(0, "test10") }
             delay(15L)
             either { expiresAfter10Millis.get(0) } shouldBeLeft Invalid
@@ -70,7 +70,7 @@ class CacheExpirationTest : FunSpec({
         test("fetching before time passes") {
             val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
             val time = 1.minutes
-            val expiresAfter50Millis = store.expires(testConfiguration, After(time))
+            val expiresAfter50Millis = store.expires(testConfiguration(), After(time))
             either { expiresAfter50Millis.put(0, "test10_2") }
             delay(1000L)
             either { expiresAfter50Millis.get(0) } shouldBeRight "test10_2"
@@ -101,7 +101,7 @@ class CacheExpirationTest : FunSpec({
         test("test expiration with a time expiring strategy") {
             val main = getDataSource<Int, String> { "main" }
 
-            with(testConfiguration) {
+            with(testConfiguration()) {
                 val store: StoreDataSource<Int, String> =
                     InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
                 val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
@@ -120,7 +120,7 @@ class CacheExpirationTest : FunSpec({
         test("test no-expiration with a time expiring strategy") {
             val main = getDataSource<Int, String> { "main" }
 
-            with(testConfiguration) {
+            with(testConfiguration()) {
                 val store: StoreDataSource<Int, String> =
                     InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
                 val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds

@@ -1,8 +1,17 @@
 public abstract class com/m2f/archer/configuration/Configuration {
 	public fun <init> ()V
+	public final fun bool (Lkotlin/jvm/functions/Function1;)Z
+	public final fun either (Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
+	public final fun fallbackWith (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/repository/Repository;
 	public abstract fun getCache ()Lcom/m2f/archer/crud/cache/CacheDataSource;
 	public abstract fun getMainFallbacks ()Lkotlin/jvm/functions/Function1;
 	public abstract fun getStorageFallbacks ()Lkotlin/jvm/functions/Function1;
+	public final fun ice (Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/crud/Ice;
+	public final fun nil (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun nullable (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun option (Lkotlin/jvm/functions/Function1;)Larrow/core/Option;
+	public final fun result (Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
+	public final fun unit (Lkotlin/jvm/functions/Function1;)V
 }
 
 public final class com/m2f/archer/configuration/DefaultConfiguration : com/m2f/archer/configuration/Configuration {
@@ -12,8 +21,8 @@ public final class com/m2f/archer/configuration/DefaultConfiguration : com/m2f/a
 	public fun getStorageFallbacks ()Lkotlin/jvm/functions/Function1;
 }
 
-public final class com/m2f/archer/crud/ArcherRaise : arrow/core/raise/Raise {
-	public fun <init> (Larrow/core/raise/Raise;)V
+public final class com/m2f/archer/crud/ArcherRaise : com/m2f/archer/configuration/Configuration, arrow/core/raise/Raise {
+	public fun <init> (Larrow/core/raise/Raise;Lcom/m2f/archer/configuration/Configuration;)V
 	public fun bind (Larrow/core/Either;)Ljava/lang/Object;
 	public final fun bind (Lcom/m2f/archer/crud/Ice;)Ljava/lang/Object;
 	public final fun bind (Ljava/lang/Object;)Ljava/lang/Object;
@@ -28,7 +37,10 @@ public final class com/m2f/archer/crud/ArcherRaise : arrow/core/raise/Raise {
 	public final fun get (Lcom/m2f/archer/crud/GetRepositoryStrategy;Lcom/m2f/archer/crud/operation/Operation;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getCache ()Lcom/m2f/archer/crud/cache/CacheDataSource;
+	public fun getMainFallbacks ()Lkotlin/jvm/functions/Function1;
 	public final fun getRaise ()Larrow/core/raise/Raise;
+	public fun getStorageFallbacks ()Lkotlin/jvm/functions/Function1;
 	public fun invoke (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public fun invoke (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun post (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -104,17 +116,25 @@ public final class com/m2f/archer/crud/StrategyBuilder {
 }
 
 public final class com/m2f/archer/crud/TestKt {
-	public static final fun archerRecover (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun archerRecover (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun bool (Lkotlin/jvm/functions/Function1;)Z
-	public static final fun either (Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
+	public static final fun archerRecover (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun archerRecover (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun bool (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)Z
+	public static synthetic fun bool$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Z
+	public static final fun either (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
+	public static synthetic fun either$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Larrow/core/Either;
 	public static final fun fold (Lcom/m2f/archer/crud/Ice;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun ice (Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/crud/Ice;
-	public static final fun nil (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun nullable (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun option (Lkotlin/jvm/functions/Function1;)Larrow/core/Option;
-	public static final fun result (Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
-	public static final fun unit (Lkotlin/jvm/functions/Function1;)V
+	public static final fun ice (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/crud/Ice;
+	public static synthetic fun ice$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lcom/m2f/archer/crud/Ice;
+	public static final fun nil (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun nil$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun nullable (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun nullable$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun option (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)Larrow/core/Option;
+	public static synthetic fun option$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Larrow/core/Option;
+	public static final fun result (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
+	public static synthetic fun result$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Larrow/core/Either;
+	public static final fun unit (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun unit$default (Lcom/m2f/archer/configuration/Configuration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 }
 
 public abstract interface class com/m2f/archer/crud/cache/CacheDataSource : com/m2f/archer/crud/DeleteDataSource, com/m2f/archer/datasource/DataSource {

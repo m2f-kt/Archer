@@ -22,6 +22,7 @@ class MainSyncRepository<K, A>(
             },
             recover = { failure ->
                 if (fallbackChecks(failure)) {
+
                     archerRecover(
                         block = { storeDataSource.get(q.key) },
                         recover = {
