@@ -10,6 +10,8 @@ jobs:
   test:
     name: Run tests
     runs-on: macos-latest
+    needs: optimize_ci
+    if: needs.optimize_ci.outputs.skip == 'false'
     steps:
       - uses: actions/checkout@v4
 
