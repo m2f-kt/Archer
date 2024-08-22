@@ -79,13 +79,23 @@ kotlin {
 }
 
 kover {
-
-//    verify {
-//        rule("at least 95% coverage") {
-//            isEnabled = true
-//            minBound(90)
-//        }
-//    }
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "*SharedPreferences*",
+                    "*ToDataSource*",
+                    "*StringToSerializableBijection*",
+                    "*QueriesRepoKt*"
+                )
+            }
+        }
+        verify {
+            rule("at least 90% coverage") {
+                minBound(90)
+            }
+        }
+    }
 }
 
 tasks.named<Test>("jvmTest") {

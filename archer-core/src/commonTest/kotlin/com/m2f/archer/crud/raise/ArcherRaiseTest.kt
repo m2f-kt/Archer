@@ -2,21 +2,16 @@ package com.m2f.archer.crud.raise
 
 import arrow.core.left
 import arrow.core.right
-import com.m2f.archer.crud.bool
-import com.m2f.archer.crud.either
-import com.m2f.archer.crud.nil
-import com.m2f.archer.crud.nullable
-import com.m2f.archer.crud.result
-import com.m2f.archer.crud.unit
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
+import com.m2f.archer.utils.archerTest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 
 class ArcherRaiseTest : FunSpec({
 
-    test("null binding") {
+    archerTest("null binding") {
 
         val a: Int? = null
         val b = 10
@@ -27,13 +22,13 @@ class ArcherRaiseTest : FunSpec({
         nil { b.bind() } shouldBe nullable { b.bind() }
     }
 
-    test("result dsl") {
+    archerTest("result dsl") {
         val b = 10
 
         result { b } shouldBe either { b }
     }
 
-    test("bool dsl") {
+    archerTest("bool dsl") {
 
         val a: Int? = null
         val resultSuccess = 10.right()
@@ -46,7 +41,7 @@ class ArcherRaiseTest : FunSpec({
         bool { raise(DataEmpty) } shouldBe false
     }
 
-    test("unit dsl") {
+    archerTest("unit dsl") {
         val a: Int? = null
         val b = 10
 

@@ -1,12 +1,12 @@
 package com.m2f.archer.crud.cache
 
 import com.m2f.archer.crud.StoreDataSource
-import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 import com.m2f.archer.repository.StoreSyncRepository
+import com.m2f.archer.utils.archerTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 
@@ -24,7 +24,7 @@ class StoreSyncRepositoryTest : FunSpec({
 
     val mainDataSource = getDataSource<Int, String> { "Main" }
 
-    test("Repository will catch any exception thrown by the store.get") {
+    archerTest("Repository will catch any exception thrown by the store.get") {
 
         val repository = StoreSyncRepository(storeDataSource = store, mainDataSource = mainDataSource)
 
