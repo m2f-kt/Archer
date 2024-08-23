@@ -1,14 +1,11 @@
 package com.m2f.archer.crud.cache
 
 import com.m2f.archer.crud.Ice
-import com.m2f.archer.crud.either
 import com.m2f.archer.crud.fold
 import com.m2f.archer.crud.getDataSource
-import com.m2f.archer.crud.ice
-import com.m2f.archer.crud.nullable
-import com.m2f.archer.crud.option
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Idle
+import com.m2f.archer.utils.archerTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeNone
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -22,22 +19,22 @@ import io.kotest.property.exhaustive.of
 
 class IceTest : FunSpec({
 
-    test("regular call wraps into Ice.Content") {
+    archerTest("regular call wraps into Ice.Content") {
         val getDataSource = getDataSource<Int, String> { "Success" }
         ice { getDataSource.get(0) } shouldBe Ice.Content("Success")
     }
 
-    test("regular failures wraps into Ice.Error") {
+    archerTest("regular failures wraps into Ice.Error") {
         val getDataSource = getDataSource<Int, String> { raise(DataNotFound) }
         ice { getDataSource.get(0) } shouldBe Ice.Error(DataNotFound)
     }
 
-    test("idle failures wraps into Ice.Idle") {
+    archerTest("idle failures wraps into Ice.Idle") {
         val getDataSource = getDataSource<Int, String> { raise(Idle) }
         ice { getDataSource.get(0) } shouldBe Ice.Idle
     }
 
-    test("Ice catamomrphism") {
+    archerTest("Ice catamomrphism") {
         val succes = getDataSource<Int, String> { "Success" }
         val idle = getDataSource<Int, String> { raise(Idle) }
         val failure = getDataSource<Int, String> { raise(DataNotFound) }
@@ -63,52 +60,51 @@ class IceTest : FunSpec({
         }
     }
 
-    test("Ice binding in ice DSL") {
+    archerTest("Ice binding in ice DSL") {
         val one = Ice.Content(1)
         ice { one.bind() + one.bind() } shouldBe ice { 2 }
     }
 
-    test("Ice binding failure in ice DSL") {
+    archerTest("Ice binding failure in ice DSL") {
         val fail = Ice.Error(DataNotFound)
         val idle = Ice.Idle
         ice { fail.bind() } shouldBe Ice.Error(DataNotFound)
         ice { idle.bind() } shouldBe Ice.Idle
     }
 
-    test("Ice binding in either DSL") {
+    archerTest("Ice binding in either DSL") {
         val one = Ice.Content(1)
         either { one.bind() + one.bind() } shouldBeRight 2
     }
 
-    test("Ice binding failure in either DSL") {
+    archerTest("Ice binding failure in either DSL") {
         val fail = Ice.Error(DataNotFound)
         val idle = Ice.Idle
         either<String> { fail.bind() } shouldBeLeft DataNotFound
         either<String> { idle.bind() } shouldBeLeft Idle
     }
 
-    test("Ice binding in option DSL") {
+    archerTest("Ice binding in option DSL") {
         val one = Ice.Content(1)
         option { one.bind() + one.bind() } shouldBeSome 2
     }
 
-    test("Ice binding failure in option DSL") {
+    archerTest("Ice binding failure in option DSL") {
         val fail = Ice.Error(DataNotFound)
         val idle = Ice.Idle
         option<String> { fail.bind() }.shouldBeNone()
         option<String> { idle.bind() }.shouldBeNone()
     }
 
-    test("Ice binding in nullable DSL") {
+    archerTest("Ice binding in nullable DSL") {
         val one = Ice.Content(1)
         nullable { one.bind() + one.bind() } shouldBe 2
     }
 
-    test("Ice binding failure in nullable DSL") {
+    archerTest("Ice binding failure in nullable DSL") {
         val fail = Ice.Error(DataNotFound)
         val idle = Ice.Idle
         nullable<String> { fail.bind() }.shouldBeNull()
         nullable<String> { idle.bind() }.shouldBeNull()
     }
-
 })

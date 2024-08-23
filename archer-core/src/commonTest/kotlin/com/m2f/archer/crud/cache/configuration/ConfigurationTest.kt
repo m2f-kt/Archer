@@ -15,6 +15,8 @@ import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.KeyQuery
+import com.m2f.archer.utils.archerTest
+import com.m2f.archer.utils.xarcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -32,6 +34,7 @@ class ConfigurationTest : FunSpec({
     val neverExpiringCacheConfiguration = object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
+        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
@@ -40,13 +43,13 @@ class ConfigurationTest : FunSpec({
                 override suspend fun ArcherRaise.invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Instant {
                     return System.now() + 1000.days
                 }
-
             }
     }
 
     val alwaysExpiringCacheConfiguration = object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
+        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
@@ -55,38 +58,39 @@ class ConfigurationTest : FunSpec({
                 override suspend fun ArcherRaise.invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Instant {
                     return System.now() - 1000.days
                 }
-
             }
     }
-    test("ice dsl preserves the configuration") {
+    archerTest("ice dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
 
             val a = mainDataSource cacheWith storeDataSource expiresIn 1000.minutes
-            val b =
-                with(alwaysExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 10.minutes }
-            val c =
-                with(neverExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
+            val b = mainDataSource cacheWith storeDataSource expiresIn 10.minutes
+            val c = mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds
 
             // As the strategy was created under testConfiguration scope it does preserve it
-            ice { a.get(Store, 1) } shouldBe Ice.Error(Invalid)
+            ice { a.get(Store, 1) } shouldBe Ice.Content("store")
             ice { a.get(MainSync, 1) }
             ice { a.get(Store, 1) } shouldBe Ice.Content("store")
 
             // As b was created in the alwaysExpiringCacheConfiguration store will always be invalid
-            ice { b.get(Store, 1) } shouldBe Ice.Error(Invalid)
-            ice { b.get(MainSync, 1) }
-            ice { b.get(Store, 1) } shouldBe Ice.Error(Invalid)
+            with(alwaysExpiringCacheConfiguration) {
+                ice { b.get(Store, 1) } shouldBe Ice.Content("store")
+                ice { b.get(MainSync, 1) }
+                ice { b.get(Store, 1) } shouldBe Ice.Content("store")
+            }
 
             // As c was created in the neverExpiringCacheConfiguration store will always be valid
-            ice { c.get(Store, 1) } shouldBe Ice.Content("store")
-            ice { c.get(MainSync, 1) } shouldBe Ice.Content("store")
-            ice { c.get(Store, 1) } shouldBe Ice.Content("store")
+            with(neverExpiringCacheConfiguration) {
+                ice { c.get(Store, 1) } shouldBe Ice.Content("store")
+                ice { c.get(MainSync, 1) } shouldBe Ice.Content("store")
+                ice { c.get(Store, 1) } shouldBe Ice.Content("store")
+            }
         }
     }
 
-    test("either dsl preserves the configuration") {
+    xarcherTest("either dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
@@ -95,7 +99,9 @@ class ConfigurationTest : FunSpec({
             val b =
                 with(alwaysExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 10.minutes }
             val c =
-                with(neverExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
+                with(
+                    neverExpiringCacheConfiguration
+                ) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
 
             // As the strategy was created under testConfiguration scope it does preserve it
             either { a.get(Store, 1) } shouldBeLeft Invalid
@@ -114,8 +120,7 @@ class ConfigurationTest : FunSpec({
         }
     }
 
-
-    test("result dsl preserves the configuration") {
+    xarcherTest("result dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
@@ -124,7 +129,9 @@ class ConfigurationTest : FunSpec({
             val b =
                 with(alwaysExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 10.minutes }
             val c =
-                with(neverExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
+                with(
+                    neverExpiringCacheConfiguration
+                ) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
 
             // As the strategy was created under testConfiguration scope it does preserve it
             result { a.get(Store, 1) } shouldBeLeft Invalid
@@ -140,11 +147,10 @@ class ConfigurationTest : FunSpec({
             result { c.get(Store, 1) } shouldBeRight "store"
             result { c.get(MainSync, 1) } shouldBeRight "store"
             result { c.get(Store, 1) } shouldBeRight "store"
-
         }
     }
 
-    test("bool dsl preserves the configuration") {
+    xarcherTest("bool dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
@@ -153,7 +159,9 @@ class ConfigurationTest : FunSpec({
             val b =
                 with(alwaysExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 10.minutes }
             val c =
-                with(neverExpiringCacheConfiguration) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
+                with(
+                    neverExpiringCacheConfiguration
+                ) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
 
             // As the strategy was created under testConfiguration scope it does preserve it
             bool { a.get(Store, 1) }.shouldBeFalse()
@@ -169,7 +177,6 @@ class ConfigurationTest : FunSpec({
             bool { c.get(Store, 1) }.shouldBeTrue()
             bool { c.get(MainSync, 1) }.shouldBeTrue()
             bool { c.get(Store, 1) }.shouldBeTrue()
-
         }
     }
 })

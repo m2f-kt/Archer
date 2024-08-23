@@ -2,11 +2,11 @@ package com.m2f.archer.crud.cache
 
 import arrow.fx.stm.TVar
 import arrow.fx.stm.atomically
-import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.datasource.concurrency.mutex
 import com.m2f.archer.datasource.concurrency.parallelism
+import com.m2f.archer.utils.archerTest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +30,7 @@ class ConcurrencyTest : FunSpec({
         println("Completed ${n * k} actions")
     }
 
-     test("mutex") {
+    archerTest("mutex") {
         var count1 = 0
         val get = getDataSource<Unit, Int> { count1++ }
             .mutex()
@@ -44,7 +44,7 @@ class ConcurrencyTest : FunSpec({
         }
     }
 
-     test("limitParallelism") {
+    archerTest("limitParallelism") {
         var count1 = 0
         val get = getDataSource<Unit, Int> { count1++ }
             .parallelism(1)
@@ -58,7 +58,7 @@ class ConcurrencyTest : FunSpec({
         }
     }
 
-     test("InMemoryDataSource is thread safe") {
+    archerTest("InMemoryDataSource is thread safe") {
 
         val dataSource = InMemoryDataSource<Int, Int>()
 

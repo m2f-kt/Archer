@@ -10,13 +10,17 @@ import arrow.core.raise.recover
 import arrow.core.some
 import com.m2f.archer.configuration.Configuration
 import com.m2f.archer.configuration.DefaultConfiguration
+import com.m2f.archer.configuration.IgnoreCacheConfiguration
 import com.m2f.archer.crud.Ice.Content
 import com.m2f.archer.crud.Ice.Error
 import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.crud.cache.invalidateCache
 import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
+import com.m2f.archer.crud.operation.Main
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Operation
+import com.m2f.archer.crud.operation.Store
+import com.m2f.archer.crud.operation.StoreSync
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Idle
@@ -33,6 +37,7 @@ class ArcherRaise(val raise: Raise<Failure>, configuration: Configuration) : Rai
 
     override val mainFallbacks: (Failure) -> Boolean = configuration.mainFallbacks
     override val storageFallbacks: (Failure) -> Boolean = configuration.storageFallbacks
+    override val ignoreCache: Boolean = configuration.ignoreCache
     override val cache: CacheDataSource<CacheMetaInformation, Instant> = configuration.cache
 
     fun <A> Ice<A>.bind(): A = fold(
@@ -80,7 +85,21 @@ class ArcherRaise(val raise: Raise<Failure>, configuration: Configuration) : Rai
     suspend fun <K, A> GetRepositoryStrategy<K, A>.get(
         operation: Operation,
         q: K,
-    ) = create(operation).get(q)
+    ) = when (operation) {
+        Store -> with(
+            ArcherRaise(
+                this@ArcherRaise,
+                IgnoreCacheConfiguration(this@ArcherRaise)
+            )
+        ) {
+            val repository = create(operation)
+            repository.get(q)
+        }
+
+        Main,
+        MainSync,
+        StoreSync -> create((operation)).get(q)
+    }
 
     suspend inline fun <K : Any, reified A> GetRepositoryStrategy<K, A>.invalidate(
         key: K

@@ -1,8 +1,6 @@
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.configuration.DefaultConfiguration.expires
 import com.m2f.archer.crud.cache.CacheExpiration.Never
-import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.plus
@@ -11,6 +9,7 @@ import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.repository.MainSyncRepository
+import com.m2f.archer.utils.archerTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 
@@ -28,11 +27,10 @@ class MainSyncRepositoryTest : FunSpec({
     val storeFailGet = failGet + put
     val storeRaiseGet = raiseGet + put
 
-
     val mainDataSource = getDataSource<Int, String> { "Main" }
     val failMainDataSource = getDataSource<Int, String> { raise(DataNotFound) }
 
-    test("Repository will catch any exception thrown by the store.put") {
+    archerTest("Repository will catch any exception thrown by the store.put") {
 
         val repository = MainSyncRepository(storeDataSource = storeFailAll, mainDataSource = mainDataSource)
 
@@ -41,7 +39,7 @@ class MainSyncRepositoryTest : FunSpec({
         result shouldBeLeft Unhandled(putException)
     }
 
-    test("Repository will catch any exception thrown by the store.get") {
+    archerTest("Repository will catch any exception thrown by the store.get") {
 
         val repository = failMainDataSource cacheWith storeFailGet expires Never
 
@@ -50,7 +48,7 @@ class MainSyncRepositoryTest : FunSpec({
         result shouldBeLeft Unhandled(getException)
     }
 
-    test("Repository will fallback any failure raise by the store.get") {
+    archerTest("Repository will fallback any failure raise by the store.get") {
 
         val repository = failMainDataSource cacheWith storeRaiseGet expires Never
 

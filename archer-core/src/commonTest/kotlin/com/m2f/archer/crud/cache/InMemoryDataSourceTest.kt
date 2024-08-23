@@ -3,12 +3,12 @@ package com.m2f.archer.crud.cache
 import com.m2f.archer.crud.cache.generator.deleteKeyQuery
 import com.m2f.archer.crud.cache.generator.getKeyQuery
 import com.m2f.archer.crud.cache.generator.putKeyQuery
-import com.m2f.archer.crud.either
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
+import com.m2f.archer.utils.archerTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -21,7 +21,7 @@ import io.kotest.property.checkAll
 
 class InMemoryDataSourceTest : FunSpec({
 
-    test("Adding Some object returns the added object") {
+    archerTest("Adding Some object returns the added object") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val valueToAdd = 1
         val queries = Arb.putKeyQuery(Arb.string(), valueToAdd)
@@ -32,7 +32,7 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    test("The output of the DataSource is the same using Put and Get queries") {
+    archerTest("The output of the DataSource is the same using Put and Get queries") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val queries = Arb.bind(
             Arb.string(),
@@ -50,7 +50,7 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    test("Getting an un-existing value returns a DataNotFound") {
+    archerTest("Getting an un-existing value returns a DataNotFound") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val queries = Arb.getKeyQuery(Arb.string())
 
@@ -60,7 +60,7 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    test("removing an un-existing value just runs") {
+    archerTest("removing an un-existing value just runs") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val queries = Arb.deleteKeyQuery(Arb.string())
 
@@ -70,7 +70,7 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    test("removing an existing value returns the success branch with Unit") {
+    archerTest("removing an existing value returns the success branch with Unit") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val queries = Arb.bind(
             Arb.string(),
@@ -88,7 +88,7 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    test("removing an existing value removes the value from the data source") {
+    archerTest("removing an existing value removes the value from the data source") {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val queries = Arb.bind(
             Arb.string(),

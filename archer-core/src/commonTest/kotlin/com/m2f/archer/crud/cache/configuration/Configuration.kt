@@ -13,6 +13,7 @@ internal val testConfiguration: () -> Configuration = {
     object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
+        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
         override val cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache(
             repo = fakeQueriesRepo
         )
@@ -23,6 +24,7 @@ internal val inMemoryCacheConfiguration: () -> Configuration = {
     object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
+        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
         override val cache: CacheDataSource<CacheMetaInformation, Instant> = InMemoryDataSource()
     }
 }

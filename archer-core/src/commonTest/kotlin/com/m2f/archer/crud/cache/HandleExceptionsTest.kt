@@ -1,17 +1,17 @@
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.crud.either
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.failure.Message
 import com.m2f.archer.failure.NetworkFailure
 import com.m2f.archer.failure.NetworkFailure.NoConnection
 import com.m2f.archer.failure.Unhandled
+import com.m2f.archer.utils.archerTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 
 class HandleExceptionsTest : FunSpec({
 
-    test("datasource should return Unhandled if the is an exception") {
+    archerTest("datasource should return Unhandled if the is an exception") {
 
         val runtimeException = RuntimeException()
         fun crash(): Nothing {
@@ -23,7 +23,7 @@ class HandleExceptionsTest : FunSpec({
         either { ds.get(0) } shouldBeLeft Unhandled(runtimeException)
     }
 
-    test("Network error with 3 kind of messages") {
+    archerTest("Network error with 3 kind of messages") {
 
         // Simple message
         val dataSourceSimpleMessage = getDataSource<Int, String> {
@@ -72,7 +72,7 @@ class HandleExceptionsTest : FunSpec({
         )
     }
 
-    test("no connection") {
+    archerTest("no connection") {
 
         val dataSource = getDataSource<Int, String> { raise(NoConnection) }
 
