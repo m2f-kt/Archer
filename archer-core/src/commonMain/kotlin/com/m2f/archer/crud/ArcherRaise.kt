@@ -32,7 +32,8 @@ import kotlin.experimental.ExperimentalTypeInference
 
 typealias Result<T> = Either<Failure, T>
 
-class ArcherRaise(val raise: Raise<Failure>, configuration: Configuration) : Raise<Failure> by raise,
+class ArcherRaise(raise: Raise<Failure>, configuration: Configuration) :
+    Raise<Failure> by raise,
     Configuration() {
 
     override val mainFallbacks: (Failure) -> Boolean = configuration.mainFallbacks
@@ -175,7 +176,10 @@ inline fun <A> bool(
     configuration: Configuration = DefaultConfiguration,
     @BuilderInference block: ArcherRaise.() -> A
 ): Boolean =
-    recover({ block(ArcherRaise(this, configuration)); true }) { false }
+    recover({
+        block(ArcherRaise(this, configuration));
+        true
+    }) { false }
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> unit(
