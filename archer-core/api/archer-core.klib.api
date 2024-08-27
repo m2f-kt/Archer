@@ -149,8 +149,6 @@ final class com.m2f.archer.crud/ArcherRaise : arrow.core.raise/Raise<com.m2f.arc
         final fun <get-ignoreCache>(): kotlin/Boolean // com.m2f.archer.crud/ArcherRaise.ignoreCache.<get-ignoreCache>|<get-ignoreCache>(){}[0]
     final val mainFallbacks // com.m2f.archer.crud/ArcherRaise.mainFallbacks|{}mainFallbacks[0]
         final fun <get-mainFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.crud/ArcherRaise.mainFallbacks.<get-mainFallbacks>|<get-mainFallbacks>(){}[0]
-    final val raise // com.m2f.archer.crud/ArcherRaise.raise|{}raise[0]
-        final fun <get-raise>(): arrow.core.raise/Raise<com.m2f.archer.failure/Failure> // com.m2f.archer.crud/ArcherRaise.raise.<get-raise>|<get-raise>(){}[0]
     final val storageFallbacks // com.m2f.archer.crud/ArcherRaise.storageFallbacks|{}storageFallbacks[0]
         final fun <get-storageFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.crud/ArcherRaise.storageFallbacks.<get-storageFallbacks>|<get-storageFallbacks>(){}[0]
 }
