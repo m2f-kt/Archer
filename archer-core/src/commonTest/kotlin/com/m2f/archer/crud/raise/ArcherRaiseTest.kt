@@ -65,4 +65,18 @@ class ArcherRaiseTest : FunSpec({
 
         ice { repo.execute(0) } shouldBe Ice.Content("0")
     }
+
+    archerTest("Repository Unit execution") {
+
+        val repo = DataSource<Unit, String> { it.toString() }.toRepository()
+
+        ice { repo.execute() } shouldBe Ice.Content("kotlin.Unit")
+    }
+
+    archerTest("DataSource Unit execution") {
+
+        val ds = DataSource<Unit, String> { it.toString() }
+
+        ice { ds.execute() } shouldBe Ice.Content("kotlin.Unit")
+    }
 })

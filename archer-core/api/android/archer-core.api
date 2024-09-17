@@ -38,7 +38,9 @@ public final class com/m2f/archer/crud/ArcherRaise : com/m2f/archer/configuratio
 	public final fun delete (Lcom/m2f/archer/crud/DeleteDataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun delete (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun execute (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun execute (Lcom/m2f/archer/datasource/DataSource;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun execute (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun execute (Lcom/m2f/archer/repository/Repository;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/crud/GetRepositoryStrategy;Lcom/m2f/archer/crud/operation/Operation;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -419,6 +421,11 @@ public final class com/m2f/archer/mapper/DataSourceMapperKt {
 	public static final fun map (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/mapper/Bijection;)Lcom/m2f/archer/datasource/DataSource;
 	public static final fun map (Lcom/m2f/archer/datasource/DataSource;Lkotlin/jvm/functions/Function1;)Lcom/m2f/archer/datasource/DataSource;
 	public static final fun mapPutDataSource (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/mapper/Bijection;)Lcom/m2f/archer/datasource/DataSource;
+}
+
+public final class com/m2f/archer/mapper/KleisliArrowKt {
+	public static final fun andThen (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun andThen (Lcom/m2f/archer/datasource/DataSource;Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/datasource/DataSource;
 }
 
 public final class com/m2f/archer/query/Delete : com/m2f/archer/query/Query {

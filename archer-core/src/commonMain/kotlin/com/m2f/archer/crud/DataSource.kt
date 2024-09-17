@@ -12,6 +12,7 @@ import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 
+typealias EffectDataSource<A> = DataSource<Unit, A>
 typealias CRUDDataSource<Q, A> = DataSource<Q, A>
 typealias GetDataSource<K, A> = CRUDDataSource<Get<K>, A>
 typealias PutDataSource<K, A> = CRUDDataSource<Put<K, out A>, A>
