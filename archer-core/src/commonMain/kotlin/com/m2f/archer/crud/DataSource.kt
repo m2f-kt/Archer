@@ -5,7 +5,6 @@ import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.DataEmpty
-import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.query.Delete
@@ -13,7 +12,7 @@ import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 
-typealias CRUDDataSource<Q, A> = DataSource<Failure, Q, A>
+typealias CRUDDataSource<Q, A> = DataSource<Q, A>
 typealias GetDataSource<K, A> = CRUDDataSource<Get<K>, A>
 typealias PutDataSource<K, A> = CRUDDataSource<Put<K, out A>, A>
 typealias StoreDataSource<K, A> = CRUDDataSource<KeyQuery<K, out A>, A>

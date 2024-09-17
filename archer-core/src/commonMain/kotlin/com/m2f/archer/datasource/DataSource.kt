@@ -6,11 +6,10 @@ import com.m2f.archer.crud.ArcherRaise
  * A data source is a component that provides data to the application.
  * It can be a remote API, a local database, or a cache.
  *
- * @param F The type of the Failure that the data source can return.
  * @param Q The type of the query that the data source needs to run.
  * @param A The type of the result that the data source returns.
  */
-fun interface DataSource<out F, in Q, out A> {
+fun interface DataSource<in Q, out A> {
     /**
      * Runs the data source with the given query.
      *
