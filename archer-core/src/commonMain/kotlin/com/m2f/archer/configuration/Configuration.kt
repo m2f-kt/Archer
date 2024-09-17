@@ -115,7 +115,7 @@ abstract class Configuration {
     @OptIn(ExperimentalTypeInference::class)
     inline fun <A> unit(
         @BuilderInference block: ArcherRaise.() -> A
-    ) = com.m2f.archer.crud.unit(this, block)
+    ): Unit = com.m2f.archer.crud.unit(this, block)
 }
 
 object DefaultConfiguration : Configuration() {

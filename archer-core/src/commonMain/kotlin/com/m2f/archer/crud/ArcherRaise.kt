@@ -199,7 +199,7 @@ inline fun <A> bool(
 inline fun <A> unit(
     configuration: Configuration = DefaultConfiguration,
     @BuilderInference block: ArcherRaise.() -> A
-) =
+): Unit =
     recover({ block(ArcherRaise(this, configuration)) }) { }
 
 @OptIn(ExperimentalTypeInference::class)
