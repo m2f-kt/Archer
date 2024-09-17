@@ -21,12 +21,14 @@ import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Operation
 import com.m2f.archer.crud.operation.Store
 import com.m2f.archer.crud.operation.StoreSync
+import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Idle
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
+import com.m2f.archer.repository.Repository
 import kotlinx.datetime.Instant
 import kotlin.experimental.ExperimentalTypeInference
 
@@ -48,6 +50,12 @@ class ArcherRaise(raise: Raise<Failure>, configuration: Configuration) :
     )
 
     fun <A> A?.bind(): A = this ?: raise(DataNotFound)
+
+    suspend fun <K, A> Repository<K, A>.execute(param: K): A =
+        invoke(param)
+
+    suspend fun <K, A> DataSource<K, A>.execute(param: K): A =
+        invoke(param)
 
     suspend fun <K, A> GetRepository<K, A>.get(param: K): A =
         invoke(Get(param))
