@@ -11,7 +11,6 @@ import com.m2f.archer.crud.operation.StoreSync
 import com.m2f.archer.crud.plus
 import com.m2f.archer.crud.putDataSource
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.failure.Failure
 import com.m2f.archer.repository.MainSyncRepository
 import com.m2f.archer.repository.SingleDataSourceRepository
 import com.m2f.archer.repository.StoreSyncRepository
@@ -59,7 +58,7 @@ class CacheTest : FunSpec({
 
         val repository = mainGet.cache(store).create(Main)
 
-        repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
+        repository.shouldBeInstanceOf<SingleDataSourceRepository<Int, String>>()
         either { repository.get(1) } shouldBe either { mainGet.get(1) }
     }
 
@@ -72,7 +71,7 @@ class CacheTest : FunSpec({
         val store: StoreDataSource<Int, String> = get + put
         val repository = mainGet.cache(store).create(Store)
 
-        repository.shouldBeInstanceOf<SingleDataSourceRepository<Failure, Int, String>>()
+        repository.shouldBeInstanceOf<SingleDataSourceRepository<Int, String>>()
 
         either { repository.get(1) } shouldBe either { store.get(1) }
     }

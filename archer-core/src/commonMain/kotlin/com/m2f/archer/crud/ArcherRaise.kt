@@ -177,7 +177,7 @@ inline fun <A> bool(
     @BuilderInference block: ArcherRaise.() -> A
 ): Boolean =
     recover({
-        block(ArcherRaise(this, configuration));
+        block(ArcherRaise(this, configuration))
         true
     }) { false }
 

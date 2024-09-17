@@ -8,8 +8,8 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
-actual fun <F, Q, A> DataSource<F, Q, A>.parallelism(parallelism: Int): DataSource<F, Q, A> =
-    object : DataSource<F, Q, A> {
+actual fun <Q, A> DataSource<Q, A>.parallelism(parallelism: Int): DataSource<Q, A> =
+    object : DataSource<Q, A> {
         val dispatcher = Dispatchers.IO.limitedParallelism(parallelism)
         override suspend fun ArcherRaise.invoke(q: Q): A =
             withContext(dispatcher) { this@parallelism.run { invoke(q) } }

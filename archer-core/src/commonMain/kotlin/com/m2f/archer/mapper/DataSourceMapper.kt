@@ -14,7 +14,7 @@ import kotlin.jvm.JvmName
  * @param mapper A function to transform data
  * @return A new DataSource with its output transformed by the [mapper] function.
  */
-inline fun <F, Q, A, B> DataSource<F, Q, A>.map(crossinline mapper: (A) -> B): DataSource<F, Q, B> =
+inline fun <Q, A, B> DataSource<Q, A>.map(crossinline mapper: (A) -> B): DataSource<Q, B> =
     DataSource {
         invoke(it).let(mapper)
     }
