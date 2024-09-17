@@ -418,6 +418,8 @@ public final class com/m2f/archer/mapper/DataSourceMapperKt {
 public final class com/m2f/archer/mapper/KleisliArrowKt {
 	public static final fun andThen (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/datasource/DataSource;
 	public static final fun andThen (Lcom/m2f/archer/datasource/DataSource;Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/datasource/DataSource;
+	public static final fun andThen (Lcom/m2f/archer/repository/Repository;Lcom/m2f/archer/repository/Repository;)Lcom/m2f/archer/repository/Repository;
+	public static final fun andThen (Lcom/m2f/archer/repository/Repository;Lkotlin/jvm/functions/Function3;)Lcom/m2f/archer/repository/Repository;
 }
 
 public final class com/m2f/archer/query/Delete : com/m2f/archer/query/Query {
