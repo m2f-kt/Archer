@@ -24,17 +24,6 @@ jobs:
       - name: Test
         run: ./gradlew :arch:jvmTest --no-daemon --stacktrace
 
-      - name: (Fail-only) Bundle test reports
-        if: failure()
-        run: find . -type d -name 'reports' | zip -@ -r build-reports.zip
-
-      - name: (Fail-only) Upload the build report
-        if: failure()
-        uses: actions/upload-artifact@v4.4.0
-        with:
-          name: error-report
-          path: build-reports.zip
-
   publish:
     runs-on: macos-latest
     needs: [build]
