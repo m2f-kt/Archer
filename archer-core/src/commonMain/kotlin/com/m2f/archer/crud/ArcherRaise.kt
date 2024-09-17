@@ -57,6 +57,12 @@ class ArcherRaise(raise: Raise<Failure>, configuration: Configuration) :
     suspend fun <K, A> DataSource<K, A>.execute(param: K): A =
         invoke(param)
 
+    suspend fun <A> Repository<Unit, A>.execute(): A =
+        invoke(Unit)
+
+    suspend fun <A> DataSource<Unit, A>.execute(): A =
+        invoke(Unit)
+
     suspend fun <K, A> GetRepository<K, A>.get(param: K): A =
         invoke(Get(param))
 
