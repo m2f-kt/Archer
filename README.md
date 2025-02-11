@@ -31,41 +31,37 @@ But it comes with serious tradeoffs:
 ```mermaid
 graph LR
 
-UC(UC)
+UC["UC"]
 
-Repo(Repo)
+Repo["Repo"]
 
-DSL((DSL))
+DSL(("DSL"))
 
-DSR((DSR))
+DSR(("DSR"))
 
-MRTD{{"Mapto Domain"}}
+MRTD{{"Map to Domain"}}
 
 MDTD{{"Map to DBO"}}
 
 MDBTD{{"Map Domain"}}
 
+UC -->|"1: Req data"| Repo
 
+Repo -->|"2: Fetch remote"| DSR
 
-UC -->|1. Req data| Repo
+DSR -->|"3: Return data"| MRTD
 
-Repo -->|2. Fetch remote| DSR
+MRTD -->|"3a: Map to Domain"| Repo
 
-DSR -->|3. Return data| MRTD
+Repo -->|"4: Store local"| MDTD
 
-MRTD -->|3a. Map to Domain| Repo
+MDTD -->|"4a: Map to DBO"| DSL
 
-Repo -->|4. Store local| MDTD
+DSL -->|"5: Return data"| MDBTD
 
-MDTD -->|4a. Map to DBO| DSL
+MDBTD -->|"5a: Map to Domain"| Repo
 
-DSL -->|5. Return data| MDBTD
-
-MDBTD -->|5a. Map to Domain| Repo
-
-Repo -->|6. Return data| UC
-
-
+Repo -->|"6: Return data"| UC
 
 classDef mapping fill:#b44,stroke:#333,stroke-width:2px;
 
