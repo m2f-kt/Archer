@@ -126,7 +126,12 @@ val resultNullable = nullable {
     repository.get(StoreSync, 0)
 }
 
+val resultFailingIce = ice {
+    raise(DataNotFound)
+}
+
 result shouldBe Ice.Content("0")
 resultEither shouldBe Right("0")
 resultNullable shouldBe "0"
+resultFailingIce shouldBe Ice.Error(DataNotFound) // with either and nullable DSLs it would be Either.Left(DataNotFount) and null respectively
 ```
