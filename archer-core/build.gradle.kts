@@ -64,7 +64,11 @@ kotlin {
             implementation(libs.bundles.kotest)
         }
 
-        val androidUnitTest by getting {
+        jsMain.dependencies {
+            implementation("org.jetbrains.kotlin:kotlinx-atomicfu-runtime")
+        }
+
+        androidUnitTest.dependencies {
             dependencies {
                 implementation(libs.kotest.runnerJUnit5)
                 implementation(libs.sqlDelight.driver.sqlite)

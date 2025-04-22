@@ -16,23 +16,21 @@ class ArcherTest(scope: TestScope, configuration: Configuration) : TestScope by 
     override val cache: CacheDataSource<CacheMetaInformation, Instant> = configuration.cache
 }
 
-fun FunSpecRootScope.archerTest(
+inline fun FunSpecRootScope.archerTest(
     name: String,
     configuration: Configuration = testConfiguration(),
-    block: suspend ArcherTest.() -> Unit
+    crossinline block: suspend ArcherTest.() -> Unit
 ) {
-
     test(name) {
         block(ArcherTest(this@test, configuration))
     }
 }
 
-fun FunSpecRootScope.xarcherTest(
+inline fun FunSpecRootScope.xarcherTest(
     name: String,
     configuration: Configuration = testConfiguration(),
-    block: suspend ArcherTest.() -> Unit
+    crossinline block: suspend ArcherTest.() -> Unit
 ) {
-
     xtest(name) {
         block(ArcherTest(this@xtest, configuration))
     }

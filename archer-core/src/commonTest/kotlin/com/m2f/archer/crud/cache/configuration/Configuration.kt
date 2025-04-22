@@ -9,7 +9,7 @@ import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.Failure
 import kotlinx.datetime.Instant
 
-internal val testConfiguration: () -> Configuration = {
+val testConfiguration: () -> Configuration = {
     object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
@@ -20,7 +20,7 @@ internal val testConfiguration: () -> Configuration = {
     }
 }
 
-internal val inMemoryCacheConfiguration: () -> Configuration = {
+val inMemoryCacheConfiguration: () -> Configuration = {
     object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks

@@ -1,22 +1,20 @@
 [versions]
-agp = "8.2.2"
-kotlin = "2.0.10"
-arrow = "2.0.0-alpha.2"
+agp = "8.9.2"
+kotlin = "2.1.20"
+arrow = "2.0.1"
 arrowContinuations = "1.2.4"
-kotlinx-coroutines = "1.8.1"
-kotest-arrow = "1.4.0"
-kotest = "5.9.1"
-kotest-plugin = "5.9.0"
-kover = "0.8.3"
+kotlinx-coroutines = "1.10.1"
+kotest = "6.0.0.M3"
+kover = "0.9.1"
 com-vanniktech-maven-publish = "0.25.3"
-binary-compatibility-validator = "0.15.0-Beta.2"
+binary-compatibility-validator = "0.17.0"
 coveralls = "1.2.18"
-coroutinesTest = "1.8.1"
-time = "0.5.0"
+coroutinesTest = "1.10.1"
+time = "0.6.2"
 sqlDelight = "2.0.2"
-startup = "1.1.1"
+startup = "1.2.0"
 webWorkerDriver = "2.0.1"
-kotlinSerialization = "1.6.3"
+kotlinSerialization = "1.8.0"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -25,8 +23,8 @@ kotlin-serilization = { group = "org.jetbrains.kotlinx", name = "kotlinx-seriali
 kotest-assertionsCore = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-frameworkEngine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
-kotest-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotest-arrow" }
-kotest-arrow-fx = { module = "io.kotest.extensions:kotest-assertions-arrow-fx-coroutines", version.ref = "kotest-arrow" }
+kotest-arrow = { module = "io.kotest:kotest-assertions-arrow", version.ref = "kotest" }
+kotest-arrow-fx = { module = "io.kotest:kotest-assertions-arrow-fx-coroutines", version.ref = "kotest" }
 kotest-runnerJUnit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
@@ -69,7 +67,7 @@ kotest = [
 kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest-plugin" }
+kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
 com-vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "com-vanniktech-maven-publish" }
 binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
 coverallsjacoco = { id = "com.github.nbaztec.coveralls-jacoco", version.ref = "coveralls" }
