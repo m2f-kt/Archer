@@ -74,11 +74,11 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.time)
             implementation(libs.bundles.arrow)
-            implementation(libs.startup)
             implementation(libs.bundles.kotest)
         }
 
         androidMain.dependencies {
+            implementation(libs.startup)
             implementation(libs.sqlDelight.driver.android)
         }
 

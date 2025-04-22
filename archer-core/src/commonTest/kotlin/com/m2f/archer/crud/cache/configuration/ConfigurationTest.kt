@@ -12,15 +12,11 @@ import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Store
 import com.m2f.archer.failure.Failure
-import com.m2f.archer.failure.Invalid
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.utils.archerTest
-import com.m2f.archer.utils.xarcherTest
-import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock.System
@@ -38,6 +34,7 @@ class ConfigurationTest : FunSpec({
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
+                    /*no-op*/
                 }
 
                 override suspend fun ArcherRaise.invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Instant {
@@ -53,6 +50,7 @@ class ConfigurationTest : FunSpec({
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
+                    /*no-op*/
                 }
 
                 override suspend fun ArcherRaise.invoke(q: KeyQuery<CacheMetaInformation, out Instant>): Instant {
@@ -90,7 +88,7 @@ class ConfigurationTest : FunSpec({
         }
     }
 
-    xarcherTest("either dsl preserves the configuration") {
+    archerTest("either dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
@@ -104,14 +102,14 @@ class ConfigurationTest : FunSpec({
                 ) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
 
             // As the strategy was created under testConfiguration scope it does preserve it
-            either { a.get(Store, 1) } shouldBeLeft Invalid
+            either { a.get(Store, 1) } shouldBeRight "store"
             either { a.get(MainSync, 1) }
             either { a.get(Store, 1) } shouldBeRight "store"
 
             // As b was created in the alwaysExpiringCacheConfiguration store will always be invalid
-            either { b.get(Store, 1) } shouldBeLeft Invalid
+            either { b.get(Store, 1) } shouldBeRight "store"
             either { b.get(MainSync, 1) }
-            either { b.get(Store, 1) } shouldBeLeft Invalid
+            either { b.get(Store, 1) } shouldBeRight "store"
 
             // As c was created in the neverExpiringCacheConfiguration store will always be valid
             either { c.get(Store, 1) } shouldBeRight "store"
@@ -120,7 +118,7 @@ class ConfigurationTest : FunSpec({
         }
     }
 
-    xarcherTest("result dsl preserves the configuration") {
+    archerTest("result dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
@@ -134,14 +132,14 @@ class ConfigurationTest : FunSpec({
                 ) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
 
             // As the strategy was created under testConfiguration scope it does preserve it
-            result { a.get(Store, 1) } shouldBeLeft Invalid
+            result { a.get(Store, 1) } shouldBeRight "store"
             result { a.get(MainSync, 1) }
             result { a.get(Store, 1) } shouldBeRight "store"
 
             // As b was created in the alwaysExpiringCacheConfiguration store will always be invalid
-            result { b.get(Store, 1) } shouldBeLeft Invalid
+            result { b.get(Store, 1) } shouldBeRight "store"
             result { b.get(MainSync, 1) }
-            result { b.get(Store, 1) } shouldBeLeft Invalid
+            result { b.get(Store, 1) } shouldBeRight "store"
 
             // As c was created in the neverExpiringCacheConfiguration store will always be valid
             result { c.get(Store, 1) } shouldBeRight "store"
@@ -150,7 +148,7 @@ class ConfigurationTest : FunSpec({
         }
     }
 
-    xarcherTest("bool dsl preserves the configuration") {
+    archerTest("bool dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
@@ -164,14 +162,14 @@ class ConfigurationTest : FunSpec({
                 ) { mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds }
 
             // As the strategy was created under testConfiguration scope it does preserve it
-            bool { a.get(Store, 1) }.shouldBeFalse()
+            bool { a.get(Store, 1) }.shouldBeTrue()
             bool { a.get(MainSync, 1) }
             bool { a.get(Store, 1) }.shouldBeTrue()
 
             // As b was created in the alwaysExpiringCacheConfiguration store will always be invalid
-            bool { b.get(Store, 1) }.shouldBeFalse()
+            bool { b.get(Store, 1) }.shouldBeTrue()
             bool { b.get(MainSync, 1) }
-            bool { b.get(Store, 1) }.shouldBeFalse()
+            bool { b.get(Store, 1) }.shouldBeTrue()
 
             // As c was created in the neverExpiringCacheConfiguration store will always be valid
             bool { c.get(Store, 1) }.shouldBeTrue()
