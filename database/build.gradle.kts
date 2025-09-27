@@ -22,7 +22,7 @@ tasks.withType<KotlinJvmCompile>().configureEach {
 kotlin {
 
     androidTarget {
-        publishAllLibraryVariants()
+        publishLibraryVariants("release")
     }
 
     jvm()

@@ -3,50 +3,5 @@
   "extends": [
     "config:recommended"
   ],
-  "timezone": "Europe/Madrid",
-  "schedule": [
-    "before 10am on monday"
-  ],
-  "prConcurrentLimit": 10,
-  "assignees": ["Atternatt"],
-  "reviewers": ["Atternatt"],
-  "labels": ["dependencies"],
-  "commitMessagePrefix": "deps:",
-  "commitMessageAction": "update",
-  "commitMessageTopic": "{{depName}}",
-  "commitMessageExtra": "to {{newVersion}}",
-  "packageRules": [
-    {
-      "matchManagers": ["gradle", "gradle-wrapper"],
-      "groupName": "gradle dependencies",
-      "addLabels": ["gradle"],
-      "schedule": ["before 10am on monday"]
-    },
-    {
-      "matchManagers": ["npm"],
-      "groupName": "npm dependencies",
-      "addLabels": ["npm", "docs"],
-      "schedule": ["before 10am on monday"]
-    },
-    {
-      "matchPackagePatterns": ["^@docusaurus/"],
-      "groupName": "docusaurus packages",
-      "addLabels": ["docusaurus"]
-    },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "addLabels": ["dev-dependencies"]
-    }
-  ],
-  "gradle": {
-    "enabled": true
-  },
-  "npm": {
-    "enabled": true
-  },
-  "ignorePaths": [
-    "**/build/**",
-    "**/node_modules/**",
-    "**/.gradle/**"
-  ]
+  "rangeStrategy": "bump"
 }
