@@ -29,8 +29,9 @@ import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 import com.m2f.archer.repository.Repository
-import kotlinx.datetime.Instant
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 typealias Result<T> = Either<Failure, T>
 
@@ -41,8 +42,11 @@ class ArcherRaise(raise: Raise<Failure>, private val config: Configuration) :
     override val mainFallbacks: (Failure) -> Boolean = config.mainFallbacks
     override val storageFallbacks: (Failure) -> Boolean = config.storageFallbacks
     override val ignoreCache: Boolean = config.ignoreCache
+
+    @OptIn(ExperimentalTime::class)
     override fun getCurrentTime(): Instant = config.getCurrentTime()
 
+    @OptIn(ExperimentalTime::class)
     override val cache: CacheDataSource<CacheMetaInformation, Instant> = config.cache
 
     fun <A> Ice<A>.bind(): A = fold(

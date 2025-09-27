@@ -30,19 +30,21 @@ import com.m2f.archer.failure.NetworkFailure.UnhandledNetworkFailure
 import com.m2f.archer.repository.MainSyncRepository
 import com.m2f.archer.repository.StoreSyncRepository
 import com.m2f.archer.repository.toRepository
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 abstract class Configuration {
     abstract val mainFallbacks: (Failure) -> Boolean
     abstract val storageFallbacks: (Failure) -> Boolean
     abstract val ignoreCache: Boolean
 
+    @OptIn(ExperimentalTime::class)
     abstract fun getCurrentTime(): Instant
 
+    @OptIn(ExperimentalTime::class)
     abstract val cache: CacheDataSource<CacheMetaInformation, Instant>
 
     fun <K, A> cacheStrategy(
@@ -142,6 +144,7 @@ object DefaultConfiguration : Configuration() {
 
     override val ignoreCache: Boolean = false
 
+    @OptIn(ExperimentalTime::class)
     override val cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache()
 
     @OptIn(ExperimentalTime::class)
@@ -159,6 +162,7 @@ internal class IgnoreCacheConfiguration(configuration: Configuration = DefaultCo
 
     override val ignoreCache: Boolean = true
 
+    @OptIn(ExperimentalTime::class)
     override val cache: CacheDataSource<CacheMetaInformation, Instant> = configuration.cache
 
     @OptIn(ExperimentalTime::class)

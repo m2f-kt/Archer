@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.m2f.archer.crud.cache.memcache
 
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
@@ -14,9 +16,9 @@ import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toInstant
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class MemoizedExpirationCache(
     private val repo: GetRepository<Unit, ExpirationRegistryQueries> = queriesRepo
@@ -32,7 +34,7 @@ class MemoizedExpirationCache(
                 when (q) {
                     is Get -> queries.getInstant(
                         key = q.key.key, hash = q.key.hashCode().toLong()
-                    ).awaitAsOneOrNull()?.instant?.toInstant() ?: raise(
+                    ).awaitAsOneOrNull()?.instant?.let { Instant.parse(it) } ?: raise(
                         DataNotFound
                     )
 

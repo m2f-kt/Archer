@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.m2f.archer.crud.cache
 
 import arrow.core.raise.ensureNotNull
@@ -29,15 +31,17 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlin.test.Test
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class CacheExpirationTest {
 
+    @OptIn(ExperimentalTime::class)
     val emptyCacheConfiguration = object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
@@ -84,7 +88,7 @@ class CacheExpirationTest {
         result2 shouldBeLeft Invalid
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
     @Test
     fun `fetching after time passed`() = runArcherTest(configuration = inMemoryCacheConfiguration) {
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))

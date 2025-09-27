@@ -18,8 +18,6 @@ apiValidation {
     }
 }
 
-
-
 val sources: List<File> = subprojects.flatMap { project ->
     file("${project.projectDir}/src/").walkBottomUp().maxDepth(2)
         .filter { it.path.contains("kotlin", ignoreCase = true) }
@@ -44,6 +42,7 @@ allprojects {
     extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension>()?.apply {
         sourceSets.all {
             languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
         }
     }
 }

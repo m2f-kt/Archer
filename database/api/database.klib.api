@@ -56,6 +56,6 @@ final class com.m2f.archer/ExpirationRegistryQueries : app.cash.sqldelight/Suspe
 
     final fun <#A1: kotlin/Any> getInstant(kotlin/String, kotlin/Long, kotlin/Function5<kotlin/String, kotlin/Long, kotlin/String, kotlin/String, kotlin/String, #A1>): app.cash.sqldelight/Query<#A1> // com.m2f.archer/ExpirationRegistryQueries.getInstant|getInstant(kotlin.String;kotlin.Long;kotlin.Function5<kotlin.String,kotlin.Long,kotlin.String,kotlin.String,kotlin.String,0:0>){0§<kotlin.Any>}[0]
     final fun getInstant(kotlin/String, kotlin/Long): app.cash.sqldelight/Query<com.m2f.archer/ExpirationRegistry> // com.m2f.archer/ExpirationRegistryQueries.getInstant|getInstant(kotlin.String;kotlin.Long){}[0]
-    final suspend fun deleteInstant(kotlin/String, kotlin/Long) // com.m2f.archer/ExpirationRegistryQueries.deleteInstant|deleteInstant(kotlin.String;kotlin.Long){}[0]
-    final suspend fun insertInstant(kotlin/String, kotlin/Long, kotlin/String, kotlin/String, kotlin/String) // com.m2f.archer/ExpirationRegistryQueries.insertInstant|insertInstant(kotlin.String;kotlin.Long;kotlin.String;kotlin.String;kotlin.String){}[0]
+    final suspend fun deleteInstant(kotlin/String, kotlin/Long): kotlin/Long // com.m2f.archer/ExpirationRegistryQueries.deleteInstant|deleteInstant(kotlin.String;kotlin.Long){}[0]
+    final suspend fun insertInstant(kotlin/String, kotlin/Long, kotlin/String, kotlin/String, kotlin/String): kotlin/Long // com.m2f.archer/ExpirationRegistryQueries.insertInstant|insertInstant(kotlin.String;kotlin.Long;kotlin.String;kotlin.String;kotlin.String){}[0]
 }
