@@ -3,7 +3,6 @@ import kotlinx.validation.ExperimentalBCVApi
 plugins {
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
-    alias(libs.plugins.kotest.multiplatform) apply false
     alias(libs.plugins.kotlinx.kover) apply false
     alias(libs.plugins.coverallsjacoco)
     alias(libs.plugins.binary.compatibility.validator)

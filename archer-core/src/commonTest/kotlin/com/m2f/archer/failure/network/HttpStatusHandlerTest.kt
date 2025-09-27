@@ -1,35 +1,40 @@
 package com.m2f.archer.failure.network
 
 import com.m2f.archer.failure.NetworkFailure
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.property.Arb
-import io.kotest.property.arbitrary.int
-import io.kotest.property.checkAll
+import kotlin.test.Test
 
-class HttpStatusHandlerTest : FunSpec({
+class HttpStatusHandlerTest {
 
-    test("from 300 to 399 should return redirect failure") {
-        Arb.int(300..399).checkAll {
-            httpCodeToNetworkFailure(it) shouldBe NetworkFailure.Redirect
+    @Test
+    fun `from 300 to 399 should return redirect failure`() {
+        val testCodes = listOf(300, 301, 302, 350, 399)
+        for (code in testCodes) {
+            NetworkFailure.Redirect shouldBe httpCodeToNetworkFailure(code)
         }
     }
 
-    test("from 400 to 499 should return Unauthorised failure") {
-        Arb.int(400..499).checkAll {
-            httpCodeToNetworkFailure(it) shouldBe NetworkFailure.Unauthorised
+    @Test
+    fun `from 400 to 499 should return Unauthorised failure`() {
+        val testCodes = listOf(400, 401, 403, 404, 450, 499)
+        for (code in testCodes) {
+            NetworkFailure.Unauthorised shouldBe httpCodeToNetworkFailure(code)
         }
     }
 
-    test("from 500 to 599 should return Server failure") {
-        Arb.int(500..599).checkAll {
-            httpCodeToNetworkFailure(it) shouldBe NetworkFailure.ServerFailure
+    @Test
+    fun `from 500 to 599 should return Server failure`() {
+        val testCodes = listOf(500, 501, 502, 503, 550, 599)
+        for (code in testCodes) {
+            NetworkFailure.ServerFailure shouldBe httpCodeToNetworkFailure(code)
         }
     }
 
-    test("from weird code should return Unhandled failure") {
-        Arb.int(601..1000).checkAll {
-            httpCodeToNetworkFailure(it) shouldBe NetworkFailure.UnhandledNetworkFailure
+    @Test
+    fun `from weird code should return Unhandled failure`() {
+        val testCodes = listOf(601, 700, 800, 999, 1000)
+        for (code in testCodes) {
+            NetworkFailure.UnhandledNetworkFailure shouldBe httpCodeToNetworkFailure(code)
         }
     }
-})
+}

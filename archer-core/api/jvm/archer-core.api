@@ -5,6 +5,7 @@ public abstract class com/m2f/archer/configuration/Configuration {
 	public final fun either (Lkotlin/jvm/functions/Function1;)Larrow/core/Either;
 	public final fun fallbackWith (Lcom/m2f/archer/datasource/DataSource;Lcom/m2f/archer/datasource/DataSource;)Lcom/m2f/archer/repository/Repository;
 	public abstract fun getCache ()Lcom/m2f/archer/crud/cache/CacheDataSource;
+	public abstract fun getCurrentTime ()Lkotlinx/datetime/Instant;
 	public abstract fun getIgnoreCache ()Z
 	public abstract fun getMainFallbacks ()Lkotlin/jvm/functions/Function1;
 	public abstract fun getStorageFallbacks ()Lkotlin/jvm/functions/Function1;
@@ -19,6 +20,7 @@ public abstract class com/m2f/archer/configuration/Configuration {
 public final class com/m2f/archer/configuration/DefaultConfiguration : com/m2f/archer/configuration/Configuration {
 	public static final field INSTANCE Lcom/m2f/archer/configuration/DefaultConfiguration;
 	public fun getCache ()Lcom/m2f/archer/crud/cache/CacheDataSource;
+	public fun getCurrentTime ()Lkotlinx/datetime/Instant;
 	public fun getIgnoreCache ()Z
 	public fun getMainFallbacks ()Lkotlin/jvm/functions/Function1;
 	public fun getStorageFallbacks ()Lkotlin/jvm/functions/Function1;
@@ -45,6 +47,7 @@ public final class com/m2f/archer/crud/ArcherRaise : com/m2f/archer/configuratio
 	public final fun get (Lcom/m2f/archer/datasource/DataSource;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun get (Lcom/m2f/archer/repository/Repository;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun getCache ()Lcom/m2f/archer/crud/cache/CacheDataSource;
+	public fun getCurrentTime ()Lkotlinx/datetime/Instant;
 	public fun getIgnoreCache ()Z
 	public fun getMainFallbacks ()Lkotlin/jvm/functions/Function1;
 	public fun getStorageFallbacks ()Lkotlin/jvm/functions/Function1;

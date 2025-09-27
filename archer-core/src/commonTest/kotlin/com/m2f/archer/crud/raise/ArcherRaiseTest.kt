@@ -7,15 +7,15 @@ import com.m2f.archer.datasource.DataSource
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.repository.toRepository
-import com.m2f.archer.utils.archerTest
-import io.kotest.core.spec.style.FunSpec
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
-class ArcherRaiseTest : FunSpec({
+class ArcherRaiseTest {
 
-    archerTest("null binding") {
-
+    @Test
+    fun `null binding`() = runArcherTest {
         val a: Int? = null
         val b = 10
 
@@ -25,14 +25,15 @@ class ArcherRaiseTest : FunSpec({
         nil { b.bind() } shouldBe nullable { b.bind() }
     }
 
-    archerTest("result dsl") {
+    @Test
+    fun `result dsl`() = runArcherTest {
         val b = 10
 
         result { b } shouldBe either { b }
     }
 
-    archerTest("bool dsl") {
-
+    @Test
+    fun `bool dsl`() = runArcherTest {
         val a: Int? = null
         val resultSuccess = 10.right()
         val resultFailure = DataNotFound.left()
@@ -44,7 +45,8 @@ class ArcherRaiseTest : FunSpec({
         bool { raise(DataEmpty) } shouldBe false
     }
 
-    archerTest("unit dsl") {
+    @Test
+    fun `unit dsl`() = runArcherTest {
         val a: Int? = null
         val b = 10
 
@@ -52,31 +54,31 @@ class ArcherRaiseTest : FunSpec({
         unit { b.bind() } shouldBe Unit
     }
 
-    archerTest("DataSource execution") {
-
+    @Test
+    fun `DataSource execution`() = runArcherTest {
         val datasource = DataSource<Int, String> { it.toString() }
 
         ice { datasource.execute(0) } shouldBe Ice.Content("0")
     }
 
-    archerTest("Repository execution") {
-
+    @Test
+    fun `Repository execution`() = runArcherTest {
         val repo = DataSource<Int, String> { it.toString() }.toRepository()
 
         ice { repo.execute(0) } shouldBe Ice.Content("0")
     }
 
-    archerTest("Repository Unit execution") {
-
+    @Test
+    fun `Repository Unit execution`() = runArcherTest {
         val repo = DataSource<Unit, String> { it.toString() }.toRepository()
 
         ice { repo.execute() } shouldBe Ice.Content("kotlin.Unit")
     }
 
-    archerTest("DataSource Unit execution") {
-
+    @Test
+    fun `DataSource Unit execution`() = runArcherTest {
         val ds = DataSource<Unit, String> { it.toString() }
 
         ice { ds.execute() } shouldBe Ice.Content("kotlin.Unit")
     }
-})
+}

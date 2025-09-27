@@ -2,20 +2,24 @@ package com.m2f.archer.crud.cache
 
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.utils.archerTest
-import io.kotest.core.spec.style.FunSpec
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
-class NullableTest : FunSpec({
+class NullableTest {
 
-    archerTest("regular call wraps into non null content") {
+    @Test
+    fun `regular call wraps into non null content`() = runArcherTest {
         val getDataSource = getDataSource<Int, String> { "Success" }
-        nullable { getDataSource.get(0) } shouldBe "Success"
+        val result = nullable { getDataSource.get(0) }
+        result shouldBe "Success"
     }
 
-    archerTest("failure call wraps into null content") {
+    @Test
+    fun `failure call wraps into null content`() = runArcherTest {
         val getDataSource = getDataSource<Int, String> { raise(DataNotFound) }
-        nullable { getDataSource.get(0) }.shouldBeNull()
+        val result = nullable { getDataSource.get(0) }
+        result.shouldBeNull()
     }
-})
+}
