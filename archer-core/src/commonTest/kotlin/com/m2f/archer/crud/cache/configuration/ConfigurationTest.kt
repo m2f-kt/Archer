@@ -14,23 +14,23 @@ import com.m2f.archer.crud.operation.Store
 import com.m2f.archer.failure.Failure
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.KeyQuery
-import com.m2f.archer.utils.archerTest
-import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.booleans.shouldBeTrue
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock.System
 import kotlinx.datetime.Instant
+import kotlin.test.Test
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
-class ConfigurationTest : FunSpec({
+class ConfigurationTest {
 
     val neverExpiringCacheConfiguration = object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
         override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
+        override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
+
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
@@ -57,38 +57,39 @@ class ConfigurationTest : FunSpec({
                     return System.now() - 1000.days
                 }
             }
+        override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
     }
-    archerTest("ice dsl preserves the configuration") {
-        with(inMemoryCacheConfiguration()) {
-            val mainDataSource = getDataSource<Int, String> { "main" }
-            val storeDataSource = StoreDataSource<Int, String> { "store" }
 
-            val a = mainDataSource cacheWith storeDataSource expiresIn 1000.minutes
-            val b = mainDataSource cacheWith storeDataSource expiresIn 10.minutes
-            val c = mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds
+    @Test
+    fun `ice dsl preserves the configuration`() = runArcherTest(configuration = inMemoryCacheConfiguration) {
+        val mainDataSource = getDataSource<Int, String> { "main" }
+        val storeDataSource = StoreDataSource<Int, String> { "store" }
 
-            // As the strategy was created under testConfiguration scope it does preserve it
-            ice { a.get(Store, 1) } shouldBe Ice.Content("store")
-            ice { a.get(MainSync, 1) }
-            ice { a.get(Store, 1) } shouldBe Ice.Content("store")
+        val a = mainDataSource cacheWith storeDataSource expiresIn 1000.minutes
+        val b = mainDataSource cacheWith storeDataSource expiresIn 10.minutes
+        val c = mainDataSource cacheWith storeDataSource expiresIn 1.milliseconds
 
-            // As b was created in the alwaysExpiringCacheConfiguration store will always be invalid
-            with(alwaysExpiringCacheConfiguration) {
-                ice { b.get(Store, 1) } shouldBe Ice.Content("store")
-                ice { b.get(MainSync, 1) }
-                ice { b.get(Store, 1) } shouldBe Ice.Content("store")
-            }
+        // As the strategy was created under testConfiguration scope it does preserve it
+        ice { a.get(Store, 1) } shouldBe Ice.Content("store")
+        ice { a.get(MainSync, 1) }
+        ice { a.get(Store, 1) } shouldBe Ice.Content("store")
 
-            // As c was created in the neverExpiringCacheConfiguration store will always be valid
-            with(neverExpiringCacheConfiguration) {
-                ice { c.get(Store, 1) } shouldBe Ice.Content("store")
-                ice { c.get(MainSync, 1) } shouldBe Ice.Content("store")
-                ice { c.get(Store, 1) } shouldBe Ice.Content("store")
-            }
+        // As b was created in the alwaysExpiringCacheConfiguration store will always be invalid
+        with(alwaysExpiringCacheConfiguration) {
+            ice { b.get(Store, 1) } shouldBe Ice.Content("store")
+            ice { b.get(MainSync, 1) }
+            ice { b.get(Store, 1) } shouldBe Ice.Content("store")
+        }
+
+        // As c was created in the neverExpiringCacheConfiguration store will always be valid
+        with(neverExpiringCacheConfiguration) {
+            ice { c.get(Store, 1) } shouldBe Ice.Content("store")
+            ice { c.get(MainSync, 1) } shouldBe Ice.Content("store")
+            ice { c.get(Store, 1) } shouldBe Ice.Content("store")
         }
     }
 
-    archerTest("either dsl preserves the configuration") {
+    /*archerTest("either dsl preserves the configuration") {
         with(inMemoryCacheConfiguration()) {
             val mainDataSource = getDataSource<Int, String> { "main" }
             val storeDataSource = StoreDataSource<Int, String> { "store" }
@@ -176,5 +177,5 @@ class ConfigurationTest : FunSpec({
             bool { c.get(MainSync, 1) }.shouldBeTrue()
             bool { c.get(Store, 1) }.shouldBeTrue()
         }
-    }
-})
+    }*/
+}

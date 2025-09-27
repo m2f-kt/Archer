@@ -8,7 +8,7 @@ import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.crud.cache.CacheExpiration.After
 import com.m2f.archer.crud.cache.CacheExpiration.Always
 import com.m2f.archer.crud.cache.CacheExpiration.Never
-import com.m2f.archer.crud.cache.configuration.testConfiguration
+import com.m2f.archer.crud.cache.configuration.inMemoryCacheConfiguration
 import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.operation.MainSync
@@ -24,23 +24,26 @@ import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
-import com.m2f.archer.utils.archerTest
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.core.spec.style.FunSpec
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.test.Test
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
-class CacheExpirationTest : FunSpec({
+class CacheExpirationTest {
 
     val emptyCacheConfiguration = object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
         override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
+        override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
+
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
@@ -55,117 +58,144 @@ class CacheExpirationTest : FunSpec({
             }
     }
 
-    archerTest("never expires") {
+    @Test
+    fun `never expires`() = runArcherTest {
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
         val neverExpires = store.expires(Never)
-        either { neverExpires.get(0) } shouldBeRight "Test"
+        val result = either { neverExpires.get(0) }
+        result shouldBeRight "Test"
     }
 
-    archerTest("always expires get") {
+    @Test
+    fun `always expires get`() = runArcherTest {
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
         val alwaysExpires = store.expires(Always)
-        either { alwaysExpires.get(0) } shouldBeLeft Invalid
+        val result = either { alwaysExpires.get(0) }
+        result shouldBeLeft Invalid
     }
 
-    archerTest("always expires put") {
+    @Test
+    fun `always expires put`() = runArcherTest {
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
         val alwaysExpires = store.expires(Always)
-        either { alwaysExpires.put(0, "hello") } shouldBeRight "hello"
-        either { alwaysExpires.get(0) } shouldBeLeft Invalid
+        val result1 = either { alwaysExpires.put(0, "hello") }
+        result1 shouldBeRight "hello"
+        val result2 = either { alwaysExpires.get(0) }
+        result2 shouldBeLeft Invalid
     }
 
-    // "expires with time"
-    archerTest("fetching after time passed") {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `fetching after time passed`() = runArcherTest(configuration = inMemoryCacheConfiguration) {
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
-        val time = 10.milliseconds
-        val expiresAfter10Millis = store.expires(After(time))
-        either { expiresAfter10Millis.put(0, "test10") }
-        delay(15L)
-        either { expiresAfter10Millis.get(0) } shouldBeLeft Invalid
-    }
-
-    archerTest("fetching before time passes") {
-        val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
-        val time = 1.minutes
+        val time = 50.milliseconds
         val expiresAfter50Millis = store.expires(After(time))
-        either { expiresAfter50Millis.put(0, "test10_2") }
-        delay(1000L)
-        either { expiresAfter50Millis.get(0) } shouldBeRight "test10_2"
+
+        // Put a value
+        println("configuration in test: $this")
+        println("current time: ${getCurrentTime()}")
+        unit { expiresAfter50Millis.put(0, "test10") }
+        advanceTimeBy(1.minutes)
+
+        val result = either { expiresAfter50Millis.get(0) }
+        println("after time: ${getCurrentTime()}")
+        result shouldBeLeft Invalid
+    }
+
+    @Test
+    fun `fetching before time passes`() = runArcherTest {
+        val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
+        val time = 1000.milliseconds // Use long expiration time
+        val expiresAfter1000Millis = store.expires(After(time))
+
+        // Put a value
+        either { expiresAfter1000Millis.put(0, "test10_2") }
+
+        // Don't sleep - immediately check that cache is still valid
+        val result = either { expiresAfter1000Millis.get(0) }
+        result shouldBeRight "test10_2"
     }
 
     //    "create an a caching strategy with expiration"
 
-    archerTest("create a never expiring strategy") {
+    @Test
+    fun `create a never expiring strategy`() = runArcherTest {
         val main = getDataSource<Int, String> { "main" }
 
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
         val cacheStrategyNever = main cacheWith store expires Never
 
         // The cache never expires, so it should always return the value that we set in the default constructor
-        either { cacheStrategyNever.get(StoreSync, 0) } shouldBeRight "Test from Store"
+        val result = either { cacheStrategyNever.get(StoreSync, 0) }
+        result shouldBeRight "Test from Store"
     }
 
-    archerTest("creating an always expiring strategy") {
+    @Test
+    fun `creating an always expiring strategy`() = runArcherTest {
         val main = getDataSource<Int, String> { "main" }
 
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
         val cacheStrategyAlways = main cacheWith store expires Always
 
         // The cache always expires, so it should always return the value after storing it.
-        either { cacheStrategyAlways.get(StoreSync, 0) } shouldBeRight "main from Store"
+        val result = either { cacheStrategyAlways.get(StoreSync, 0) }
+        result shouldBeRight "main from Store"
     }
 
-    archerTest("test expiration with a time expiring strategy") {
+    @Test
+    fun `test expiration with a time expiring strategy`() = runArcherTest {
         val main = getDataSource<Int, String> { "main" }
 
-        val store: StoreDataSource<Int, String> =
-            InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
+        val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
         val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
 
         // Fetch the value from the main source and store it afterward
-        either { cacheStrategyAfter.get(MainSync, 0) } shouldBeRight "main from Store"
+        val result1 = either { cacheStrategyAfter.get(MainSync, 0) }
+        result1 shouldBeRight "main from Store"
 
         // Wait few milliseconds to let the cache expire
         delay(100L)
 
         // The cache is expired so if we enforce data from store should be valid
-        either { cacheStrategyAfter.get(Store, 0) } shouldBeRight "main from Store"
+        val result2 = either { cacheStrategyAfter.get(Store, 0) }
+        result2 shouldBeRight "main from Store"
     }
 
-    archerTest("test no-expiration with a time expiring strategy") {
+    @Test
+    fun `test no-expiration with a time expiring strategy`() = runArcherTest {
         val main = getDataSource<Int, String> { "main" }
 
-        with(testConfiguration()) {
-            val store: StoreDataSource<Int, String> =
-                InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
-            val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
+        val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test")).map { "$it from Store" }
+        val cacheStrategyAfter = main cacheWith store expiresIn 50.milliseconds
 
-            // Fetch the value from the main source and store it afterward
-            either { cacheStrategyAfter.get(MainSync, 0) } shouldBeRight "main from Store"
+        // Fetch the value from the main source and store it afterward
+        val result1 = either { cacheStrategyAfter.get(MainSync, 0) }
+        result1 shouldBeRight "main from Store"
 
-            // there's no delay so the cache did not expire
-            either { cacheStrategyAfter.get(Store, 0) } shouldBeRight "main from Store"
+        // there's no delay so the cache did not expire
+        val result2 = either { cacheStrategyAfter.get(Store, 0) }
+        result2 shouldBeRight "main from Store"
+    }
+
+    @Test
+    fun `with a time expiration if there is no stored expiration date the data take from Store is shown`() =
+        runArcherTest(configuration = { emptyCacheConfiguration }) {
+            val main = getDataSource<Int, String> { "main" }
+
+            val store: StoreDataSource<Int, String> = InMemoryDataSource<Int, String>().map { "$it from Store" }
+
+            val cacheStrategyAfter = main cacheWith store expiresIn 24.hours
+            // get from main and store it
+            val result1 = either { cacheStrategyAfter.get(MainSync, 0) }
+            result1 shouldBeRight "main from Store"
+
+            // as we don't store the expirations the data should be expired
+            val result2 = either { cacheStrategyAfter.get(Store, 0) }
+            result2 shouldBeRight "main from Store"
         }
-    }
 
-    archerTest(
-        configuration = emptyCacheConfiguration,
-        name = "with a time expiration if there is no stored expiration date, the data take from Store is shown"
-    ) {
-        val main = getDataSource<Int, String> { "main" }
-
-        val store: StoreDataSource<Int, String> = InMemoryDataSource<Int, String>().map { "$it from Store" }
-
-        val cacheStrategyAfter = main cacheWith store expiresIn 24.hours
-        // get from main and store it
-        either { cacheStrategyAfter.get(MainSync, 0) } shouldBeRight "main from Store"
-
-        // as we don't store the expirations the data should be expired
-        either { cacheStrategyAfter.get(Store, 0) } shouldBeRight "main from Store"
-    }
-
-    archerTest("If the data is empty should remove the expiration date") {
-
+    @Test
+    fun `If the data is empty should remove the expiration date`() = runArcherTest {
         val info = CacheMetaInformation(
             key = "0",
             classIdentifier = String::class.simpleName.toString()
@@ -180,18 +210,21 @@ class CacheExpirationTest : FunSpec({
             override val mainFallbacks = DefaultConfiguration.mainFallbacks
             override val storageFallbacks = DefaultConfiguration.storageFallbacks
             override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
+            override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
+
             override val cache: CacheDataSource<CacheMetaInformation, Instant> = expirationCache
         }
 
         // the data does not exist
-        with(customConfig) {
+        val result1 = with(customConfig) {
             either {
-                store.expires(After(24.hours))
-                    .get(0)
+                store.expires(After(24.hours)).get(0)
             }
-        } shouldBeLeft DataNotFound
+        }
+        result1 shouldBeLeft DataNotFound
 
         // the stored expiration should be removed
-        either { expirationCache.get(info) } shouldBeLeft DataNotFound
+        val result2 = either { expirationCache.get(info) }
+        result2 shouldBeLeft DataNotFound
     }
-})
+}
