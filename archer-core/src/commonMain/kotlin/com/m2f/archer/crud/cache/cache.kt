@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.m2f.archer.crud.cache
 
 import com.m2f.archer.configuration.DefaultConfiguration.cacheStrategy
@@ -16,6 +18,7 @@ import com.m2f.archer.failure.Invalid
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
+import kotlin.time.ExperimentalTime
 
 interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 

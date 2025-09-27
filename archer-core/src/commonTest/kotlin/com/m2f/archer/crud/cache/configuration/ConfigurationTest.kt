@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.m2f.archer.crud.cache.configuration
 
 import com.m2f.archer.configuration.Configuration
@@ -16,12 +18,13 @@ import com.m2f.archer.query.Delete
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.utils.runArcherTest
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.Clock.System
-import kotlinx.datetime.Instant
 import kotlin.test.Test
+import kotlin.time.Clock.System
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class ConfigurationTest {
 

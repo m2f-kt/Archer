@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.m2f.archer.crud.cache.configuration
 
 import com.m2f.archer.configuration.Configuration
@@ -9,7 +11,8 @@ import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.Failure
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
-import kotlinx.datetime.Instant
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 val testConfiguration: (scheduler: TestCoroutineScheduler) -> Configuration = { scheduler ->
     object : Configuration() {
