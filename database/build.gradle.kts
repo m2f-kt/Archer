@@ -1,6 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -11,24 +13,19 @@ plugins {
     alias(libs.plugins.com.vanniktech.maven.publish)
 }
 
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
 kotlin {
 
     androidTarget {
         publishAllLibraryVariants()
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_17.toString()
-            }
-        }
     }
 
-    jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_17.toString()
-            }
-        }
-    }
+    jvm()
 
     iosX64()
     iosArm64()
@@ -47,26 +44,9 @@ kotlin {
     }
 
     tasks.withType<KotlinJsCompile>().configureEach {
-        kotlinOptions.freeCompilerArgs += listOf(
-            "-Xklib-enable-signature-clash-checks=false",
-        )
-    }
-
-    sqldelight {
-        databases {
-            create(name = "CacheExpirationDatabase") {
-                packageName.set("com.m2f.archer.sqldelight")
-                generateAsync.set(true)
-            }
-        }
-    }
-
-    tasks.withType(KotlinCompile::class).configureEach {
         compilerOptions {
-            freeCompilerArgs.addAll("-Xexpect-actual-classes")
+            freeCompilerArgs.addAll("-Xklib-enable-signature-clash-checks=false")
         }
-
-        kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
     }
 
     sourceSets {
@@ -74,7 +54,6 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.time)
             implementation(libs.bundles.arrow)
-            implementation(libs.bundles.kotest)
         }
 
         androidMain.dependencies {
@@ -96,6 +75,21 @@ kotlin {
             implementation(npm("sql.js", "1.8.0"))
             api(devNpm("copy-webpack-plugin", "9.1.0"))
         }
+    }
+}
+
+sqldelight {
+    databases {
+        create("CacheExpirationDatabase") {
+            packageName.set("com.m2f.archer.sqldelight")
+            generateAsync.set(true)
+        }
+    }
+}
+
+tasks.withType(KotlinCompile::class).configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xexpect-actual-classes")
     }
 }
 

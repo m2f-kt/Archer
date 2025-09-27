@@ -34,14 +34,16 @@ import kotlin.experimental.ExperimentalTypeInference
 
 typealias Result<T> = Either<Failure, T>
 
-class ArcherRaise(raise: Raise<Failure>, configuration: Configuration) :
+class ArcherRaise(raise: Raise<Failure>, private val config: Configuration) :
     Raise<Failure> by raise,
     Configuration() {
 
-    override val mainFallbacks: (Failure) -> Boolean = configuration.mainFallbacks
-    override val storageFallbacks: (Failure) -> Boolean = configuration.storageFallbacks
-    override val ignoreCache: Boolean = configuration.ignoreCache
-    override val cache: CacheDataSource<CacheMetaInformation, Instant> = configuration.cache
+    override val mainFallbacks: (Failure) -> Boolean = config.mainFallbacks
+    override val storageFallbacks: (Failure) -> Boolean = config.storageFallbacks
+    override val ignoreCache: Boolean = config.ignoreCache
+    override fun getCurrentTime(): Instant = config.getCurrentTime()
+
+    override val cache: CacheDataSource<CacheMetaInformation, Instant> = config.cache
 
     fun <A> Ice<A>.bind(): A = fold(
         ifIdle = { raise(Idle) },

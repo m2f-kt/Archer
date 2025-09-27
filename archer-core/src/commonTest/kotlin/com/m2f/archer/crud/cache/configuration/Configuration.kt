@@ -7,9 +7,11 @@ import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
 import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.Failure
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.datetime.Instant
 
-val testConfiguration: () -> Configuration = {
+val testConfiguration: (scheduler: TestCoroutineScheduler) -> Configuration = { scheduler ->
     object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
@@ -17,14 +19,20 @@ val testConfiguration: () -> Configuration = {
         override val cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache(
             repo = fakeQueriesRepo
         )
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        override fun getCurrentTime(): Instant = Instant.fromEpochMilliseconds(scheduler.currentTime)
     }
 }
 
-val inMemoryCacheConfiguration: () -> Configuration = {
+val inMemoryCacheConfiguration: (scheduler: TestCoroutineScheduler) -> Configuration = { scheduler ->
     object : Configuration() {
         override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
         override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
         override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
         override val cache: CacheDataSource<CacheMetaInformation, Instant> = InMemoryDataSource()
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        override fun getCurrentTime(): Instant = Instant.fromEpochMilliseconds(scheduler.currentTime)
     }
 }

@@ -14,15 +14,15 @@ import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.failure.Unknown
-import com.m2f.archer.utils.archerTest
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.core.spec.style.FunSpec
+import kotlin.test.Test
 
-class RepositoryStrategyTest : FunSpec({
+class RepositoryStrategyTest {
 
-    archerTest("Create a fallback strategy with infix function") {
-
+    @Test
+    fun `Create a fallback strategy with infix function`() = runArcherTest {
         val mainGet = getDataSource<Int, String> { key -> if (key == 0) "main get" else raise(DataNotFound) }
         val storeGet = getDataSource<Int, String> { "store get" }
         val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
@@ -33,11 +33,15 @@ class RepositoryStrategyTest : FunSpec({
 
         val repository = mainGet fallbackWith storeGet + storePut
 
-        either { repository.get(0) } shouldBeRight "store put: main get"
-        either { repository.get(1) } shouldBeRight "store get"
+        val result1 = either { repository.get(0) }
+        result1 shouldBeRight "store put: main get"
+
+        val result2 = either { repository.get(1) }
+        result2 shouldBeRight "store get"
     }
 
-    archerTest("Uncurry a strategy") {
+    @Test
+    fun `Uncurry a strategy`() = runArcherTest {
         /*A strategy is an objects that returns a Repository given an operation
          * but we also provide a get function that calls the get function of the
          * Repository without the need to get the instance of the Repository*/
@@ -48,49 +52,65 @@ class RepositoryStrategyTest : FunSpec({
 
         val strategy = mainGet.cacheWith(storeGet + storePut) expires Never
 
-        either { strategy.get(Main, 0) } shouldBeRight "main get"
-        either { strategy.get(Store, 0) } shouldBeRight "store get"
-        either { strategy.get(MainSync, 0) } shouldBeRight "store put: main get"
-        either { strategy.get(StoreSync, 0) } shouldBeRight "store get"
+        val result1 = either { strategy.get(Main, 0) }
+        result1 shouldBeRight "main get"
+
+        val result2 = either { strategy.get(Store, 0) }
+        result2 shouldBeRight "store get"
+
+        val result3 = either { strategy.get(MainSync, 0) }
+        result3 shouldBeRight "store put: main get"
+
+        val result4 = either { strategy.get(StoreSync, 0) }
+        result4 shouldBeRight "store get"
 
         val expiredStore = (storeGet.validate { false } + storePut)
         val expiredStrategy = mainGet.cacheWith(expiredStore) expires Never
 
-        either { expiredStrategy.get(StoreSync, 0) } shouldBeRight "store put: main get"
+        val result5 = either { expiredStrategy.get(StoreSync, 0) }
+        result5 shouldBeRight "store put: main get"
     }
 
-    archerTest("StoreSync will return by default the stored data") {
+    @Test
+    fun `StoreSync will return by default the stored data`() = runArcherTest {
         val mainGet = getDataSource<Int, String> { key -> if (key == 0) "main get" else raise(DataNotFound) }
         val storeGet = getDataSource<Int, String> { "store get" }
         val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
 
         val strategy = mainGet.cacheWith(storeGet + storePut) expires Never
-        either { strategy.get(StoreSync, 0) } shouldBeRight "store get"
+        val result = either { strategy.get(StoreSync, 0) }
+        result shouldBeRight "store get"
     }
 
-    archerTest("StoreSync will fail if there is an unrecoverable failure") {
+    @Test
+    fun `StoreSync will fail if there is an unrecoverable failure`() = runArcherTest {
         val mainGet = getDataSource<Int, String> { key -> if (key == 0) "main get" else raise(DataNotFound) }
         val storeGetFailUnrecoverable = getDataSource<Int, String> { raise(Unknown) }
         val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
 
         val strategy = mainGet.cacheWith(storeGetFailUnrecoverable + storePut) expires Never
-        either { strategy.get(StoreSync, 0) } shouldBeLeft Unknown
+        val result = either { strategy.get(StoreSync, 0) }
+        result shouldBeLeft Unknown
     }
 
-    archerTest("StoreSync will fallback to the main data source and save result if there is an recoverable failure") {
+    @Test
+    fun `StoreSync will fallback to the main data source and save result if there is an recoverable failure`() = runArcherTest {
         val mainGet = getDataSource<Int, String> { key -> if (key == 0) "main get" else raise(DataNotFound) }
         val storeGetFailRecoverable = getDataSource<Int, String> { raise(Invalid) }
         val storePut = putDataSource<Int, String> { _, value -> "store put: $value" }
 
         val strategy = mainGet.cacheWith(storeGetFailRecoverable + storePut) expires Never
-        either { strategy.get(StoreSync, 0) } shouldBeRight "store put: main get"
+        val result = either { strategy.get(StoreSync, 0) }
+        result shouldBeRight "store put: main get"
     }
 
-    archerTest("MainSync will fail if there is an unrecoverable failure") {
+    @Test
+    fun `MainSync will fail if there is an unrecoverable failure`() = runArcherTest {
         val mainGetFailUnrecoverable = GetDataSource<Int, String> { raise(Unknown) }
         val store = InMemoryDataSource<Int, String>()
 
         val strategy = mainGetFailUnrecoverable cacheWith store expires Never
-        either { strategy.get(MainSync, 0) } shouldBeLeft Unknown
+        val result = either { strategy.get(MainSync, 0) }
+        result shouldBeLeft Unknown
     }
-})
+}

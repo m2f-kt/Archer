@@ -16,7 +16,6 @@ import com.m2f.archer.failure.Invalid
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
-import kotlinx.datetime.Clock.System
 
 interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 
@@ -60,18 +59,29 @@ inline fun <K, reified A> StoreDataSource<K, A>.expires(
                 )
                 when (q) {
                     is Put -> {
-                        val now = System.now()
+                        println("configuration in put datasource: $this")
+                        val now = this.getCurrentTime()
+                        println("saving: $now")
                         val expirationDate = (now + expiration.time)
                         cache.put(info, expirationDate)
                         this@expires.run { invoke(q) }
                     }
 
                     is Get -> {
-                        val now = System.now()
+                        println("configuration in get datasource: $this")
+                        val now = getCurrentTime()
+                        println("getting: $now")
                         val isValid: Boolean = if (ignoreCache) {
                             true
                         } else {
-                            archerRecover(block = { cache.get(info).let { now - it }.isNegative() }) {
+                            archerRecover(block = {
+                                cache.get(info).let {
+                                    println("saved instant: $it")
+                                    (now - it).also {
+                                        println("diff: $it")
+                                    }
+                                }.isNegative()
+                            }) {
                                 false
                             }
                         }

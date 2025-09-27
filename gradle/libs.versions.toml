@@ -1,6 +1,6 @@
 [versions]
 agp = "8.9.2"
-kotlin = "2.1.20"
+kotlin = "2.2.20"
 arrow = "2.0.1"
 arrowContinuations = "1.2.4"
 kotlinx-coroutines = "1.10.1"
@@ -21,12 +21,11 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlin-serilization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 
 kotest-assertionsCore = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
-kotest-frameworkEngine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 kotest-arrow = { module = "io.kotest:kotest-assertions-arrow", version.ref = "kotest" }
 kotest-arrow-fx = { module = "io.kotest:kotest-assertions-arrow-fx-coroutines", version.ref = "kotest" }
-kotest-runnerJUnit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 #startup
 startup = { module = "androidx.startup:startup-runtime", version.ref = "startup" }
@@ -54,20 +53,20 @@ arrow = [
     "arrow-continuations"
 ]
 
-kotest = [
+test = [
+    "coroutines-test",
     "kotest-assertionsCore",
-    "kotest-frameworkEngine",
     "kotest-property",
     "kotest-arrow",
     "kotest-arrow-fx",
-    "coroutines-test",
+    "kotlin-test",
 ]
+
 
 [plugins]
 kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
 com-vanniktech-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "com-vanniktech-maven-publish" }
 binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
 coverallsjacoco = { id = "com.github.nbaztec.coveralls-jacoco", version.ref = "coveralls" }

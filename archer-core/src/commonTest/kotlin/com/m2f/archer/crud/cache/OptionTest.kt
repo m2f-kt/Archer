@@ -1,21 +1,26 @@
 package com.m2f.archer.crud.cache
 
+import arrow.core.None
+import arrow.core.Some
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.utils.archerTest
-import io.kotest.assertions.arrow.core.shouldBeNone
-import io.kotest.assertions.arrow.core.shouldBeSome
-import io.kotest.core.spec.style.FunSpec
+import com.m2f.archer.utils.runArcherTest
+import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
-class OptionTest : FunSpec({
+class OptionTest {
 
-    archerTest("regular call wraps into Some content") {
+    @Test
+    fun `regular call wraps into Some content`() = runArcherTest {
         val getDataSource = getDataSource<Int, String> { "Success" }
-        option { getDataSource.get(0) } shouldBeSome "Success"
+        val result = option { getDataSource.get(0) }
+        result shouldBe Some("Success")
     }
 
-    archerTest("failure call wraps into None") {
+    @Test
+    fun `failure call wraps into None`() = runArcherTest {
         val getDataSource = getDataSource<Int, String> { raise(DataNotFound) }
-        option { getDataSource.get(0) }.shouldBeNone()
+        val result = option { getDataSource.get(0) }
+        result shouldBe None
     }
-})
+}

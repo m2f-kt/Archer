@@ -1,47 +1,45 @@
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.crud.cache.generator.deleteKeyQuery
-import com.m2f.archer.crud.cache.generator.getKeyQuery
-import com.m2f.archer.crud.cache.generator.putKeyQuery
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
-import com.m2f.archer.utils.archerTest
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.property.Arb
-import io.kotest.property.arbitrary.bind
-import io.kotest.property.arbitrary.int
-import io.kotest.property.arbitrary.string
-import io.kotest.property.checkAll
+import kotlin.test.Test
 
-class InMemoryDataSourceTest : FunSpec({
+class InMemoryDataSourceTest {
 
-    archerTest("Adding Some object returns the added object") {
+    @Test
+    fun `Adding Some object returns the added object`() = runArcherTest {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
         val valueToAdd = 1
-        val queries = Arb.putKeyQuery(Arb.string(), valueToAdd)
+        val keys = listOf("test1", "test2", "key")
 
-        checkAll(queries) { putQuery ->
+        for (key in keys) {
+            val putQuery = Put(key, valueToAdd)
             val result = either { dataSource.run { invoke(putQuery) } }
             result shouldBeRight valueToAdd
         }
     }
 
-    archerTest("The output of the DataSource is the same using Put and Get queries") {
+    @Test
+    fun `The output of the DataSource is the same using Put and Get queries`() = runArcherTest {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
-        val queries = Arb.bind(
-            Arb.string(),
-            Arb.int(),
-        ) { k, v -> Get(k) to Put(k, v) }
+        val testCases = listOf(
+            "key1" to 42,
+            "key2" to 100,
+            "test" to -5
+        )
 
-        // Put is performing a side effect so the oder of call matters.
+        // Put is performing a side effect so the order of call matters.
         // If we call a get before putting the value, the result will be DataNotFound
-        checkAll(queries) { (getQuery, putQuery) ->
+        for ((key, value) in testCases) {
+            val getQuery = Get(key)
+            val putQuery = Put(key, value)
             either {
                 val putResult = dataSource.run { invoke(putQuery) }
                 val getResult = dataSource.run { invoke(getQuery) }
@@ -50,34 +48,41 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    archerTest("Getting an un-existing value returns a DataNotFound") {
+    @Test
+    fun `Getting an un-existing value returns a DataNotFound`() = runArcherTest {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
-        val queries = Arb.getKeyQuery(Arb.string())
+        val keys = listOf("nonexistent1", "nonexistent2", "missing")
 
-        checkAll(queries) { getQuery ->
-            val result = either { dataSource.get(getQuery.key) }
+        for (key in keys) {
+            val result = either { dataSource.get(key) }
             result shouldBeLeft DataNotFound
         }
     }
 
-    archerTest("removing an un-existing value just runs") {
+    @Test
+    fun `removing an un-existing value just runs`() = runArcherTest {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
-        val queries = Arb.deleteKeyQuery(Arb.string())
+        val keys = listOf("nonexistent1", "nonexistent2", "missing")
 
-        checkAll(queries) { deleteQuery ->
+        for (key in keys) {
+            val deleteQuery = Delete(key)
             val result = either { dataSource.run { delete(deleteQuery) } }
             result shouldBeRight Unit
         }
     }
 
-    archerTest("removing an existing value returns the success branch with Unit") {
+    @Test
+    fun `removing an existing value returns the success branch with Unit`() = runArcherTest {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
-        val queries = Arb.bind(
-            Arb.string(),
-            Arb.int(),
-        ) { k, v -> Delete(k) to Put(k, v) }
+        val testCases = listOf(
+            "key1" to 42,
+            "key2" to 100,
+            "test" to -5
+        )
 
-        checkAll(queries) { (deleteQuery, putQuery) ->
+        for ((key, value) in testCases) {
+            val deleteQuery = Delete(key)
+            val putQuery = Put(key, value)
             val deleteResult = either {
                 dataSource.run {
                     invoke(putQuery)
@@ -88,20 +93,19 @@ class InMemoryDataSourceTest : FunSpec({
         }
     }
 
-    archerTest("removing an existing value removes the value from the data source") {
+    @Test
+    fun `removing an existing value removes the value from the data source`() = runArcherTest {
         val dataSource: InMemoryDataSource<String, Int> = InMemoryDataSource()
-        val queries = Arb.bind(
-            Arb.string(),
-            Arb.int(),
-        ) { k, v ->
-            Triple(
-                Get(k),
-                Put(k, v),
-                Delete(k),
-            )
-        }
+        val testCases = listOf(
+            "key1" to 42,
+            "key2" to 100,
+            "test" to -5
+        )
 
-        checkAll(queries) { (getQuery, putQuery, deleteQuery) ->
+        for ((key, value) in testCases) {
+            val getQuery = Get(key)
+            val putQuery = Put(key, value)
+            val deleteQuery = Delete(key)
             val result = either {
                 dataSource.run {
                     invoke(putQuery)
@@ -112,4 +116,4 @@ class InMemoryDataSourceTest : FunSpec({
             result shouldBeLeft DataNotFound
         }
     }
-})
+}

@@ -6,15 +6,15 @@ import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.datasource.concurrency.mutex
 import com.m2f.archer.datasource.concurrency.parallelism
-import com.m2f.archer.utils.archerTest
-import io.kotest.core.spec.style.FunSpec
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.test.Test
 
-class ConcurrencyTest : FunSpec({
+class ConcurrencyTest {
 
     val i = 100
     val j = 1000
@@ -30,7 +30,8 @@ class ConcurrencyTest : FunSpec({
         println("Completed ${n * k} actions")
     }
 
-    archerTest("mutex") {
+    @Test
+    fun mutex() = runArcherTest {
         var count1 = 0
         val get = getDataSource<Unit, Int> { count1++ }
             .mutex()
@@ -40,11 +41,13 @@ class ConcurrencyTest : FunSpec({
                 get.get(Unit)
             }
 
-            get.get(Unit) shouldBe i * j
+            val result = get.get(Unit)
+            result shouldBe i * j
         }
     }
 
-    archerTest("limitParallelism") {
+    @Test
+    fun `limitParallelism`() = runArcherTest {
         var count1 = 0
         val get = getDataSource<Unit, Int> { count1++ }
             .parallelism(1)
@@ -54,12 +57,13 @@ class ConcurrencyTest : FunSpec({
                 get.get(Unit)
             }
 
-            get.get(Unit) shouldBe i * j
+            val result = get.get(Unit)
+            result shouldBe i * j
         }
     }
 
-    archerTest("InMemoryDataSource is thread safe") {
-
+    @Test
+    fun `InMemoryDataSource is thread safe`() = runArcherTest {
         val dataSource = InMemoryDataSource<Int, Int>()
 
         val count = TVar.new(0)
@@ -81,4 +85,4 @@ class ConcurrencyTest : FunSpec({
 
         result.size shouldBe i * j
     }
-})
+}
