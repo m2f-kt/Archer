@@ -11,7 +11,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotest.multiplatform)
     alias(libs.plugins.kotlinx.kover)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.com.vanniktech.maven.publish)
@@ -31,7 +30,7 @@ tasks.withType(KotlinJsCompile::class).configureEach {
 
 kotlin {
     androidTarget {
-        publishAllLibraryVariants()
+        publishLibraryVariants("release")
     }
 
     jvm()
@@ -61,7 +60,7 @@ kotlin {
             implementation(libs.kotlin.serilization)
         }
         commonTest.dependencies {
-            implementation(libs.bundles.kotest)
+            implementation(libs.bundles.test)
         }
 
         jsMain.dependencies {
@@ -69,14 +68,10 @@ kotlin {
         }
 
         androidUnitTest.dependencies {
-            dependencies {
-                implementation(libs.kotest.runnerJUnit5)
-                implementation(libs.sqlDelight.driver.sqlite)
-            }
+            implementation(libs.sqlDelight.driver.sqlite)
         }
 
         jvmTest.dependencies {
-            implementation(libs.kotest.runnerJUnit5)
             implementation(libs.sqlDelight.driver.sqlite)
         }
     }

@@ -9,11 +9,12 @@ import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.repository.MainSyncRepository
-import com.m2f.archer.utils.archerTest
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
-import io.kotest.core.spec.style.FunSpec
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
 
-class MainSyncRepositoryTest : FunSpec({
+class MainSyncRepositoryTest {
 
     val getException = Exception("Get")
     val putException = Exception("Put")
@@ -30,30 +31,36 @@ class MainSyncRepositoryTest : FunSpec({
     val mainDataSource = getDataSource<Int, String> { "Main" }
     val failMainDataSource = getDataSource<Int, String> { raise(DataNotFound) }
 
-    archerTest("Repository will catch any exception thrown by the store.put") {
+    @Test
+    fun `Repository will catch any exception thrown by the store put`() = runTest {
+        runArcherTest {
+            val repository = MainSyncRepository(storeDataSource = storeFailAll, mainDataSource = mainDataSource)
 
-        val repository = MainSyncRepository(storeDataSource = storeFailAll, mainDataSource = mainDataSource)
+            val result = either { repository.get(0) }
 
-        val result = either { repository.get(0) }
-
-        result shouldBeLeft Unhandled(putException)
+            result shouldBeLeft Unhandled(putException)
+        }
     }
 
-    archerTest("Repository will catch any exception thrown by the store.get") {
+    @Test
+    fun `Repository will catch any exception thrown by the store get`() = runTest {
+        runArcherTest {
+            val repository = failMainDataSource cacheWith storeFailGet expires Never
 
-        val repository = failMainDataSource cacheWith storeFailGet expires Never
+            val result = either { repository.get(MainSync, 0) }
 
-        val result = either { repository.get(MainSync, 0) }
-
-        result shouldBeLeft Unhandled(getException)
+            result shouldBeLeft Unhandled(getException)
+        }
     }
 
-    archerTest("Repository will fallback any failure raise by the store.get") {
+    @Test
+    fun `Repository will fallback any failure raise by the store get`() = runTest {
+        runArcherTest {
+            val repository = failMainDataSource cacheWith storeRaiseGet expires Never
 
-        val repository = failMainDataSource cacheWith storeRaiseGet expires Never
+            val result = either { repository.get(MainSync, 0) }
 
-        val result = either { repository.get(MainSync, 0) }
-
-        result shouldBeLeft DataNotFound
+            result shouldBeLeft DataNotFound
+        }
     }
-})
+}

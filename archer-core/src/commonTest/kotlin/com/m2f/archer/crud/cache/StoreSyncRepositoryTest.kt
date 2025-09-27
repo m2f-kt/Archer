@@ -6,11 +6,11 @@ import com.m2f.archer.failure.Unhandled
 import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 import com.m2f.archer.repository.StoreSyncRepository
-import com.m2f.archer.utils.archerTest
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
-import io.kotest.core.spec.style.FunSpec
+import kotlin.test.Test
 
-class StoreSyncRepositoryTest : FunSpec({
+class StoreSyncRepositoryTest {
 
     val getException = Exception("Get")
     val putException = Exception("Put")
@@ -24,12 +24,12 @@ class StoreSyncRepositoryTest : FunSpec({
 
     val mainDataSource = getDataSource<Int, String> { "Main" }
 
-    archerTest("Repository will catch any exception thrown by the store.get") {
-
+    @Test
+    fun `Repository will catch any exception thrown by the store get`() = runArcherTest {
         val repository = StoreSyncRepository(storeDataSource = store, mainDataSource = mainDataSource)
 
         val result = either { repository.get(0) }
 
         result shouldBeLeft Unhandled(getException)
     }
-})
+}

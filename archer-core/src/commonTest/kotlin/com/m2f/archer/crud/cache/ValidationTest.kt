@@ -3,24 +3,28 @@ package com.m2f.archer.crud.cache
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.validate.validate
 import com.m2f.archer.failure.Invalid
-import com.m2f.archer.utils.archerTest
+import com.m2f.archer.utils.runArcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.core.spec.style.FunSpec
+import kotlin.test.Test
 
-class ValidationTest : FunSpec({
+class ValidationTest {
 
-    archerTest("always valid") {
+    @Test
+    fun `always valid`() = runArcherTest {
         val get = getDataSource<Unit, String> { "hello" }
             .validate { true }
 
-        either { get.get(Unit) } shouldBeRight "hello"
+        val result = either { get.get(Unit) }
+        result shouldBeRight "hello"
     }
 
-    archerTest("always invalid") {
+    @Test
+    fun `always invalid`() = runArcherTest {
         val get = getDataSource<Unit, String> { "hello" }
             .validate { false }
 
-        either { get.get(Unit) } shouldBeLeft Invalid
+        val result = either { get.get(Unit) }
+        result shouldBeLeft Invalid
     }
-})
+}
