@@ -10,6 +10,7 @@ import com.m2f.archer.failure.NetworkFailure.NoConnection
 import com.m2f.archer.failure.NetworkFailure.Redirect
 import com.m2f.archer.failure.NetworkFailure.ServerFailure
 import com.m2f.archer.failure.NetworkFailure.UnhandledNetworkFailure
+import com.m2f.archer.failure.NotModified
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -29,6 +30,7 @@ interface Settings {
         override val mainFallbacks = { failure: Failure ->
             failure is DataNotFound ||
                 failure is Invalid ||
+                failure is NotModified ||
                 failure is NoConnection ||
                 failure is ServerFailure ||
                 failure is Redirect ||
