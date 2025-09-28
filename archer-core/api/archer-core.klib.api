@@ -25,6 +25,32 @@ abstract interface <#A: kotlin/Any?, #B: kotlin/Any?> com.m2f.archer.mapper/Bije
     abstract fun to(#B): #A // com.m2f.archer.mapper/Bijection.to|to(1:1){}[0]
 }
 
+abstract interface com.m2f.archer.configuration/Settings { // com.m2f.archer.configuration/Settings|null[0]
+    abstract val cache // com.m2f.archer.configuration/Settings.cache|{}cache[0]
+        abstract fun <get-cache>(): com.m2f.archer.crud.cache/CacheDataSource<com.m2f.archer.crud.cache.memcache/CacheMetaInformation, kotlin.time/Instant> // com.m2f.archer.configuration/Settings.cache.<get-cache>|<get-cache>(){}[0]
+    abstract val ignoreCache // com.m2f.archer.configuration/Settings.ignoreCache|{}ignoreCache[0]
+        abstract fun <get-ignoreCache>(): kotlin/Boolean // com.m2f.archer.configuration/Settings.ignoreCache.<get-ignoreCache>|<get-ignoreCache>(){}[0]
+    abstract val mainFallbacks // com.m2f.archer.configuration/Settings.mainFallbacks|{}mainFallbacks[0]
+        abstract fun <get-mainFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Settings.mainFallbacks.<get-mainFallbacks>|<get-mainFallbacks>(){}[0]
+    abstract val storageFallbacks // com.m2f.archer.configuration/Settings.storageFallbacks|{}storageFallbacks[0]
+        abstract fun <get-storageFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Settings.storageFallbacks.<get-storageFallbacks>|<get-storageFallbacks>(){}[0]
+
+    abstract fun getCurrentTime(): kotlin.time/Instant // com.m2f.archer.configuration/Settings.getCurrentTime|getCurrentTime(){}[0]
+
+    final object Default : com.m2f.archer.configuration/Settings { // com.m2f.archer.configuration/Settings.Default|null[0]
+        final val cache // com.m2f.archer.configuration/Settings.Default.cache|{}cache[0]
+            final fun <get-cache>(): com.m2f.archer.crud.cache/CacheDataSource<com.m2f.archer.crud.cache.memcache/CacheMetaInformation, kotlin.time/Instant> // com.m2f.archer.configuration/Settings.Default.cache.<get-cache>|<get-cache>(){}[0]
+        final val ignoreCache // com.m2f.archer.configuration/Settings.Default.ignoreCache|{}ignoreCache[0]
+            final fun <get-ignoreCache>(): kotlin/Boolean // com.m2f.archer.configuration/Settings.Default.ignoreCache.<get-ignoreCache>|<get-ignoreCache>(){}[0]
+        final val mainFallbacks // com.m2f.archer.configuration/Settings.Default.mainFallbacks|{}mainFallbacks[0]
+            final fun <get-mainFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Settings.Default.mainFallbacks.<get-mainFallbacks>|<get-mainFallbacks>(){}[0]
+        final val storageFallbacks // com.m2f.archer.configuration/Settings.Default.storageFallbacks|{}storageFallbacks[0]
+            final fun <get-storageFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Settings.Default.storageFallbacks.<get-storageFallbacks>|<get-storageFallbacks>(){}[0]
+
+        final fun getCurrentTime(): kotlin.time/Instant // com.m2f.archer.configuration/Settings.Default.getCurrentTime|getCurrentTime(){}[0]
+    }
+}
+
 sealed interface <#A: in kotlin/Any?, #B: out kotlin/Any?> com.m2f.archer.repository/Repository { // com.m2f.archer.repository/Repository|null[0]
     abstract suspend fun (com.m2f.archer.crud/ArcherRaise).invoke(#A): #B // com.m2f.archer.repository/Repository.invoke|invoke@com.m2f.archer.crud.ArcherRaise(1:0){}[0]
 }
@@ -141,33 +167,6 @@ sealed interface com.m2f.archer.failure/NetworkFailure : com.m2f.archer.failure/
     }
 }
 
-abstract class com.m2f.archer.configuration/Configuration { // com.m2f.archer.configuration/Configuration|null[0]
-    constructor <init>() // com.m2f.archer.configuration/Configuration.<init>|<init>(){}[0]
-
-    abstract val cache // com.m2f.archer.configuration/Configuration.cache|{}cache[0]
-        abstract fun <get-cache>(): com.m2f.archer.crud.cache/CacheDataSource<com.m2f.archer.crud.cache.memcache/CacheMetaInformation, kotlin.time/Instant> // com.m2f.archer.configuration/Configuration.cache.<get-cache>|<get-cache>(){}[0]
-    abstract val ignoreCache // com.m2f.archer.configuration/Configuration.ignoreCache|{}ignoreCache[0]
-        abstract fun <get-ignoreCache>(): kotlin/Boolean // com.m2f.archer.configuration/Configuration.ignoreCache.<get-ignoreCache>|<get-ignoreCache>(){}[0]
-    abstract val mainFallbacks // com.m2f.archer.configuration/Configuration.mainFallbacks|{}mainFallbacks[0]
-        abstract fun <get-mainFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Configuration.mainFallbacks.<get-mainFallbacks>|<get-mainFallbacks>(){}[0]
-    abstract val storageFallbacks // com.m2f.archer.configuration/Configuration.storageFallbacks|{}storageFallbacks[0]
-        abstract fun <get-storageFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Configuration.storageFallbacks.<get-storageFallbacks>|<get-storageFallbacks>(){}[0]
-
-    abstract fun getCurrentTime(): kotlin.time/Instant // com.m2f.archer.configuration/Configuration.getCurrentTime|getCurrentTime(){}[0]
-    final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> (com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A1>, #B1>).fallbackWith(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A1, out #B1>, #B1>): com.m2f.archer.repository/Repository<com.m2f.archer.query/Get<#A1>, #B1> // com.m2f.archer.configuration/Configuration.fallbackWith|fallbackWith@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> cacheStrategy(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A1>, #B1>, com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A1, out #B1>, #B1>): com.m2f.archer.crud/GetRepositoryStrategy<#A1, #B1> // com.m2f.archer.configuration/Configuration.cacheStrategy|cacheStrategy(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>;com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?, #B1: reified kotlin/Any?> (com.m2f.archer.crud/StrategyBuilder<#A1, #B1>).expires(com.m2f.archer.crud.cache/CacheExpiration): com.m2f.archer.crud/GetRepositoryStrategy<#A1, #B1> // com.m2f.archer.configuration/Configuration.expires|expires@com.m2f.archer.crud.StrategyBuilder<0:0,0:1>(com.m2f.archer.crud.cache.CacheExpiration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?, #B1: reified kotlin/Any?> (com.m2f.archer.crud/StrategyBuilder<#A1, #B1>).expiresIn(kotlin.time/Duration): com.m2f.archer.crud/GetRepositoryStrategy<#A1, #B1> // com.m2f.archer.configuration/Configuration.expiresIn|expiresIn@com.m2f.archer.crud.StrategyBuilder<0:0,0:1>(kotlin.time.Duration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> bool(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): kotlin/Boolean // com.m2f.archer.configuration/Configuration.bool|bool(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> either(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): arrow.core/Either<com.m2f.archer.failure/Failure, #A1> // com.m2f.archer.configuration/Configuration.either|either(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> ice(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): com.m2f.archer.crud/Ice<#A1> // com.m2f.archer.configuration/Configuration.ice|ice(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> nil(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): #A1? // com.m2f.archer.configuration/Configuration.nil|nil(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> nullable(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): #A1? // com.m2f.archer.configuration/Configuration.nullable|nullable(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> option(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): arrow.core/Option<#A1> // com.m2f.archer.configuration/Configuration.option|option(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> result(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): arrow.core/Either<com.m2f.archer.failure/Failure, #A1> // com.m2f.archer.configuration/Configuration.result|result(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> unit(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>) // com.m2f.archer.configuration/Configuration.unit|unit(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
-}
-
 final class <#A: in kotlin/Any?, #B: out kotlin/Any?> com.m2f.archer.repository/SingleDataSourceRepository : com.m2f.archer.repository/Repository<#A, #B> { // com.m2f.archer.repository/SingleDataSourceRepository|null[0]
     constructor <init>(com.m2f.archer.datasource/DataSource<#A, #B>) // com.m2f.archer.repository/SingleDataSourceRepository.<init>|<init>(com.m2f.archer.datasource.DataSource<1:0,1:1>){}[0]
 
@@ -268,16 +267,7 @@ final class com.m2f.archer.crud.cache.memcache/MemoizedExpirationCache : com.m2f
 }
 
 final class com.m2f.archer.crud/ArcherRaise : arrow.core.raise/Raise<com.m2f.archer.failure/Failure>, com.m2f.archer.configuration/Configuration { // com.m2f.archer.crud/ArcherRaise|null[0]
-    constructor <init>(arrow.core.raise/Raise<com.m2f.archer.failure/Failure>, com.m2f.archer.configuration/Configuration) // com.m2f.archer.crud/ArcherRaise.<init>|<init>(arrow.core.raise.Raise<com.m2f.archer.failure.Failure>;com.m2f.archer.configuration.Configuration){}[0]
-
-    final val cache // com.m2f.archer.crud/ArcherRaise.cache|{}cache[0]
-        final fun <get-cache>(): com.m2f.archer.crud.cache/CacheDataSource<com.m2f.archer.crud.cache.memcache/CacheMetaInformation, kotlin.time/Instant> // com.m2f.archer.crud/ArcherRaise.cache.<get-cache>|<get-cache>(){}[0]
-    final val ignoreCache // com.m2f.archer.crud/ArcherRaise.ignoreCache|{}ignoreCache[0]
-        final fun <get-ignoreCache>(): kotlin/Boolean // com.m2f.archer.crud/ArcherRaise.ignoreCache.<get-ignoreCache>|<get-ignoreCache>(){}[0]
-    final val mainFallbacks // com.m2f.archer.crud/ArcherRaise.mainFallbacks|{}mainFallbacks[0]
-        final fun <get-mainFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.crud/ArcherRaise.mainFallbacks.<get-mainFallbacks>|<get-mainFallbacks>(){}[0]
-    final val storageFallbacks // com.m2f.archer.crud/ArcherRaise.storageFallbacks|{}storageFallbacks[0]
-        final fun <get-storageFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.crud/ArcherRaise.storageFallbacks.<get-storageFallbacks>|<get-storageFallbacks>(){}[0]
+    constructor <init>(arrow.core.raise/Raise<com.m2f.archer.failure/Failure>, com.m2f.archer.configuration/Settings) // com.m2f.archer.crud/ArcherRaise.<init>|<init>(arrow.core.raise.Raise<com.m2f.archer.failure.Failure>;com.m2f.archer.configuration.Settings){}[0]
 
     final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> (kotlin.collections/Map<#A1, arrow.core/Either<com.m2f.archer.failure/Failure, #B1>>).bindAll(): kotlin.collections/Map<#A1, #B1> // com.m2f.archer.crud/ArcherRaise.bindAll|bindAll@kotlin.collections.Map<0:0,arrow.core.Either<com.m2f.archer.failure.Failure,0:1>>(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> (#A1?).bind(): #A1 // com.m2f.archer.crud/ArcherRaise.bind|bind@0:0?(){0§<kotlin.Any?>}[0]
@@ -288,7 +278,6 @@ final class com.m2f.archer.crud/ArcherRaise : arrow.core.raise/Raise<com.m2f.arc
     final fun <#A1: kotlin/Any?> (kotlin.collections/Iterable<arrow.core/Either<com.m2f.archer.failure/Failure, #A1>>).bindAll(): kotlin.collections/List<#A1> // com.m2f.archer.crud/ArcherRaise.bindAll|bindAll@kotlin.collections.Iterable<arrow.core.Either<com.m2f.archer.failure.Failure,0:0>>(){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> (kotlin/Function1<arrow.core.raise/Raise<com.m2f.archer.failure/Failure>, #A1>).bind(): #A1 // com.m2f.archer.crud/ArcherRaise.bind|bind@kotlin.Function1<arrow.core.raise.Raise<com.m2f.archer.failure.Failure>,0:0>(){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> (kotlin/Function1<arrow.core.raise/Raise<com.m2f.archer.failure/Failure>, #A1>).invoke(): #A1 // com.m2f.archer.crud/ArcherRaise.invoke|invoke@kotlin.Function1<arrow.core.raise.Raise<com.m2f.archer.failure.Failure>,0:0>(){0§<kotlin.Any?>}[0]
-    final fun getCurrentTime(): kotlin.time/Instant // com.m2f.archer.crud/ArcherRaise.getCurrentTime|getCurrentTime(){}[0]
     final fun raise(com.m2f.archer.failure/Failure): kotlin/Nothing // com.m2f.archer.crud/ArcherRaise.raise|raise(com.m2f.archer.failure.Failure){}[0]
     final suspend fun <#A1: kotlin/Any?, #B1: kotlin/Any?> (com.m2f.archer.crud/GetRepositoryStrategy<#A1, #B1>).get(com.m2f.archer.crud.operation/Operation, #A1): #B1 // com.m2f.archer.crud/ArcherRaise.get|get@com.m2f.archer.crud.GetRepositoryStrategy<0:0,0:1>(com.m2f.archer.crud.operation.Operation;0:0){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
     final suspend fun <#A1: kotlin/Any?, #B1: kotlin/Any?> (com.m2f.archer.datasource/DataSource<#A1, #B1>).execute(#A1): #B1 // com.m2f.archer.crud/ArcherRaise.execute|execute@com.m2f.archer.datasource.DataSource<0:0,0:1>(0:0){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
@@ -320,6 +309,40 @@ final class com.m2f.archer.failure/Unhandled : com.m2f.archer.failure/Failure { 
     final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.failure/Unhandled.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // com.m2f.archer.failure/Unhandled.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // com.m2f.archer.failure/Unhandled.toString|toString(){}[0]
+}
+
+open class com.m2f.archer.configuration/Configuration : com.m2f.archer.configuration/Settings { // com.m2f.archer.configuration/Configuration|null[0]
+    constructor <init>(com.m2f.archer.configuration/Settings) // com.m2f.archer.configuration/Configuration.<init>|<init>(com.m2f.archer.configuration.Settings){}[0]
+
+    open val cache // com.m2f.archer.configuration/Configuration.cache|{}cache[0]
+        open fun <get-cache>(): com.m2f.archer.crud.cache/CacheDataSource<com.m2f.archer.crud.cache.memcache/CacheMetaInformation, kotlin.time/Instant> // com.m2f.archer.configuration/Configuration.cache.<get-cache>|<get-cache>(){}[0]
+    open val ignoreCache // com.m2f.archer.configuration/Configuration.ignoreCache|{}ignoreCache[0]
+        open fun <get-ignoreCache>(): kotlin/Boolean // com.m2f.archer.configuration/Configuration.ignoreCache.<get-ignoreCache>|<get-ignoreCache>(){}[0]
+    open val mainFallbacks // com.m2f.archer.configuration/Configuration.mainFallbacks|{}mainFallbacks[0]
+        open fun <get-mainFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Configuration.mainFallbacks.<get-mainFallbacks>|<get-mainFallbacks>(){}[0]
+    open val storageFallbacks // com.m2f.archer.configuration/Configuration.storageFallbacks|{}storageFallbacks[0]
+        open fun <get-storageFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/Configuration.storageFallbacks.<get-storageFallbacks>|<get-storageFallbacks>(){}[0]
+
+    final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> (com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A1>, #B1>).fallbackWith(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A1, out #B1>, #B1>): com.m2f.archer.repository/Repository<com.m2f.archer.query/Get<#A1>, #B1> // com.m2f.archer.configuration/Configuration.fallbackWith|fallbackWith@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> cacheStrategy(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A1>, #B1>, com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A1, out #B1>, #B1>): com.m2f.archer.crud/GetRepositoryStrategy<#A1, #B1> // com.m2f.archer.configuration/Configuration.cacheStrategy|cacheStrategy(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>;com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?, #B1: reified kotlin/Any?> (com.m2f.archer.crud/StrategyBuilder<#A1, #B1>).expires(com.m2f.archer.crud.cache/CacheExpiration): com.m2f.archer.crud/GetRepositoryStrategy<#A1, #B1> // com.m2f.archer.configuration/Configuration.expires|expires@com.m2f.archer.crud.StrategyBuilder<0:0,0:1>(com.m2f.archer.crud.cache.CacheExpiration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?, #B1: reified kotlin/Any?> (com.m2f.archer.crud/StrategyBuilder<#A1, #B1>).expiresIn(kotlin.time/Duration): com.m2f.archer.crud/GetRepositoryStrategy<#A1, #B1> // com.m2f.archer.configuration/Configuration.expiresIn|expiresIn@com.m2f.archer.crud.StrategyBuilder<0:0,0:1>(kotlin.time.Duration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> bool(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): kotlin/Boolean // com.m2f.archer.configuration/Configuration.bool|bool(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> either(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): arrow.core/Either<com.m2f.archer.failure/Failure, #A1> // com.m2f.archer.configuration/Configuration.either|either(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> ice(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): com.m2f.archer.crud/Ice<#A1> // com.m2f.archer.configuration/Configuration.ice|ice(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> nil(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): #A1? // com.m2f.archer.configuration/Configuration.nil|nil(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> nullable(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): #A1? // com.m2f.archer.configuration/Configuration.nullable|nullable(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> option(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): arrow.core/Option<#A1> // com.m2f.archer.configuration/Configuration.option|option(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> result(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>): arrow.core/Either<com.m2f.archer.failure/Failure, #A1> // com.m2f.archer.configuration/Configuration.result|result(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> unit(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A1>) // com.m2f.archer.configuration/Configuration.unit|unit(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
+    open fun getCurrentTime(): kotlin.time/Instant // com.m2f.archer.configuration/Configuration.getCurrentTime|getCurrentTime(){}[0]
+
+    final object Companion { // com.m2f.archer.configuration/Configuration.Companion|null[0]
+        final val Default // com.m2f.archer.configuration/Configuration.Companion.Default|{}Default[0]
+            final fun <get-Default>(): com.m2f.archer.configuration/Configuration // com.m2f.archer.configuration/Configuration.Companion.Default.<get-Default>|<get-Default>(){}[0]
+
+        final fun ignoreCache(com.m2f.archer.configuration/Settings = ...): com.m2f.archer.configuration/Configuration // com.m2f.archer.configuration/Configuration.Companion.ignoreCache|ignoreCache(com.m2f.archer.configuration.Settings){}[0]
+    }
 }
 
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?> com.m2f.archer.query/KeyQuery : com.m2f.archer.query/Query<#B> { // com.m2f.archer.query/KeyQuery|null[0]
@@ -380,19 +403,6 @@ sealed class com.m2f.archer.failure/Message { // com.m2f.archer.failure/Message|
     }
 }
 
-final object com.m2f.archer.configuration/DefaultConfiguration : com.m2f.archer.configuration/Configuration { // com.m2f.archer.configuration/DefaultConfiguration|null[0]
-    final val cache // com.m2f.archer.configuration/DefaultConfiguration.cache|{}cache[0]
-        final fun <get-cache>(): com.m2f.archer.crud.cache/CacheDataSource<com.m2f.archer.crud.cache.memcache/CacheMetaInformation, kotlin.time/Instant> // com.m2f.archer.configuration/DefaultConfiguration.cache.<get-cache>|<get-cache>(){}[0]
-    final val ignoreCache // com.m2f.archer.configuration/DefaultConfiguration.ignoreCache|{}ignoreCache[0]
-        final fun <get-ignoreCache>(): kotlin/Boolean // com.m2f.archer.configuration/DefaultConfiguration.ignoreCache.<get-ignoreCache>|<get-ignoreCache>(){}[0]
-    final val mainFallbacks // com.m2f.archer.configuration/DefaultConfiguration.mainFallbacks|{}mainFallbacks[0]
-        final fun <get-mainFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/DefaultConfiguration.mainFallbacks.<get-mainFallbacks>|<get-mainFallbacks>(){}[0]
-    final val storageFallbacks // com.m2f.archer.configuration/DefaultConfiguration.storageFallbacks|{}storageFallbacks[0]
-        final fun <get-storageFallbacks>(): kotlin/Function1<com.m2f.archer.failure/Failure, kotlin/Boolean> // com.m2f.archer.configuration/DefaultConfiguration.storageFallbacks.<get-storageFallbacks>|<get-storageFallbacks>(){}[0]
-
-    final fun getCurrentTime(): kotlin.time/Instant // com.m2f.archer.configuration/DefaultConfiguration.getCurrentTime|getCurrentTime(){}[0]
-}
-
 final object com.m2f.archer.crud.operation/Main : com.m2f.archer.crud.operation/Operation { // com.m2f.archer.crud.operation/Main|null[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.crud.operation/Main.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // com.m2f.archer.crud.operation/Main.hashCode|hashCode(){}[0]
@@ -447,6 +457,8 @@ final object com.m2f.archer.failure/Unknown : com.m2f.archer.failure/Failure { /
     final fun toString(): kotlin/String // com.m2f.archer.failure/Unknown.toString|toString(){}[0]
 }
 
+final val com.m2f.archer.configuration/configuration // com.m2f.archer.configuration/configuration|@com.m2f.archer.configuration.Settings{}configuration[0]
+    final fun (com.m2f.archer.configuration/Settings).<get-configuration>(): com.m2f.archer.configuration/Configuration // com.m2f.archer.configuration/configuration.<get-configuration>|<get-configuration>@com.m2f.archer.configuration.Settings(){}[0]
 final val com.m2f.archer.crud.cache.memcache.deps/queriesRepo // com.m2f.archer.crud.cache.memcache.deps/queriesRepo|{}queriesRepo[0]
     final fun <get-queriesRepo>(): com.m2f.archer.repository/Repository<com.m2f.archer.query/Get<kotlin/Unit>, com.m2f.archer/ExpirationRegistryQueries> // com.m2f.archer.crud.cache.memcache.deps/queriesRepo.<get-queriesRepo>|<get-queriesRepo>(){}[0]
 
@@ -457,12 +469,12 @@ final fun <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> (com.m2f.archer.da
 final fun <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> (com.m2f.archer.query/Put<#A, #B>).com.m2f.archer.query/map(kotlin/Function1<#B, #C>): com.m2f.archer.query/Put<#A, #C> // com.m2f.archer.query/map|map@com.m2f.archer.query.Put<0:0,0:1>(kotlin.Function1<0:1,0:2>){0§<kotlin.Any?>;1§<kotlin.Any?>;2§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> (com.m2f.archer.repository/Repository<#A, #B>).com.m2f.archer.mapper/andThen(com.m2f.archer.repository/Repository<#B, #C>): com.m2f.archer.repository/Repository<#A, #C> // com.m2f.archer.mapper/andThen|andThen@com.m2f.archer.repository.Repository<0:0,0:1>(com.m2f.archer.repository.Repository<0:1,0:2>){0§<kotlin.Any?>;1§<kotlin.Any?>;2§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> (com.m2f.archer.repository/Repository<#A, #B>).com.m2f.archer.mapper/andThen(kotlin.coroutines/SuspendFunction2<com.m2f.archer.crud/ArcherRaise, #B, #C>): com.m2f.archer.repository/Repository<#A, #C> // com.m2f.archer.mapper/andThen|andThen@com.m2f.archer.repository.Repository<0:0,0:1>(kotlin.coroutines.SuspendFunction2<com.m2f.archer.crud.ArcherRaise,0:1,0:2>){0§<kotlin.Any?>;1§<kotlin.Any?>;2§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?, #B: kotlin/Any?> (com.m2f.archer.crud/StrategyBuilder<#A, #B>).com.m2f.archer.crud.cache/build(): com.m2f.archer.crud/GetRepositoryStrategy<#A, #B> // com.m2f.archer.crud.cache/build|build@com.m2f.archer.crud.StrategyBuilder<0:0,0:1>(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (com.m2f.archer.datasource/DataSource<#A, #B>).com.m2f.archer.datasource.concurrency/mutex(): com.m2f.archer.datasource/DataSource<#A, #B> // com.m2f.archer.datasource.concurrency/mutex|mutex@com.m2f.archer.datasource.DataSource<0:0,0:1>(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (com.m2f.archer.datasource/DataSource<#A, #B>).com.m2f.archer.datasource.concurrency/parallelism(kotlin/Int): com.m2f.archer.datasource/DataSource<#A, #B> // com.m2f.archer.datasource.concurrency/parallelism|parallelism@com.m2f.archer.datasource.DataSource<0:0,0:1>(kotlin.Int){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (com.m2f.archer.datasource/DataSource<#A, #B>).com.m2f.archer.repository/toRepository(): com.m2f.archer.repository/Repository<#A, #B> // com.m2f.archer.repository/toRepository|toRepository@com.m2f.archer.datasource.DataSource<0:0,0:1>(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A>, #B>).com.m2f.archer.crud.cache/cacheWith(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A, out #B>, #B>): com.m2f.archer.crud/StrategyBuilder<#A, #B> // com.m2f.archer.crud.cache/cacheWith|cacheWith@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A>, #B>).com.m2f.archer.crud/plus(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Put<#A, out #B>, #B>): com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A, out #B>, #B> // com.m2f.archer.crud/plus|plus@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Put<0:0,out|0:1>,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> (context(com.m2f.archer.configuration/Configuration), com.m2f.archer.crud/StrategyBuilder<#A, #B>).com.m2f.archer.crud.cache/build(): com.m2f.archer.crud/GetRepositoryStrategy<#A, #B> // com.m2f.archer.crud.cache/build|build(com.m2f.archer.configuration.Configuration)@com.m2f.archer.crud.StrategyBuilder<0:0,0:1>(){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (com.m2f.archer.crud/DeleteDataSource<#A>).com.m2f.archer.repository/toDataSource(): com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Delete<#A>, kotlin/Unit> // com.m2f.archer.repository/toDataSource|toDataSource@com.m2f.archer.crud.DeleteDataSource<0:0>(){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (com.m2f.archer.crud/DeleteDataSource<#A>).com.m2f.archer.repository/toDeleteRepository(): com.m2f.archer.repository/Repository<com.m2f.archer.query/Delete<#A>, kotlin/Unit> // com.m2f.archer.repository/toDeleteRepository|toDeleteRepository@com.m2f.archer.crud.DeleteDataSource<0:0>(){0§<kotlin.Any?>}[0]
 final fun com.m2f.archer.failure.network/httpCodeToNetworkFailure(kotlin/Int): com.m2f.archer.failure/NetworkFailure // com.m2f.archer.failure.network/httpCodeToNetworkFailure|httpCodeToNetworkFailure(kotlin.Int){}[0]
@@ -472,10 +484,11 @@ final inline fun <#A: kotlin/Any?, #B: kotlin/Any?> (com.m2f.archer.datasource/D
 final inline fun <#A: kotlin/Any?, #B: kotlin/Any?> com.m2f.archer.crud/getDataSource(crossinline kotlin.coroutines/SuspendFunction2<com.m2f.archer.crud/ArcherRaise, #A, #B>): com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A>, #B> // com.m2f.archer.crud/getDataSource|getDataSource(kotlin.coroutines.SuspendFunction2<com.m2f.archer.crud.ArcherRaise,0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?, #B: kotlin/Any?> com.m2f.archer.crud/postDataSource(crossinline kotlin.coroutines/SuspendFunction2<com.m2f.archer.crud/ArcherRaise, #A, #B>): com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Put<#A, out #B>, #B> // com.m2f.archer.crud/postDataSource|postDataSource(kotlin.coroutines.SuspendFunction2<com.m2f.archer.crud.ArcherRaise,0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?, #B: kotlin/Any?> com.m2f.archer.crud/putDataSource(crossinline kotlin.coroutines/SuspendFunction3<com.m2f.archer.crud/ArcherRaise, #A, #B, #B>): com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Put<#A, out #B>, #B> // com.m2f.archer.crud/putDataSource|putDataSource(kotlin.coroutines.SuspendFunction3<com.m2f.archer.crud.ArcherRaise,0:0,0:1,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
-final inline fun <#A: kotlin/Any?, #B: reified kotlin/Any?> (com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A>, #B>).com.m2f.archer.crud.cache/cache(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A, out #B>, #B> = ..., com.m2f.archer.crud.cache/CacheExpiration = ...): com.m2f.archer.crud/GetRepositoryStrategy<#A, #B> // com.m2f.archer.crud.cache/cache|cache@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>;com.m2f.archer.crud.cache.CacheExpiration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?, #B: reified kotlin/Any?> (com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A>, #B>).com.m2f.archer.crud.cache/cache(com.m2f.archer.configuration/Configuration = ..., com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A, out #B>, #B> = ..., com.m2f.archer.crud.cache/CacheExpiration = ...): com.m2f.archer.crud/GetRepositoryStrategy<#A, #B> // com.m2f.archer.crud.cache/cache|cache@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>(com.m2f.archer.configuration.Configuration;com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>;com.m2f.archer.crud.cache.CacheExpiration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?, #B: reified kotlin/Any?> (com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A, out #B>, #B>).com.m2f.archer.crud.cache/expires(com.m2f.archer.crud.cache/CacheExpiration): com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A, out #B>, #B> // com.m2f.archer.crud.cache/expires|expires@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>(com.m2f.archer.crud.cache.CacheExpiration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
-final inline fun <#A: kotlin/Any?> (com.m2f.archer.configuration/Configuration).com.m2f.archer.crud/archerRecover(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A>, kotlin/Function1<com.m2f.archer.failure/Failure, #A>): #A // com.m2f.archer.crud/archerRecover|archerRecover@com.m2f.archer.configuration.Configuration(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>;kotlin.Function1<com.m2f.archer.failure.Failure,0:0>){0§<kotlin.Any?>}[0]
-final inline fun <#A: kotlin/Any?> (com.m2f.archer.configuration/Configuration).com.m2f.archer.crud/archerRecover(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A>, kotlin/Function1<com.m2f.archer.failure/Failure, #A>, kotlin/Function1<kotlin/Throwable, #A>): #A // com.m2f.archer.crud/archerRecover|archerRecover@com.m2f.archer.configuration.Configuration(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>;kotlin.Function1<com.m2f.archer.failure.Failure,0:0>;kotlin.Function1<kotlin.Throwable,0:0>){0§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?, #B: reified kotlin/Any?> (context(com.m2f.archer.configuration/Configuration), com.m2f.archer.datasource/DataSource<com.m2f.archer.query/Get<#A>, #B>).com.m2f.archer.crud.cache/cache(com.m2f.archer.datasource/DataSource<com.m2f.archer.query/KeyQuery<#A, out #B>, #B> = ..., com.m2f.archer.crud.cache/CacheExpiration = ...): com.m2f.archer.crud/GetRepositoryStrategy<#A, #B> // com.m2f.archer.crud.cache/cache|cache(com.m2f.archer.configuration.Configuration)@com.m2f.archer.datasource.DataSource<com.m2f.archer.query.Get<0:0>,0:1>(com.m2f.archer.datasource.DataSource<com.m2f.archer.query.KeyQuery<0:0,out|0:1>,0:1>;com.m2f.archer.crud.cache.CacheExpiration){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> (context(com.m2f.archer.configuration/Settings)).com.m2f.archer.crud/archerRecover(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A>, kotlin/Function1<com.m2f.archer.failure/Failure, #A>): #A // com.m2f.archer.crud/archerRecover|archerRecover(com.m2f.archer.configuration.Settings)(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>;kotlin.Function1<com.m2f.archer.failure.Failure,0:0>){0§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> (context(com.m2f.archer.configuration/Settings)).com.m2f.archer.crud/archerRecover(kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A>, kotlin/Function1<com.m2f.archer.failure/Failure, #A>, kotlin/Function1<kotlin/Throwable, #A>): #A // com.m2f.archer.crud/archerRecover|archerRecover(com.m2f.archer.configuration.Settings)(kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>;kotlin.Function1<com.m2f.archer.failure.Failure,0:0>;kotlin.Function1<kotlin.Throwable,0:0>){0§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?> com.m2f.archer.crud/bool(com.m2f.archer.configuration/Configuration = ..., kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A>): kotlin/Boolean // com.m2f.archer.crud/bool|bool(com.m2f.archer.configuration.Configuration;kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?> com.m2f.archer.crud/deleteDataSource(crossinline kotlin.coroutines/SuspendFunction2<com.m2f.archer.crud/ArcherRaise, #A, kotlin/Unit>): com.m2f.archer.crud/DeleteDataSource<#A> // com.m2f.archer.crud/deleteDataSource|deleteDataSource(kotlin.coroutines.SuspendFunction2<com.m2f.archer.crud.ArcherRaise,0:0,kotlin.Unit>){0§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?> com.m2f.archer.crud/either(com.m2f.archer.configuration/Configuration = ..., kotlin/Function1<com.m2f.archer.crud/ArcherRaise, #A>): arrow.core/Either<com.m2f.archer.failure/Failure, #A> // com.m2f.archer.crud/either|either(com.m2f.archer.configuration.Configuration;kotlin.Function1<com.m2f.archer.crud.ArcherRaise,0:0>){0§<kotlin.Any?>}[0]

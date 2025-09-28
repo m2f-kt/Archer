@@ -14,6 +14,6 @@ val queriesRepo by lazy {
 }
 
 internal fun getDatabase(): GetRepository<Unit, ExpirationRegistryQueries> =
-        getDataSource<Unit, ExpirationRegistryQueries> {
-            CacheExpirationDatabase(createDriver(CacheExpirationDatabase.Schema)).expirationRegistryQueries
-        }.cache(expiration = Never).create(StoreSync)
+    getDataSource<Unit, ExpirationRegistryQueries> {
+        CacheExpirationDatabase(createDriver(CacheExpirationDatabase.Schema)).expirationRegistryQueries
+    }.cache(expiration = Never).create(StoreSync)

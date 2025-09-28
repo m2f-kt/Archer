@@ -9,13 +9,11 @@ import arrow.core.raise.RaiseDSL
 import arrow.core.raise.recover
 import arrow.core.some
 import com.m2f.archer.configuration.Configuration
-import com.m2f.archer.configuration.DefaultConfiguration
-import com.m2f.archer.configuration.IgnoreCacheConfiguration
+import com.m2f.archer.configuration.Settings
+import com.m2f.archer.configuration.configuration
 import com.m2f.archer.crud.Ice.Content
 import com.m2f.archer.crud.Ice.Error
-import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.crud.cache.invalidateCache
-import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
 import com.m2f.archer.crud.operation.Main
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Operation
@@ -30,24 +28,11 @@ import com.m2f.archer.query.Get
 import com.m2f.archer.query.Put
 import com.m2f.archer.repository.Repository
 import kotlin.experimental.ExperimentalTypeInference
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 typealias Result<T> = Either<Failure, T>
 
-class ArcherRaise(raise: Raise<Failure>, private val config: Configuration) :
-    Raise<Failure> by raise,
-    Configuration() {
-
-    override val mainFallbacks: (Failure) -> Boolean = config.mainFallbacks
-    override val storageFallbacks: (Failure) -> Boolean = config.storageFallbacks
-    override val ignoreCache: Boolean = config.ignoreCache
-
-    @OptIn(ExperimentalTime::class)
-    override fun getCurrentTime(): Instant = config.getCurrentTime()
-
-    @OptIn(ExperimentalTime::class)
-    override val cache: CacheDataSource<CacheMetaInformation, Instant> = config.cache
+class ArcherRaise(raise: Raise<Failure>, settings: Settings) :
+    Raise<Failure> by raise, Configuration(settings) {
 
     fun <A> Ice<A>.bind(): A = fold(
         ifIdle = { raise(Idle) },
@@ -110,7 +95,7 @@ class ArcherRaise(raise: Raise<Failure>, private val config: Configuration) :
         Store -> with(
             ArcherRaise(
                 this@ArcherRaise,
-                IgnoreCacheConfiguration(this@ArcherRaise)
+                ignoreCache()
             )
         ) {
             val repository = create(operation)
@@ -148,7 +133,7 @@ inline fun <A, T> Ice<A>.fold(
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> ice(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): Ice<A> =
     recover({ Ice.Content(block(ArcherRaise(this, configuration))) }) { e ->
@@ -160,40 +145,40 @@ inline fun <A> ice(
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> either(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): Result<A> =
     recover({ Either.Right(block(ArcherRaise(this, configuration))) }, ::Left)
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> result(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): Result<A> = either(block = block, configuration = configuration)
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> nullable(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): A? =
     recover({ block(ArcherRaise(this, configuration)) }) { null }
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> nil(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): A? = nullable(configuration, block)
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> option(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): Option<A> =
     recover({ block(ArcherRaise(this, configuration)).some() }) { None }
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> bool(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): Boolean =
     recover({
@@ -203,22 +188,22 @@ inline fun <A> bool(
 
 @OptIn(ExperimentalTypeInference::class)
 inline fun <A> unit(
-    configuration: Configuration = DefaultConfiguration,
+    configuration: Configuration = Configuration.Default,
     @BuilderInference block: ArcherRaise.() -> A
 ): Unit =
     recover({ block(ArcherRaise(this, configuration)) }) { }
 
 @OptIn(ExperimentalTypeInference::class)
 @RaiseDSL
-public inline fun <A> Configuration.archerRecover(
+context(settings: Settings) inline fun <A> archerRecover(
     @BuilderInference block: ArcherRaise.() -> A,
     @BuilderInference recover: (error: Failure) -> A,
-): A = recover({ block(ArcherRaise(this, this@archerRecover)) }, recover)
+): A = recover({ block(ArcherRaise(this, settings.configuration)) }, recover)
 
 @OptIn(ExperimentalTypeInference::class)
 @RaiseDSL
-public inline fun <A> Configuration.archerRecover(
+context(settings: Settings) inline fun <A> archerRecover(
     @BuilderInference block: ArcherRaise.() -> A,
     @BuilderInference recover: (error: Failure) -> A,
     @BuilderInference catch: (error: Throwable) -> A,
-): A = recover({ block(ArcherRaise(this, this@archerRecover)) }, recover, catch)
+): A = recover({ block(ArcherRaise(this, settings.configuration)) }, recover, catch)

@@ -1,10 +1,8 @@
 package com.m2f.archer.utils
 
 import com.m2f.archer.configuration.Configuration
-import com.m2f.archer.crud.cache.CacheDataSource
+import com.m2f.archer.configuration.Settings
 import com.m2f.archer.crud.cache.configuration.testConfiguration
-import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
-import com.m2f.archer.failure.Failure
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -15,9 +13,9 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 class ArcherTestContext(
-    configuration: Configuration,
+    settings: Settings,
     private val scheduler: TestCoroutineScheduler
-) : Configuration() {
+) : Configuration(settings) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun advanceTimeBy(duration: Duration) {
@@ -26,20 +24,13 @@ class ArcherTestContext(
 
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
     override fun getCurrentTime(): Instant = Instant.fromEpochMilliseconds(scheduler.currentTime)
-
-    override val mainFallbacks: (Failure) -> Boolean = configuration.mainFallbacks
-    override val storageFallbacks: (Failure) -> Boolean = configuration.storageFallbacks
-    override val ignoreCache: Boolean = configuration.ignoreCache
-
-    @OptIn(ExperimentalTime::class)
-    override val cache: CacheDataSource<CacheMetaInformation, Instant> = configuration.cache
 }
 
 fun runArcherTest(
     context: CoroutineContext = EmptyCoroutineContext,
-    configuration: (TestCoroutineScheduler) -> Configuration = testConfiguration,
+    settings: (TestCoroutineScheduler) -> Settings = testConfiguration,
     block: suspend ArcherTestContext.() -> Unit
 ) =
     runTest(context = context) {
-        block(ArcherTestContext(configuration = configuration(testScheduler), scheduler = testScheduler))
+        block(ArcherTestContext(settings = settings(testScheduler), scheduler = testScheduler))
     }

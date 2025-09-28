@@ -2,23 +2,18 @@
 
 package com.m2f.archer.crud.cache.configuration
 
-import com.m2f.archer.configuration.Configuration
-import com.m2f.archer.configuration.DefaultConfiguration
+import com.m2f.archer.configuration.Settings
 import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
 import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
 import com.m2f.archer.datasource.InMemoryDataSource
-import com.m2f.archer.failure.Failure
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-val testConfiguration: (scheduler: TestCoroutineScheduler) -> Configuration = { scheduler ->
-    object : Configuration() {
-        override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
-        override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
-        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
+val testConfiguration: (scheduler: TestCoroutineScheduler) -> Settings = { scheduler ->
+    object : Settings by Settings.Default {
         override val cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache(
             repo = fakeQueriesRepo
         )
@@ -28,11 +23,8 @@ val testConfiguration: (scheduler: TestCoroutineScheduler) -> Configuration = { 
     }
 }
 
-val inMemoryCacheConfiguration: (scheduler: TestCoroutineScheduler) -> Configuration = { scheduler ->
-    object : Configuration() {
-        override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
-        override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
-        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
+val inMemoryCacheConfiguration: (scheduler: TestCoroutineScheduler) -> Settings = { scheduler ->
+    object : Settings by Settings.Default {
         override val cache: CacheDataSource<CacheMetaInformation, Instant> = InMemoryDataSource()
 
         @OptIn(ExperimentalCoroutinesApi::class)

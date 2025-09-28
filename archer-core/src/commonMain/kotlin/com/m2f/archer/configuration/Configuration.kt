@@ -9,43 +9,21 @@ import com.m2f.archer.crud.Ice
 import com.m2f.archer.crud.Result
 import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.crud.StrategyBuilder
-import com.m2f.archer.crud.cache.CacheDataSource
 import com.m2f.archer.crud.cache.CacheExpiration
 import com.m2f.archer.crud.cache.CacheExpiration.After
 import com.m2f.archer.crud.cache.build
 import com.m2f.archer.crud.cache.expires
-import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
-import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
 import com.m2f.archer.crud.operation.Main
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Store
 import com.m2f.archer.crud.operation.StoreSync
-import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.failure.Failure
-import com.m2f.archer.failure.Invalid
-import com.m2f.archer.failure.NetworkFailure.NoConnection
-import com.m2f.archer.failure.NetworkFailure.Redirect
-import com.m2f.archer.failure.NetworkFailure.ServerFailure
-import com.m2f.archer.failure.NetworkFailure.UnhandledNetworkFailure
 import com.m2f.archer.repository.MainSyncRepository
 import com.m2f.archer.repository.StoreSyncRepository
 import com.m2f.archer.repository.toRepository
 import kotlin.experimental.ExperimentalTypeInference
-import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
-abstract class Configuration {
-    abstract val mainFallbacks: (Failure) -> Boolean
-    abstract val storageFallbacks: (Failure) -> Boolean
-    abstract val ignoreCache: Boolean
-
-    @OptIn(ExperimentalTime::class)
-    abstract fun getCurrentTime(): Instant
-
-    @OptIn(ExperimentalTime::class)
-    abstract val cache: CacheDataSource<CacheMetaInformation, Instant>
+open class Configuration(private val settings: Settings) : Settings by settings {
 
     fun <K, A> cacheStrategy(
         mainDataSource: GetDataSource<K, A>,
@@ -122,50 +100,13 @@ abstract class Configuration {
     inline fun <A> unit(
         @BuilderInference block: ArcherRaise.() -> A
     ): Unit = com.m2f.archer.crud.unit(this, block)
-}
 
-object DefaultConfiguration : Configuration() {
-    override val mainFallbacks = { failure: Failure ->
-        failure is DataNotFound ||
-            failure is Invalid ||
-            failure is NoConnection ||
-            failure is ServerFailure ||
-            failure is Redirect ||
-            failure is UnhandledNetworkFailure
+    companion object {
+        val Default: Configuration = Configuration(settings = Settings.Default)
+        fun ignoreCache(settings: Settings = Settings.Default) = Configuration(
+            settings = object : Settings by settings {
+                override val ignoreCache: Boolean = true
+            }
+        )
     }
-
-    /**
-     * Failures that will be used for storage calls to fallback into network
-     */
-    override val storageFallbacks = { failure: Failure ->
-        failure is DataNotFound ||
-            failure is Invalid
-    }
-
-    override val ignoreCache: Boolean = false
-
-    @OptIn(ExperimentalTime::class)
-    override val cache: CacheDataSource<CacheMetaInformation, Instant> = MemoizedExpirationCache()
-
-    @OptIn(ExperimentalTime::class)
-    override fun getCurrentTime(): Instant =
-        Clock.System.now()
-}
-
-internal class IgnoreCacheConfiguration(configuration: Configuration = DefaultConfiguration) : Configuration() {
-    override val mainFallbacks = configuration.mainFallbacks
-
-    /**
-     * Failures that will be used for storage calls to fallback into network
-     */
-    override val storageFallbacks = configuration.storageFallbacks
-
-    override val ignoreCache: Boolean = true
-
-    @OptIn(ExperimentalTime::class)
-    override val cache: CacheDataSource<CacheMetaInformation, Instant> = configuration.cache
-
-    @OptIn(ExperimentalTime::class)
-    override fun getCurrentTime(): Instant =
-        Clock.System.now()
 }
