@@ -3,7 +3,7 @@
 package com.m2f.archer.crud.cache.configuration
 
 import com.m2f.archer.configuration.Configuration
-import com.m2f.archer.configuration.DefaultConfiguration
+import com.m2f.archer.configuration.Settings
 import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.Ice
 import com.m2f.archer.crud.StoreDataSource
@@ -13,7 +13,6 @@ import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Store
-import com.m2f.archer.failure.Failure
 import com.m2f.archer.query.Delete
 import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.utils.runArcherTest
@@ -28,11 +27,7 @@ import kotlin.time.Instant
 
 class ConfigurationTest {
 
-    val neverExpiringCacheConfiguration = object : Configuration() {
-        override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
-        override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
-        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
-        override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
+    val neverExpiringCacheConfiguration = Configuration(object : Settings by Settings.Default {
 
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
@@ -44,12 +39,9 @@ class ConfigurationTest {
                     return System.now() + 1000.days
                 }
             }
-    }
+    })
 
-    val alwaysExpiringCacheConfiguration = object : Configuration() {
-        override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
-        override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
-        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
+    val alwaysExpiringCacheConfiguration = Configuration(object : Settings by Settings.Default {
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
@@ -60,11 +52,10 @@ class ConfigurationTest {
                     return System.now() - 1000.days
                 }
             }
-        override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
-    }
+    })
 
     @Test
-    fun `ice dsl preserves the configuration`() = runArcherTest(configuration = inMemoryCacheConfiguration) {
+    fun `ice dsl preserves the configuration`() = runArcherTest(settings = inMemoryCacheConfiguration) {
         val mainDataSource = getDataSource<Int, String> { "main" }
         val storeDataSource = StoreDataSource<Int, String> { "store" }
 

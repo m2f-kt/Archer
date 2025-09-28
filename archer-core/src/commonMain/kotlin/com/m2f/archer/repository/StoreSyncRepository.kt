@@ -21,7 +21,7 @@ class StoreSyncRepository<K, A>(
             block = {
                 storeDataSource.get(q.key)
             },
-            recover = { failure ->
+            recover = { failure: Failure ->
                 if (fallbackChecks(failure)) {
                     MainSyncRepository(
                         mainDataSource,
@@ -32,6 +32,6 @@ class StoreSyncRepository<K, A>(
                     raise(failure)
                 }
             },
-            catch = { exception -> raise(Unhandled(exception)) }
+            catch = { exception: Throwable -> raise(Unhandled(exception)) }
         )
 }

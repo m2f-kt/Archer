@@ -2,7 +2,9 @@
 
 package com.m2f.archer.crud.cache
 
-import com.m2f.archer.configuration.DefaultConfiguration.cacheStrategy
+import com.m2f.archer.configuration.Configuration
+import com.m2f.archer.configuration.Settings
+import com.m2f.archer.configuration.configuration
 import com.m2f.archer.crud.DeleteDataSource
 import com.m2f.archer.crud.GetDataSource
 import com.m2f.archer.crud.GetRepositoryStrategy
@@ -25,16 +27,24 @@ interface CacheDataSource<K, A> : StoreDataSource<K, A>, DeleteDataSource<K>
 infix fun <K, A> GetDataSource<K, A>.cacheWith(storage: StoreDataSource<K, A>): StrategyBuilder<K, A> =
     StrategyBuilder(this, storage)
 
+context(config: Configuration)
 fun <K, A> StrategyBuilder<K, A>.build(): GetRepositoryStrategy<K, A> =
-    cacheStrategy(
+    config.cacheStrategy(
         mainDataSource,
         storeDataSource,
     )
 
 inline fun <K, reified A> GetDataSource<K, A>.cache(
+    config: Configuration = Settings.configuration,
     storage: StoreDataSource<K, A> = InMemoryDataSource(),
     expiration: CacheExpiration = Never
-): GetRepositoryStrategy<K, A> = cacheStrategy(this@cache, storage.expires(expiration))
+): GetRepositoryStrategy<K, A> = config.cacheStrategy(this@cache, storage.expires(expiration))
+
+context(config: Configuration)
+inline fun <K, reified A> GetDataSource<K, A>.cache(
+    storage: StoreDataSource<K, A> = InMemoryDataSource(),
+    expiration: CacheExpiration = Never
+): GetRepositoryStrategy<K, A> = config.cacheStrategy(this@cache, storage.expires(expiration))
 
 inline fun <K, reified A> StoreDataSource<K, A>.expires(
     expiration: CacheExpiration,
@@ -62,28 +72,21 @@ inline fun <K, reified A> StoreDataSource<K, A>.expires(
                 )
                 when (q) {
                     is Put -> {
-                        println("configuration in put datasource: $this")
-                        val now = this.getCurrentTime()
-                        println("saving: $now")
+                        val now = getCurrentTime()
                         val expirationDate = (now + expiration.time)
                         cache.put(info, expirationDate)
                         this@expires.run { invoke(q) }
                     }
 
                     is Get -> {
-                        println("configuration in get datasource: $this")
                         val now = getCurrentTime()
-                        println("getting: $now")
                         val isValid: Boolean = if (ignoreCache) {
                             true
                         } else {
                             archerRecover(block = {
-                                cache.get(info).let {
-                                    println("saved instant: $it")
-                                    (now - it).also {
-                                        println("diff: $it")
-                                    }
-                                }.isNegative()
+                                cache.get(info)
+                                    .let(now::minus)
+                                    .isNegative()
                             }) {
                                 false
                             }

@@ -16,7 +16,6 @@ import com.m2f.archer.query.KeyQuery
 import com.m2f.archer.query.Put
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -40,7 +39,7 @@ class MemoizedExpirationCache(
 
                     is Put -> {
                         val instant = q.value ?: raise(DataEmpty)
-                        val now = Clock.System.now()
+                        val now = getCurrentTime()
                         queries.insertInstant(
                             key = q.key.key,
                             hash = q.key.hashCode().toLong(),

@@ -4,7 +4,7 @@ package com.m2f.archer.crud.cache
 
 import arrow.core.raise.ensureNotNull
 import com.m2f.archer.configuration.Configuration
-import com.m2f.archer.configuration.DefaultConfiguration
+import com.m2f.archer.configuration.Settings
 import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.StoreDataSource
 import com.m2f.archer.crud.cache.CacheExpiration.After
@@ -19,7 +19,6 @@ import com.m2f.archer.crud.operation.StoreSync
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
-import com.m2f.archer.failure.Failure
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.mapper.map
 import com.m2f.archer.query.Delete
@@ -30,7 +29,6 @@ import com.m2f.archer.utils.runArcherTest
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlin.test.Test
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
@@ -42,12 +40,7 @@ import kotlin.time.Instant
 class CacheExpirationTest {
 
     @OptIn(ExperimentalTime::class)
-    val emptyCacheConfiguration = object : Configuration() {
-        override val mainFallbacks: (Failure) -> Boolean = DefaultConfiguration.mainFallbacks
-        override val storageFallbacks: (Failure) -> Boolean = DefaultConfiguration.storageFallbacks
-        override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
-        override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
-
+    val emptyCacheConfiguration = object : Settings by Settings.Default {
         override val cache: CacheDataSource<CacheMetaInformation, Instant> =
             object : CacheDataSource<CacheMetaInformation, Instant> {
                 override suspend fun ArcherRaise.delete(q: Delete<CacheMetaInformation>) {
@@ -90,7 +83,7 @@ class CacheExpirationTest {
 
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
     @Test
-    fun `fetching after time passed`() = runArcherTest(configuration = inMemoryCacheConfiguration) {
+    fun `fetching after time passed`() = runArcherTest(settings = inMemoryCacheConfiguration) {
         val store: StoreDataSource<Int, String> = InMemoryDataSource(mapOf(0 to "Test"))
         val time = 50.milliseconds
         val expiresAfter50Millis = store.expires(After(time))
@@ -158,7 +151,7 @@ class CacheExpirationTest {
         result1 shouldBeRight "main from Store"
 
         // Wait few milliseconds to let the cache expire
-        delay(100L)
+        advanceTimeBy(100.milliseconds)
 
         // The cache is expired so if we enforce data from store should be valid
         val result2 = either { cacheStrategyAfter.get(Store, 0) }
@@ -183,7 +176,7 @@ class CacheExpirationTest {
 
     @Test
     fun `with a time expiration if there is no stored expiration date the data take from Store is shown`() =
-        runArcherTest(configuration = { emptyCacheConfiguration }) {
+        runArcherTest(settings = { emptyCacheConfiguration }) {
             val main = getDataSource<Int, String> { "main" }
 
             val store: StoreDataSource<Int, String> = InMemoryDataSource<Int, String>().map { "$it from Store" }
@@ -199,36 +192,30 @@ class CacheExpirationTest {
         }
 
     @Test
-    fun `If the data is empty should remove the expiration date`() = runArcherTest {
+    fun `If the data is empty should remove the expiration date`() {
         val info = CacheMetaInformation(
             key = "0",
             classIdentifier = String::class.simpleName.toString()
         )
-
         val expiration = mapOf(info to Clock.System.now() + 1.minutes)
         val expirationCache = InMemoryDataSource(expiration)
 
-        val store: StoreDataSource<Int, String> = InMemoryDataSource()
-
-        val customConfig = object : Configuration() {
-            override val mainFallbacks = DefaultConfiguration.mainFallbacks
-            override val storageFallbacks = DefaultConfiguration.storageFallbacks
-            override val ignoreCache: Boolean = DefaultConfiguration.ignoreCache
-            override fun getCurrentTime(): Instant = DefaultConfiguration.getCurrentTime()
-
+        val customConfig = Configuration(object : Settings by Settings.Default {
             override val cache: CacheDataSource<CacheMetaInformation, Instant> = expirationCache
-        }
+        })
 
-        // the data does not exist
-        val result1 = with(customConfig) {
-            either {
+        runArcherTest(settings = { customConfig }) {
+            val store: StoreDataSource<Int, String> = InMemoryDataSource()
+
+            // the data does not exist
+            val result1 = either {
                 store.expires(After(24.hours)).get(0)
             }
-        }
-        result1 shouldBeLeft DataNotFound
+            result1 shouldBeLeft DataNotFound
 
-        // the stored expiration should be removed
-        val result2 = either { expirationCache.get(info) }
-        result2 shouldBeLeft DataNotFound
+            // the stored expiration should be removed
+            val result2 = either { expirationCache.get(info) }
+            result2 shouldBeLeft DataNotFound
+        }
     }
 }

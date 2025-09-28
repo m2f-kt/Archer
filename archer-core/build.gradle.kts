@@ -51,6 +51,10 @@ kotlin {
         }
     }
 
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xcontext-parameters"))
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(projects.database)
