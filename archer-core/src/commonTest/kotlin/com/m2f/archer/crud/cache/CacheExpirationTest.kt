@@ -12,6 +12,7 @@ import com.m2f.archer.crud.cache.CacheExpiration.Always
 import com.m2f.archer.crud.cache.CacheExpiration.Never
 import com.m2f.archer.crud.cache.configuration.inMemoryCacheConfiguration
 import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
+import com.m2f.archer.crud.cache.memcache.getMetaInformation
 import com.m2f.archer.crud.getDataSource
 import com.m2f.archer.crud.operation.MainSync
 import com.m2f.archer.crud.operation.Store
@@ -193,10 +194,7 @@ class CacheExpirationTest {
 
     @Test
     fun `If the data is empty should remove the expiration date`() {
-        val info = CacheMetaInformation(
-            key = "0",
-            classIdentifier = String::class.simpleName.toString()
-        )
+        val info = getMetaInformation<String>("0")
         val expiration = mapOf(info to Clock.System.now() + 1.minutes)
         val expirationCache = InMemoryDataSource(expiration)
 

@@ -14,7 +14,7 @@ import com.m2f.archer.crud.archerRecover
 import com.m2f.archer.crud.cache.CacheExpiration.After
 import com.m2f.archer.crud.cache.CacheExpiration.Always
 import com.m2f.archer.crud.cache.CacheExpiration.Never
-import com.m2f.archer.crud.cache.memcache.CacheMetaInformation
+import com.m2f.archer.crud.cache.memcache.getMetaInformation
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.Invalid
 import com.m2f.archer.query.Delete
@@ -66,10 +66,7 @@ inline fun <K, reified A> StoreDataSource<K, A>.expires(
 
         is After ->
             StoreDataSource { q ->
-                val info = CacheMetaInformation(
-                    key = q.key.toString(),
-                    classIdentifier = A::class.simpleName.toString()
-                )
+                val info = getMetaInformation<A>(q.key.toString())
                 when (q) {
                     is Put -> {
                         val now = getCurrentTime()
