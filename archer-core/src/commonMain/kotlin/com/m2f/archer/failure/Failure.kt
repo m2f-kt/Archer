@@ -11,6 +11,8 @@ data object DataNotFound : Failure
 /** Data is empty */
 data object DataEmpty : Failure
 
+data object NotModified : Failure
+
 sealed interface NetworkFailure : Failure {
     data object NoConnection : NetworkFailure
 
