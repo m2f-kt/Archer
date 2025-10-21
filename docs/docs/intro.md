@@ -2,46 +2,95 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Getting Started with Archer
 
-Let's discover **Docusaurus in less than 5 minutes**.
+Welcome to **Archer** - a lightweight framework for **Functional Clean Architecture** (FCA) built on top of Arrow.
 
-## Getting Started
+[![Coverage Status](https://coveralls.io/repos/github/m2f-kt/Archer/badge.svg?branch=main)](https://coveralls.io/github/m2f-kt/Archer?branch=main)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Maven Central](https://img.shields.io/maven-central/v/com.m2f-kt/archer-core?color=4caf50&label=latest%20release)](https://central.sonatype.com/artifact/com.m2f-kt/archer-core)
 
-Get started by **creating a new site**.
+## What is Archer?
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+Archer is designed to reduce the boilerplate typically associated with Clean Architecture while maintaining its core benefits:
 
-### What you'll need
+- **Abstraction** - Clear separation of concerns
+- **Reusability** - Composable components
+- **Scalability** - Easy to extend and maintain
 
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+### The Problem with Traditional Clean Architecture
 
-## Generate a new site
+Clean Architecture offers great benefits, but it comes with significant tradeoffs:
 
-Generate a new Docusaurus site using the **classic template**.
+- **Excessive Boilerplate** - Multiple interfaces and implementations for each layer
+- **Maintainability Issues** - More code to maintain and update
 
-The classic template will automatically be added to your project after you run the command:
+A typical Clean Architecture implementation requires:
+- UseCase interface + implementation
+- Repository interface + implementation
+- Multiple DataSource interfaces + implementations (network, local, etc.)
+- Multiple Mappers for data transformation
 
-```bash
-npm init docusaurus@latest my-website classic
+### Archer's Solution
+
+Archer provides **contractual DataSources and Repositories** that eliminate the need for creating all this boilerplate, while still maintaining the architectural benefits. You only need to implement the mapping logic - Archer handles the rest.
+
+## Installation
+
+Add Archer to your project:
+
+```kotlin title="build.gradle.kts"
+dependencies {
+    implementation("com.m2f-kt:archer-core:{version}")
+}
 ```
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+Replace `{version}` with the latest version from [Maven Central](https://central.sonatype.com/artifact/com.m2f-kt/archer-core).
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+## Quick Example
 
-## Start your site
+Here's a simple example of using Archer:
 
-Run the development server:
+```kotlin
+// Define a remote data source
+val remoteDataSource = getDataSource<Int, String> { param: Int ->
+    "$param"
+}
 
-```bash
-cd my-website
-npm run start
+// Define a local storage data source
+val store: StoreDataSource<Int, String> = InMemoryDataSource()
+
+// Create a repository strategy with caching
+val repositoryStrategy = remoteDataSource cacheWith store expiresIn 5.minutes
+
+// Use the repository with different result wrappers
+val resultIce = ice {
+    repository.get(StoreSync, 0)
+}
+// resultIce: Ice.Content("0")
+
+val resultEither = either {
+    repository.get(StoreSync, 0)
+}
+// resultEither: Either.Right("0")
+
+val resultNullable = nullable {
+    repository.get(StoreSync, 0)
+}
+// resultNullable: "0"
 ```
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+## Result Types
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
+Archer supports multiple result types through Arrow:
 
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+- **Ice** (Idle | Content | Error) - Three-state result type
+- **Either** - Classic functional error handling
+- **Nullable** - Simple null-based error handling
+
+## Next Steps
+
+- [Core Concepts](/docs/core-concepts/clean-architecture) - Understand Clean Architecture with Archer
+- [DataSources](/docs/usage/datasources) - Learn about data sources
+- [Repositories](/docs/usage/repositories) - Explore repository patterns
+- [Examples](/docs/examples/basic-usage) - See practical examples

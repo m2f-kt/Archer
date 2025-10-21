@@ -20,7 +20,13 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
+            Get Started
+          </Link>
+          <Link
+            className="button button--outline button--lg"
+            to="/docs/examples/basic-usage"
+            style={{marginLeft: '1rem'}}>
+            View Examples
           </Link>
         </div>
       </div>
@@ -32,8 +38,8 @@ export default function Home(): JSX.Element {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title={`${siteConfig.title} - Functional Clean Architecture`}
+      description="Archer is a lightweight framework for Functional Clean Architecture in Kotlin, built on Arrow. Reduce boilerplate while maintaining clean architecture benefits.">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

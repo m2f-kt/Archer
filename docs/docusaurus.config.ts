@@ -6,8 +6,8 @@ const organizationName = "m2f-kt";
 const projectName = "Archer";
 
 const config: Config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'Archer',
+  tagline: 'Lightweight framework for Functional Clean Architecture',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -40,14 +40,9 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: `https://github.com/${organizationName}/${projectName}/tree/main/`,
+          editUrl: `https://github.com/${organizationName}/${projectName}/tree/main/docs/`,
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl: `https://github.com/${organizationName}/${projectName}/tree/main/`,
-        },
+        blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -59,9 +54,9 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'My Site',
+      title: 'Archer',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'Archer Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -69,11 +64,10 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Documentation',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: `https://github.com/${organizationName}/${projectName}`,
           label: 'GitHub',
           position: 'right',
         },
@@ -86,8 +80,16 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'Tutorial',
+              label: 'Getting Started',
               to: '/docs/intro',
+            },
+            {
+              label: 'Core Concepts',
+              to: '/docs/core-concepts/clean-architecture',
+            },
+            {
+              label: 'Examples',
+              to: '/docs/examples/basic-usage',
             },
           ],
         },
@@ -95,16 +97,12 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'GitHub Issues',
+              href: `https://github.com/${organizationName}/${projectName}/issues`,
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              label: 'GitHub Discussions',
+              href: `https://github.com/${organizationName}/${projectName}/discussions`,
             },
           ],
         },
@@ -112,21 +110,22 @@ const config: Config = {
           title: 'More',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
+              label: 'GitHub',
+              href: `https://github.com/${organizationName}/${projectName}`,
             },
             {
-              label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              label: 'Maven Central',
+              href: 'https://central.sonatype.com/artifact/com.m2f-kt/archer-core',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} m2f-kt. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      additionalLanguages: ['kotlin', 'java', 'groovy'],
     },
   } satisfies Preset.ThemeConfig,
 };
