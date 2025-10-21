@@ -4,50 +4,340 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
-:root {
-  --ifm-color-primary: #1c8beb;
-  --ifm-color-primary-dark: #137eda;
-  --ifm-color-primary-darker: #1277cd;
-  --ifm-color-primary-darkest: #0f62a9;
-  --ifm-color-primary-light: #3497ed;
-  --ifm-color-primary-lighter: #409eee;
-  --ifm-color-primary-lightest: #65b0f1;
-  --ifm-code-font-size: 90%;
+/* Small hack for mermaid edgeLabels having boxes too narrowed */
+foreignObject .edgeLabel {
+  padding: 8px;
+  font-size: 12px;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme='dark'] {
-  --ifm-color-primary: #0c5b87;
-  --ifm-color-primary-dark: #095378;
-  --ifm-color-primary-darker: #084d71;
-  --ifm-color-primary-darkest: #073855;
-  --ifm-color-primary-light: #1a79b4;
-  --ifm-color-primary-lighter: #2269a6;
-  --ifm-color-primary-lightest: #3b89c9;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+small {
+  font-size: 0.9rem;
 }
 
-.footer .footer__col {
+/* Fix for table not being shown at 100% of the width */
+table {
+  display: table;
+  width: 100%;
+}
+
+/* Custom classes for docs */
+.add-icon {
+  color: var(--archer-icon);
+  background: var(--background);
+}
+
+/* Navbar */
+.plugin-docs .navbar {
+  border-bottom: 1px solid var(--ifm-toc-border-color);
+}
+
+.navbar__inner {
+  margin: 0 auto;
+  max-width: var(--ifm-container-width-xl);
+}
+
+.navbar__item {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+}
+
+@media (--ifm-narrow-window) {
+  .navbar__items.navbar__items--right .navbar__item {
+    display: none;
+  }
+}
+
+/* Search */
+.navbar__search-input {
+  border-radius: var(--ifm-global-radius);
+  transition: width var(--ifm-transition-fast);
+}
+
+.navbar__search[class*='searchBarContainer'] {
+  margin-left: 0;
+}
+
+.navbar__search [class*='searchBar'] [class*='dropdownMenu'] {
+  border-radius: var(--ifm-global-radius);
+  margin-top: 1rem;
+}
+
+.navbar__search
+  [class*='searchBar']
+  [class*='dropdownMenu']
+  [class*='suggestion'] {
+  border-radius: var(--ifm-global-radius);
+  margin-bottom: 0;
+}
+
+.navbar__search
+  [class*='searchBar']
+  [class*='dropdownMenu']
+  [class*='suggestion']:not(:last-child) {
+  margin-bottom: 0;
+}
+
+[class*='hitAction'] {
+  display: none;
+}
+
+.navbar__search [class*='hitFooter'] {
+  margin: 1.5rem 1rem 1rem 1rem;
+}
+
+.navbar__search [class*='hitFooter'] a {
+  color: var(--ifm-link-color);
+  text-decoration: none;
+  font-weight: var(--ifm-font-weight-semibold);
+  font-size: 1rem;
+}
+
+.navbar__search [class*='hitFooter'] a:hover {
+  color: var(--ifm-link-hover-color);
+}
+
+/* Navbar sidebar */
+.navbar-sidebar__item {
+  padding: 0;
+}
+
+.navbar-sidebar__back {
+  margin: 0;
+  padding: var(--ifm-spacing-vertical) var(--ifm-spacing-horizontal);
+  top: 0;
+  background: var(--ifm-navbar-background-color);
+  color: var(--ifm-menu-color);
+}
+
+.navbar-sidebar__back:hover {
+  background: var(--ifm-menu-color-background-hover);
+}
+
+.navbar-sidebar__close {
+  transition: transform var(--ifm-transition-fast);
+}
+
+.navbar-sidebar__close:hover {
+  transform: rotateZ(90deg);
+}
+
+.navbar-sidebar .menu__link {
+  border-radius: var(--ifm-global-radius);
+}
+
+.navbar-sidebar .menu__link:hover {
+  cursor: pointer;
+}
+
+.menu__link.menu__link--sublist.menu__link--active {
+  color: var(--ifm-menu-color);
+}
+
+.menu__list-item-collapsible--active .menu__link.menu__link--active {
+  color: var(--ifm-menu-color-active);
+}
+
+/* To set the ToC properly aligned */
+.plugin-docs main .theme-doc-toc-desktop {
+  top: var(--ifm-navbar-height);
+  margin-top: -1rem;
+}
+
+/* Collapsible ToC */
+.theme-doc-toc-mobile[class*='tocCollapsible'] {
+  background-color: var(--ifm-color-primary-lightest);
+}
+
+.theme-doc-toc-mobile [class*='tocCollapsibleButton'] {
+  font-weight: 500;
+}
+
+.theme-doc-toc-mobile[class*='tocCollapsible'] ul.table-of-contents {
+  border: none;
+  font-size: 0.85rem;
+  padding: 0 0 0.3rem 0;
+}
+
+.theme-doc-toc-mobile[class*='tocCollapsible'] ul.table-of-contents li {
+  margin: calc(var(--ifm-spacing-vertical) / 2) 0.8rem;
+}
+
+/* Pagination bottom buttons not needed */
+.plugin-docs .pagination-nav {
+  display: none;
+}
+
+/* Dropdowns being shown as line carets */
+.dropdown > .navbar__link::after {
+  border-color: currentColor;
+  border-width: 0 0.3em 0.3em 0;
+  top: 0.3em;
+  transform: rotate(45deg) translateY(-50%) scale(50%);
+  padding: 0.3em;
+  margin-left: 0;
+}
+
+.dropdown__menu {
+  padding: 0;
+  box-shadow: var(--ifm-global-shadow-lw);
+  border: 1px solid var(--ifm-toc-border-color);
+}
+
+.dropdown__link {
+  border-radius: var(--ifm-global-radius);
+  margin-top: 0;
+  padding: 0.5rem 1rem;
+}
+
+.hero {
   text-align: center;
 }
 
-.main-wrapper {
-  display: flex;
-  flex-direction: column;
+.button {
+  font-family: var(--ifm-font-family-base);
 }
 
-.main-wrapper .hero {
-  flex-grow: 1;
+/* Global styles for cards */
+.card {
+  border: 1px solid var(--ifm-color-primary-lighter);
+  box-shadow: none;
+  transition: box-shadow var(--ifm-transition-fast),
+    transform var(--ifm-transition-fast);
 }
 
-.docusaurus-highlight-code-line {
-  background-color: rgb(72, 77, 91);
-  display: block;
-  margin: 0 calc(-1 * var(--ifm-pre-padding));
-  padding: 0 var(--ifm-pre-padding);
+.card:hover {
+  box-shadow: var(--ifm-global-shadow-lw);
+  transform: translate3d(0px, -4px, 0px);
 }
 
+.pagination-nav__link {
+  box-shadow: none;
+  transition: box-shadow var(--ifm-transition-fast),
+    transform var(--ifm-transition-fast);
+}
+
+.pagination-nav__link:hover {
+  box-shadow: var(--ifm-global-shadow-lw);
+  transform: translate3d(0px, -4px, 0px);
+}
+
+.pills__item {
+  border-radius: var(--ifm-global-radius);
+  padding: 0.5rem 1rem;
+}
+
+.tabs {
+  border-bottom: 1px solid var(--ifm-toc-border-color);
+}
+
+.footer {
+  border-top: 1px solid var(--ifm-color-primary-lighter);
+}
+
+.footer__col {
+  padding: 0 calc(var(--ifm-spacing-horizontal) / 2);
+}
+
+.footer__item {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.footer__links {
+  flex-wrap: nowrap;
+}
+
+@media (--ifm-narrow-window) {
+  .footer {
+    text-align: center;
+  }
+
+  .footer__links {
+    flex-wrap: wrap;
+  }
+
+  .footer__col {
+    margin-bottom: calc(1.5 * var(--ifm-spacing-vertical));
+  }
+}
+
+/* Code blocks */
+code {
+  vertical-align: top;
+}
+
+.theme-code-block {
+  box-shadow: none !important;
+}
+
+/* Menu */
+.plugin-docs .theme-doc-sidebar-container .menu {
+  padding: 1.3rem 0 0.5rem 0;
+}
+
+.plugin-docs .theme-doc-sidebar-container .menu__link {
+  border-radius: var(--ifm-global-radius);
+}
+
+.plugin-docs
+  .theme-doc-sidebar-container
+  .menu__link--sublist.menu__link--active {
+  color: var(--ifm-menu-color);
+}
+
+/*
+ * The .menu__link--active class duplication is a subtle trick to increase the
+ * specificity of this selector, as it would clash with an infima styling otherwise.
+ * CSS injection order is affecting this. But it doesn't seem like is an easy task to solve.
+ * More info:
+ *
+ * https://github.com/facebook/docusaurus/issues/3678
+ */
+.plugin-docs
+  .theme-doc-sidebar-container
+  .menu__list-item-collapsible--active
+  .menu__link--active.menu__link--active {
+  color: var(--ifm-menu-color-active);
+}
+
+.menu__list-item-collapsible {
+  border-radius: var(--ifm-global-radius);
+}
+
+.plugin-docs .theme-doc-sidebar-container .menu__list-item-collapsible--active,
+.theme-doc-sidebar-menu .menu__list-item-collapsible--active {
+  background: var(--ifm-menu-color-background-active);
+}
+
+.menu__list-item-collapsible--active .menu__caret::before {
+  filter: invert(100%);
+}
+
+.menu__caret {
+  border-radius: var(--ifm-global-radius);
+}
+
+.menu__list .menu__list {
+  margin-top: 0;
+  padding-left: 0;
+}
+
+.menu__list .menu__list .menu__link {
+  padding-left: calc(1.5 * var(--ifm-menu-link-padding-horizontal));
+}
+
+.menu__list-item:not(:first-child) {
+  margin-top: 0;
+}
+
+.theme-back-to-top-button.theme-back-to-top-button::after {
+  background-color: var(--ifm-color-primary-darkest);
+}
+
+/* Link card styles */
 .cards-row {
   display: flex;
   margin: 16px -8px;
@@ -98,6 +388,7 @@
   border-radius: 0 0 5px 5px;
 }
 
+/* Naming table styles */
 .naming-table {
   width: 100%;
 }
@@ -128,4 +419,8 @@ tr.naming-table__component {
 
 .naming-table__component small:hover {
   opacity: 1.0;
+}
+
+.sidebar-hidden {
+  display: none !important;
 }

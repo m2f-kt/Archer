@@ -2,6 +2,7 @@
 .kotlin
 .gradle
 .idea
+!.idea/icon.png
 .DS_Store
 build
 captures

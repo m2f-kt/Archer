@@ -8,7 +8,7 @@ const projectName = "Archer";
 const config: Config = {
   title: 'Archer',
   tagline: 'Lightweight framework for Functional Clean Architecture',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/icon.svg',
 
   // Set the production url of your site here
   url: `https://${organizationName}.github.io`,
@@ -44,7 +44,11 @@ const config: Config = {
         },
         blog: false,
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: [
+            './src/css/typography.css',
+            './src/css/vars.css',
+            './src/css/custom.css',
+          ],
         },
       } satisfies Preset.Options,
     ],
@@ -57,7 +61,7 @@ const config: Config = {
       title: 'Archer',
       logo: {
         alt: 'Archer Logo',
-        src: 'img/logo.svg',
+        src: 'img/archer-logo.svg',
       },
       items: [
         {
@@ -126,6 +130,7 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['kotlin', 'java', 'groovy'],
+      defaultLanguage: 'kotlin',
     },
   } satisfies Preset.ThemeConfig,
 };

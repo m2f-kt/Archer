@@ -1,0 +1,80 @@
+<svg width="800" height="800" viewBox="60 60 280 280" xmlns="http://www.w3.org/2000/svg">
+    <!-- Ultra-minimalist arrow design - flower pattern -->
+
+    <defs>
+        <linearGradient id="bowGradient1" x1="170" y1="125" x2="230" y2="125">
+            <stop offset="0%" style="stop-color:#003d99;stop-opacity:1"/>
+            <stop offset="50%" style="stop-color:#0066cc;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#4d94ff;stop-opacity:1"/>
+        </linearGradient>
+        <linearGradient id="bowGradient2" x1="170" y1="275" x2="230" y2="275">
+            <stop offset="0%" style="stop-color:#003d99;stop-opacity:1"/>
+            <stop offset="50%" style="stop-color:#0066cc;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#4d94ff;stop-opacity:1"/>
+        </linearGradient>
+        <linearGradient id="orangeGradient1" x1="200" y1="80" x2="200" y2="200">
+            <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#ffb366;stop-opacity:1"/>
+        </linearGradient>
+        <linearGradient id="orangeGradient2" x1="200" y1="200" x2="200" y2="320">
+            <stop offset="0%" style="stop-color:#ffb366;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Original vertical orientation (0 degrees) -->
+    <g id="stem1">
+        <!-- Top bow - orange fill with gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="url(#orangeGradient1)"/>
+        <!-- Bottom bow - orange fill with gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="url(#orangeGradient2)"/>
+        <!-- Top bow - outline with blue gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="none" stroke="url(#bowGradient1)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+        <!-- Bottom bow - outline with blue gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="none" stroke="url(#bowGradient2)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+    </g>
+
+    <!-- Rotated 90 degrees (right) -->
+    <g id="stem2" transform="rotate(90 200 200)">
+        <!-- Top bow - orange fill with gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="url(#orangeGradient1)"/>
+        <!-- Bottom bow - orange fill with gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="url(#orangeGradient2)"/>
+        <!-- Top bow - outline with blue gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="none" stroke="url(#bowGradient1)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+        <!-- Bottom bow - outline with blue gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="none" stroke="url(#bowGradient2)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+    </g>
+
+    <!-- Rotated 180 degrees (down) -->
+    <g id="stem3" transform="rotate(180 200 200)">
+        <!-- Top bow - orange fill with gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="url(#orangeGradient1)"/>
+        <!-- Bottom bow - orange fill with gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="url(#orangeGradient2)"/>
+        <!-- Top bow - outline with blue gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="none" stroke="url(#bowGradient1)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+        <!-- Bottom bow - outline with blue gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="none" stroke="url(#bowGradient2)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+    </g>
+
+    <!-- Rotated 270 degrees (left) -->
+    <g id="stem4" transform="rotate(270 200 200)">
+        <!-- Top bow - orange fill with gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="url(#orangeGradient1)"/>
+        <!-- Bottom bow - orange fill with gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="url(#orangeGradient2)"/>
+        <!-- Top bow - outline with blue gradient -->
+        <polygon points="200,80 170,170 200,200 230,170" fill="none" stroke="url(#bowGradient1)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+        <!-- Bottom bow - outline with blue gradient -->
+        <polygon points="200,320 170,230 200,200 230,230" fill="none" stroke="url(#bowGradient2)" stroke-width="12"
+                 stroke-linejoin="miter" stroke-linecap="butt"/>
+    </g>
+</svg>
