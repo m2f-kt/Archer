@@ -113,7 +113,7 @@ public abstract interface class com/m2f/archer/crud/GetRepositoryStrategy {
 	public abstract fun create (Lcom/m2f/archer/crud/operation/Operation;)Lcom/m2f/archer/repository/Repository;
 }
 
-public abstract interface class com/m2f/archer/crud/Ice {
+public abstract class com/m2f/archer/crud/Ice {
 }
 
 public final class com/m2f/archer/crud/Ice$Content : com/m2f/archer/crud/Ice {
@@ -407,6 +407,13 @@ public final class com/m2f/archer/failure/NetworkFailure$UnhandledNetworkFailure
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class com/m2f/archer/failure/NotModified : com/m2f/archer/failure/Failure {
+	public static final field INSTANCE Lcom/m2f/archer/failure/NotModified;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class com/m2f/archer/failure/Unhandled : com/m2f/archer/failure/Failure {
 	public fun <init> (Ljava/lang/Throwable;)V
 	public final fun component1 ()Ljava/lang/Throwable;
@@ -426,7 +433,7 @@ public final class com/m2f/archer/failure/Unknown : com/m2f/archer/failure/Failu
 }
 
 public final class com/m2f/archer/failure/network/HttpStatusHandlerKt {
-	public static final fun httpCodeToNetworkFailure (I)Lcom/m2f/archer/failure/NetworkFailure;
+	public static final fun httpCodeToNetworkFailure (I)Lcom/m2f/archer/failure/Failure;
 }
 
 public abstract interface class com/m2f/archer/mapper/Bijection {
