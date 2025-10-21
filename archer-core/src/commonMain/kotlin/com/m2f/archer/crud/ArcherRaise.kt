@@ -115,10 +115,10 @@ class ArcherRaise(raise: Raise<Failure>, settings: Settings) :
     }
 }
 
-sealed interface Ice<out A> {
-    data object Idle : Ice<Nothing>
-    data class Content<A>(val value: A) : Ice<A>
-    data class Error(val error: Failure) : Ice<Nothing>
+sealed class Ice<out A> {
+    data object Idle : Ice<Nothing>()
+    data class Content<A>(val value: A) : Ice<A>()
+    data class Error(val error: Failure) : Ice<Nothing>()
 }
 
 inline fun <A, T> Ice<A>.fold(
