@@ -1,0 +1,8 @@
+{
+  "label": "Examples & Recipes",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Practical examples and common patterns for using Archer."
+  }
+}

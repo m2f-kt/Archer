@@ -10,32 +10,35 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Less Boilerplate',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Eliminate the need for countless interfaces and implementations.
+        Archer provides contractual DataSources and Repositories that reduce
+        boilerplate while maintaining clean architecture principles.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Functional & Type-Safe',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Built on Arrow, Archer brings functional programming patterns to
+        Clean Architecture. Use Either, Ice, or Nullable for type-safe
+        error handling with <code>raise</code> and typed errors.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Flexible Strategies',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Compose data sources with simple DSL. Add caching, expiration,
+        validation, and more. Switch between NetworkFirst, StoreFirst,
+        or custom strategies with minimal code changes.
       </>
     ),
   },
