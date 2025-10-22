@@ -10,14 +10,11 @@ Complete examples showing how to use Archer in real-world scenarios.
 
 ### Error Handling
 
-Archer uses a typed error system based on `Failure` types. Instead of try/catch blocks, use:
-
-- **`archerRecover`** - Handle raised failures with a recover block
-- **`catch`** - Handle both failures and exceptions
+Archer uses a typed error system based on `Failure` types. Instead of try/catch blocks, use `archerRecover` within an `ice {}` block:
 
 ```kotlin
 // Basic recovery from failures
-with(Configuration.Default) {
+ice {
     archerRecover(
         block = { /* code to execute */ },
         recover = { failure -> /* called if we raise in the block */ }
@@ -25,7 +22,7 @@ with(Configuration.Default) {
 }
 
 // Handle both failures and exceptions
-with(Configuration.Default) {
+ice {
     archerRecover(
         block = { /* code to execute */ },
         recover = { failure -> /* called if we raise a Failure */ },
@@ -34,7 +31,10 @@ with(Configuration.Default) {
 }
 ```
 
-**Important**: All failures must be of type `Failure` (defined in `archer-core`). The architecture is based on raising typed `Failure` instances.
+**Important**:
+- All failures must be of type `Failure` (defined in `archer-core`). The architecture is based on raising typed `Failure` instances.
+- For DataSources and Repositories, use `archerRecover` or `catch` in DSLs as they don't have recover/catch operators.
+- See [Configuration](/docs/usage/configuration) for advanced configuration options.
 
 ### Operations
 
@@ -120,8 +120,8 @@ val userRepository = userApiDataSource
     .cacheWith(cache)
     .expiresIn(5.minutes)
 
-// Use it with archerRecover
-suspend fun getUser(userId: Int): User = with(Configuration.Default) {
+// Use it with archerRecover in ice block
+suspend fun getUser(userId: Int): Ice<User> = ice {
     archerRecover(
         block = {
             userRepository.get(Main, userId)
@@ -134,7 +134,7 @@ suspend fun getUser(userId: Int): User = with(Configuration.Default) {
 }
 
 // Or use it with catch to handle exceptions too
-suspend fun getUserSafe(userId: Int): User = with(Configuration.Default) {
+suspend fun getUserSafe(userId: Int): Ice<User> = ice {
     archerRecover(
         block = {
             userRepository.get(Main, userId)
@@ -148,6 +148,11 @@ suspend fun getUserSafe(userId: Int): User = with(Configuration.Default) {
             raise(Failure.Unhandled(exception))
         }
     )
+}
+
+// Or use either for Result type
+suspend fun getUserResult(userId: Int): Either<Failure, User> = either {
+    userRepository.get(Main, userId)
 }
 ```
 
@@ -342,7 +347,7 @@ val validatedUserDataSource = getDataSource<Int, User> { userId ->
 }
 
 // When validation fails, Invalid failure is raised
-suspend fun getUserWithValidation(userId: Int) = with(Configuration.Default) {
+suspend fun getUserWithValidation(userId: Int): Ice<User> = ice {
     archerRecover(
         block = {
             validatedUserDataSource.get(userId)
