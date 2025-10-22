@@ -129,7 +129,41 @@ This configuration:
 
 #### Testing Configuration with Fake Database
 
-If you need to test database-specific cache behavior, you can use a fake database:
+If you need to test database-specific cache behavior, you can use a fake database. This is useful when testing the actual `MemoizedExpirationCache` implementation with database persistence in an isolated test environment.
+
+First, create a fake database repository for your tests:
+
+```kotlin
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.db.SqlSchema
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
+import com.m2f.archer.ExpirationRegistryQueries
+import com.m2f.archer.crud.GetRepository
+import com.m2f.archer.crud.cache.CacheExpiration.Never
+import com.m2f.archer.crud.cache.cache
+import com.m2f.archer.crud.getDataSource
+import com.m2f.archer.crud.operation.StoreSync
+import com.m2f.archer.sqldelight.CacheExpirationDatabase
+
+// Platform-specific fake database driver factory
+// (JVM example shown - use appropriate driver for your platform)
+object FakeDatabaseDriverFactory {
+    suspend fun createDriver(schema: SqlSchema<*>): SqlDriver =
+        JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY).also {
+            schema.create(it)
+        }
+}
+
+// Create a fake queries repository for testing
+val fakeQueriesRepo: GetRepository<Unit, ExpirationRegistryQueries>
+    get() = getDataSource<Unit, ExpirationRegistryQueries> {
+        CacheExpirationDatabase(
+            FakeDatabaseDriverFactory.createDriver(CacheExpirationDatabase.Schema)
+        ).expirationRegistryQueries
+    }.cache(expiration = Never).create(StoreSync)
+```
+
+Then use it in your test configuration:
 
 ```kotlin
 import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
@@ -139,16 +173,29 @@ val testConfiguration: (scheduler: TestCoroutineScheduler) -> Settings = { sched
     object : Settings by Settings.Default {
         // Use MemoizedExpirationCache with a fake database
         override val cache = MemoizedExpirationCache(
-            repo = fakeQueriesRepo  // Fake database repository
+            repo = fakeQueriesRepo  // Fake in-memory database repository
         )
 
         override fun getCurrentTime(): Instant =
             Instant.fromEpochMilliseconds(scheduler.currentTime)
     }
 }
+
+// Usage in tests
+@Test
+fun testCacheWithDatabase() = runTest {
+    val testSettings = testConfiguration(testScheduler)
+
+    with(testSettings.configuration) {
+        ice {
+            // This uses MemoizedExpirationCache backed by in-memory SQLite
+            userRepository.get(MainSync, userId)
+        }
+    }
+}
 ```
 
-This approach is useful when you want to test the actual cache behavior with database persistence, but in an isolated test environment.
+**Note:** For most tests, the simpler `InMemoryDataSource` approach is preferred. Only use a fake database when you specifically need to test database-backed cache behavior.
 
 ### Creating Your Own Testing Configuration
 
