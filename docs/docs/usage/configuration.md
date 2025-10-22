@@ -50,6 +50,184 @@ storageFallbacks = { failure ->
 ignoreCache = false
 ```
 
+## Cache Implementation and Testing
+
+### Understanding the Default Cache
+
+The default configuration relies on `MemoizedExpirationCache`, which is a **platform-sensitive cache implementation** that uses databases under the hood to keep records of expiration times and store metadata. This cache implementation:
+
+- Uses SQLDelight to persist cache expiration metadata across application sessions
+- Requires database drivers that are platform-specific (Android, iOS, JVM, etc.)
+- Stores cache metadata including keys, expiration times, and creation timestamps
+- Provides thread-safe access through mutex locks
+
+```kotlin
+// Default cache implementation (from Settings.Default)
+override val cache: CacheDataSource<CacheMetaInformation, Instant> by lazy {
+    MemoizedExpirationCache()
+}
+```
+
+The `MemoizedExpirationCache` implementation can be found in `archer-core/src/commonMain/kotlin/com/m2f/archer/crud/cache/memcache/MemoizedExpirationCache.kt:22` and requires a database connection to function properly.
+
+### Testing Considerations
+
+When writing tests, the default `MemoizedExpirationCache` can create several challenges:
+
+1. **Database Setup Complexity** - Requires setting up database drivers and schemas for testing
+2. **Platform Dependencies** - May not work consistently across all test environments
+3. **Test Isolation** - Shared database state between tests can cause failures
+4. **Performance** - Database operations can slow down unit tests
+
+**For testing, it is strongly recommended to create a custom testing configuration** that uses an in-memory cache instead of the database-backed implementation.
+
+### Testing Configuration Examples
+
+Archer provides testing configurations that demonstrate how to create your own custom configurations for tests. These examples are located in `archer-core/src/commonTest/kotlin/com/m2f/archer/crud/cache/configuration/Configuration.kt:15`.
+
+#### Simple In-Memory Testing Configuration
+
+The simplest approach is to replace the cache with an `InMemoryDataSource`:
+
+```kotlin
+import com.m2f.archer.configuration.Settings
+import com.m2f.archer.datasource.InMemoryDataSource
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlin.time.Instant
+
+// Simple in-memory cache configuration for testing
+val inMemoryCacheConfiguration: (scheduler: TestCoroutineScheduler) -> Settings = { scheduler ->
+    object : Settings by Settings.Default {
+        // Replace database cache with in-memory implementation
+        override val cache = InMemoryDataSource()
+
+        // Use test scheduler for time control
+        override fun getCurrentTime(): Instant =
+            Instant.fromEpochMilliseconds(scheduler.currentTime)
+    }
+}
+
+// Usage in tests
+@Test
+fun testUserRepository() = runTest {
+    val testSettings = inMemoryCacheConfiguration(testScheduler)
+    val config = Configuration(testSettings)
+
+    config.ice {
+        // Your test code here
+        userRepository.get(MainSync, userId)
+    }
+}
+```
+
+This configuration:
+- Uses `InMemoryDataSource` which stores data in memory without any database
+- Delegates all other settings to `Settings.Default`
+- Provides time control through the test scheduler for testing cache expiration
+
+#### Testing Configuration with Fake Database
+
+If you need to test database-specific cache behavior, you can use a fake database:
+
+```kotlin
+import com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache
+
+// Configuration with fake database for testing MemoizedExpirationCache
+val testConfiguration: (scheduler: TestCoroutineScheduler) -> Settings = { scheduler ->
+    object : Settings by Settings.Default {
+        // Use MemoizedExpirationCache with a fake database
+        override val cache = MemoizedExpirationCache(
+            repo = fakeQueriesRepo  // Fake database repository
+        )
+
+        override fun getCurrentTime(): Instant =
+            Instant.fromEpochMilliseconds(scheduler.currentTime)
+    }
+}
+```
+
+This approach is useful when you want to test the actual cache behavior with database persistence, but in an isolated test environment.
+
+### Creating Your Own Testing Configuration
+
+To create your own testing configuration:
+
+1. **Choose your cache implementation:**
+   - `InMemoryDataSource()` - Simple, fast, no persistence (recommended for most tests)
+   - `MemoizedExpirationCache(repo = fakeQueriesRepo)` - Database-backed for integration tests
+
+2. **Control time for expiration testing:**
+   ```kotlin
+   override fun getCurrentTime(): Instant =
+       Instant.fromEpochMilliseconds(testScheduler.currentTime)
+   ```
+
+3. **Customize fallback behavior if needed:**
+   ```kotlin
+   override val mainFallbacks = { _: Failure -> false }  // No fallbacks in tests
+   override val storageFallbacks = { _: Failure -> false }
+   ```
+
+### Example: Complete Test Configuration
+
+Here's a complete example of a custom test configuration:
+
+```kotlin
+import com.m2f.archer.configuration.Configuration
+import com.m2f.archer.configuration.Settings
+import com.m2f.archer.datasource.InMemoryDataSource
+import com.m2f.archer.failure.Failure
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlin.time.Instant
+
+object TestConfiguration {
+    fun create(scheduler: TestCoroutineScheduler): Configuration {
+        val testSettings = object : Settings {
+            // Use in-memory cache for fast, isolated tests
+            override val cache = InMemoryDataSource()
+
+            // No automatic fallbacks in tests for predictable behavior
+            override val mainFallbacks = { _: Failure -> false }
+            override val storageFallbacks = { _: Failure -> false }
+
+            // Cache enabled for expiration testing
+            override val ignoreCache = false
+
+            // Controlled time for deterministic cache expiration
+            override fun getCurrentTime(): Instant =
+                Instant.fromEpochMilliseconds(scheduler.currentTime)
+        }
+
+        return Configuration(testSettings)
+    }
+}
+
+// Usage in tests
+@Test
+fun testCacheExpiration() = runTest {
+    val config = TestConfiguration.create(testScheduler)
+
+    config.ice {
+        // Test cache behavior with controlled time
+        val result = repository.get(MainSync, userId)
+
+        // Advance time to test expiration
+        testScheduler.advanceTimeBy(6.minutes)
+
+        // Cache should be expired now
+        val refreshed = repository.get(MainSync, userId)
+    }
+}
+```
+
+### Best Practices for Testing
+
+1. **Always use in-memory cache for unit tests** - Faster and more reliable than database-backed cache
+2. **Use test scheduler** - Enables controlled time advancement for cache expiration testing
+3. **Disable automatic fallbacks in tests** - Makes test behavior more predictable
+4. **Create reusable test configurations** - Define once, use across all tests
+5. **Use `Configuration.ignoreCache()`** - When you want to bypass cache entirely in specific tests
+
 ## How DSL Builders Work with Configuration
 
 All DSL builders in Archer (`ice`, `either`, `nullable`, `bool`, `unit`, etc.) can work with configurations in multiple ways. Understanding this is key to using Archer effectively.
@@ -466,7 +644,7 @@ The cache implementation for storing expiration metadata:
 val cache: CacheDataSource<CacheMetaInformation, Instant>
 ```
 
-Default implementation is `MemoizedExpirationCache`.
+Default implementation is `MemoizedExpirationCache`, which is platform-sensitive and uses databases to persist cache metadata. See [Cache Implementation and Testing](#cache-implementation-and-testing) for details on the default cache and how to configure alternative caches for testing.
 
 ### getCurrentTime
 
@@ -528,6 +706,8 @@ Default uses `Clock.System.now()`.
 7. **Cache Expiration** - Always set expiration times for cached data
 
 8. **archerRecover** - Use for explicit failure handling within DSL blocks, and remember it inherits the active `Settings` context
+
+9. **Testing Configurations** - Always use custom testing configurations with `InMemoryDataSource` instead of the default `MemoizedExpirationCache` to avoid database dependencies and improve test performance. See [Cache Implementation and Testing](#cache-implementation-and-testing) for examples
 
 ## See Also
 
