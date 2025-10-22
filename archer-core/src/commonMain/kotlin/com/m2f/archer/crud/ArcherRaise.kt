@@ -95,7 +95,7 @@ class ArcherRaise(raise: Raise<Failure>, settings: Settings) :
         Store -> with(
             ArcherRaise(
                 this@ArcherRaise,
-                ignoreCache()
+                ignoreCache(settings = configuration)
             )
         ) {
             val repository = create(operation)
