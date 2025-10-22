@@ -6,15 +6,76 @@ sidebar_position: 1
 
 Complete examples showing how to use Archer in real-world scenarios.
 
+## Key Concepts
+
+### Error Handling
+
+Archer uses a typed error system based on `Failure` types. Instead of try/catch blocks, use:
+
+- **`archerRecover`** - Handle raised failures with a recover block
+- **`catch`** - Handle both failures and exceptions
+
+```kotlin
+// Basic recovery from failures
+with(Configuration.Default) {
+    archerRecover(
+        block = { /* code to execute */ },
+        recover = { failure -> /* called if we raise in the block */ }
+    )
+}
+
+// Handle both failures and exceptions
+with(Configuration.Default) {
+    archerRecover(
+        block = { /* code to execute */ },
+        recover = { failure -> /* called if we raise a Failure */ },
+        catch = { exception -> /* called if there is an exception thrown */ }
+    )
+}
+```
+
+**Important**: All failures must be of type `Failure` (defined in `archer-core`). The architecture is based on raising typed `Failure` instances.
+
+### Operations
+
+Repositories support four operation strategies (from `Operation.kt`):
+
+- **`Main`** - Fetch from main data source only
+- **`Store`** - Fetch from store/cache only
+- **`MainSync`** - Fetch from main and sync to store
+- **`StoreSync`** - Fetch from store, fallback to main if needed
+
+### Ice States
+
+The `Ice` type represents three possible states and can be handled in multiple ways:
+
+```kotlin
+// Method 1: when expression
+when (ice) {
+    is Ice.Idle -> // Loading state
+    is Ice.Content -> // Success with value
+    is Ice.Error -> // Failure with error
+}
+
+// Method 2: fold function
+ice.fold(
+    ifIdle = { /* handle loading */ },
+    ifContent = { value -> /* handle success */ },
+    ifError = { failure -> /* handle error */ }
+)
+```
+
 ## Simple API Integration
 
 ### Scenario
 Fetch user data from a REST API with in-memory caching.
 
 ```kotlin
-import arrow.core.Either
-import arrow.core.raise.either
-import com.m2f.archer.core.*
+import com.m2f.archer.configuration.Configuration
+import com.m2f.archer.crud.*
+import com.m2f.archer.crud.operation.*
+import com.m2f.archer.datasource.InMemoryDataSource
+import com.m2f.archer.failure.Failure
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -41,25 +102,15 @@ fun UserDto.toDomain() = User(
     email = email
 )
 
-// Errors
-sealed interface UserError : DomainError {
-    data class NotFound(val userId: Int) : UserError
-    data class NetworkError(val message: String) : UserError
-}
-
 // Create the data source
 val httpClient = HttpClient()
 
 val userApiDataSource = getDataSource<Int, User> { userId ->
-    try {
-        val response = httpClient.get("https://api.example.com/users/$userId")
-        if (response.status.value == 404) {
-            raise(UserError.NotFound(userId))
-        }
-        response.body<UserDto>().toDomain()
-    } catch (e: Exception) {
-        raise(UserError.NetworkError(e.message ?: "Unknown error"))
+    val response = httpClient.get("https://api.example.com/users/$userId")
+    if (response.status.value == 404) {
+        raise(Failure.DataNotFound)
     }
+    response.body<UserDto>().toDomain()
 }
 
 // Add caching
@@ -69,9 +120,34 @@ val userRepository = userApiDataSource
     .cacheWith(cache)
     .expiresIn(5.minutes)
 
-// Use it
-suspend fun getUser(userId: Int): Either<UserError, User> = either {
-    userRepository.get(StoreSync.StoreFirst, userId)
+// Use it with archerRecover
+suspend fun getUser(userId: Int): User = with(Configuration.Default) {
+    archerRecover(
+        block = {
+            userRepository.get(Main, userId)
+        },
+        recover = { failure: Failure ->
+            // Handle the failure, maybe return a default value or rethrow
+            raise(failure)
+        }
+    )
+}
+
+// Or use it with catch to handle exceptions too
+suspend fun getUserSafe(userId: Int): User = with(Configuration.Default) {
+    archerRecover(
+        block = {
+            userRepository.get(Main, userId)
+        },
+        recover = { failure: Failure ->
+            // Called if we raise a Failure
+            raise(failure)
+        },
+        catch = { exception: Throwable ->
+            // Called if there is an exception thrown
+            raise(Failure.Unhandled(exception))
+        }
+    )
 }
 ```
 
@@ -124,7 +200,7 @@ class UserDatabaseDataSource(
 
     override suspend fun get(key: Int): User {
         return userDao.getUser(key)?.toDomain()
-            ?: raise(UserError.NotFound(key))
+            ?: raise(Failure.DataNotFound)
     }
 
     override suspend fun put(key: Int, value: User) {
@@ -150,28 +226,32 @@ Load and display user data in an Android app with proper state management.
 ```kotlin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.m2f.archer.crud.GetRepositoryStrategy
+import com.m2f.archer.crud.Ice
+import com.m2f.archer.crud.ice
+import com.m2f.archer.crud.operation.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class UserViewModel(
-    private val userRepository: Repository<Int, User>
+    private val userRepository: GetRepositoryStrategy<Int, User>
 ) : ViewModel() {
 
-    private val _userState = MutableStateFlow<Ice<UserError, User>>(Ice.Idle)
-    val userState: StateFlow<Ice<UserError, User>> = _userState.asStateFlow()
+    private val _userState = MutableStateFlow<Ice<User>>(Ice.Idle)
+    val userState: StateFlow<Ice<User>> = _userState.asStateFlow()
 
     fun loadUser(userId: Int, forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _userState.value = Ice.Idle
 
-            val strategy = if (forceRefresh) {
-                StoreSync.NetworkFirst
+            val operation = if (forceRefresh) {
+                Main
             } else {
-                StoreSync.StoreFirst
+                StoreSync
             }
 
             _userState.value = ice {
-                userRepository.get(strategy, userId)
+                userRepository.get(operation, userId)
             }
         }
     }
@@ -181,7 +261,9 @@ class UserViewModel(
     }
 }
 
-// In your Compose UI
+// In your Compose UI - Three ways to handle Ice states
+
+// Method 1: Using when expression
 @Composable
 fun UserScreen(
     userId: Int,
@@ -207,128 +289,84 @@ fun UserScreen(
         )
     }
 }
-```
 
-## Multi-Source Repository
+// Method 2: Using fold function
+@Composable
+fun UserScreenWithFold(
+    userId: Int,
+    viewModel: UserViewModel = viewModel()
+) {
+    val userState by viewModel.userState.collectAsState()
 
-### Scenario
-Try primary API, fallback to secondary, with local caching.
-
-```kotlin
-val primaryApi = getDataSource<Int, User> { userId ->
-    try {
-        httpClient.get("https://primary-api.example.com/users/$userId")
-            .body<UserDto>()
-            .toDomain()
-    } catch (e: Exception) {
-        raise(UserError.NetworkError("Primary API failed: ${e.message}"))
+    LaunchedEffect(userId) {
+        viewModel.loadUser(userId)
     }
-}
 
-val secondaryApi = getDataSource<Int, User> { userId ->
-    try {
-        httpClient.get("https://secondary-api.example.com/users/$userId")
-            .body<UserDto>()
-            .toDomain()
-    } catch (e: Exception) {
-        raise(UserError.NetworkError("Secondary API failed: ${e.message}"))
-    }
-}
-
-// Combine with fallback logic
-val resilientDataSource = getDataSource<Int, User> { userId ->
-    ice {
-        primaryApi.get(userId)
-    }.recover { primaryError ->
-        ice {
-            secondaryApi.get(userId)
-        }.getOrElse { secondaryError ->
-            // Both failed, raise the primary error
-            raise(primaryError)
+    userState.fold(
+        ifIdle = { LoadingIndicator() },
+        ifContent = { user ->
+            UserContent(
+                user = user,
+                onRefresh = { viewModel.refreshUser(userId) }
+            )
+        },
+        ifError = { error ->
+            ErrorView(
+                error = error,
+                onRetry = { viewModel.loadUser(userId) }
+            )
         }
-    }.bind()
-}
-
-// Add caching
-val userRepository = resilientDataSource
-    .cacheWith(databaseDataSource)
-    .expiresIn(10.minutes)
-```
-
-## Pagination
-
-### Scenario
-Load paginated data from an API.
-
-```kotlin
-data class Page<T>(
-    val items: List<T>,
-    val page: Int,
-    val totalPages: Int
-)
-
-data class PaginationParams(
-    val page: Int,
-    val pageSize: Int
-)
-
-val paginatedUsersDataSource = getDataSource<PaginationParams, Page<User>> { params ->
-    val response = httpClient.get("https://api.example.com/users") {
-        parameter("page", params.page)
-        parameter("size", params.pageSize)
-    }
-
-    response.body<PageDto<UserDto>>().let { pageDto ->
-        Page(
-            items = pageDto.items.map { it.toDomain() },
-            page = pageDto.page,
-            totalPages = pageDto.totalPages
-        )
-    }
-}
-
-// Usage
-suspend fun loadUsers(page: Int): Either<UserError, Page<User>> = either {
-    paginatedUsersDataSource.get(PaginationParams(page, 20))
+    )
 }
 ```
 
 ## Validation
 
 ### Scenario
-Validate user data before saving.
+Validate data returned from a data source.
+
+Archer provides a `validate` extension function that works with `DataSource`. When validation fails, it raises `Failure.Invalid`.
 
 ```kotlin
-sealed interface ValidationError : DomainError {
-    data class InvalidEmail(val email: String) : ValidationError
-    data class InvalidName(val name: String) : ValidationError
-    data class InvalidAge(val age: Int) : ValidationError
+import com.m2f.archer.crud.validate.validate
+import com.m2f.archer.failure.Invalid
+
+// Create a data source with validation
+val validatedUserDataSource = getDataSource<Int, User> { userId ->
+    httpClient.get("https://api.example.com/users/$userId")
+        .body<UserDto>()
+        .toDomain()
+}.validate { user ->
+    // Return true if valid, false if invalid
+    user.name.isNotBlank() && user.email.contains("@")
 }
 
-fun validateUser(user: User) {
-    if (user.name.isBlank()) {
-        raise(ValidationError.InvalidName(user.name))
-    }
-
-    if (!user.email.contains("@")) {
-        raise(ValidationError.InvalidEmail(user.email))
-    }
-
-    if (user.age < 0 || user.age > 150) {
-        raise(ValidationError.InvalidAge(user.age))
-    }
+// When validation fails, Invalid failure is raised
+suspend fun getUserWithValidation(userId: Int) = with(Configuration.Default) {
+    archerRecover(
+        block = {
+            validatedUserDataSource.get(userId)
+        },
+        recover = { failure ->
+            when (failure) {
+                Invalid -> {
+                    // Handle validation failure
+                    println("User data is invalid")
+                    raise(failure)
+                }
+                else -> raise(failure)
+            }
+        }
+    )
 }
 
-// Add validation to repository
-class ValidatedUserRepository(
-    private val repository: Repository<Int, User>
-) {
-    suspend fun saveUser(user: User): Either<DomainError, User> = either {
-        validateUser(user)
-        repository.put(user.id, user)
-        user
-    }
-}
+// Example: Validate email format
+val emailDataSource = getDataSource<String, String> { email -> email }
+    .validate { it.contains("@") && it.contains(".") }
+
+// Example: Validate number range
+val ageDataSource = getDataSource<Int, Int> { age -> age }
+    .validate { it in 0..150 }
 ```
 
 ## Next Steps
