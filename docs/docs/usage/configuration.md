@@ -50,6 +50,127 @@ storageFallbacks = { failure ->
 ignoreCache = false
 ```
 
+## How DSL Builders Work with Configuration
+
+All DSL builders in Archer (`ice`, `either`, `nullable`, `bool`, `unit`, etc.) can work with configurations in multiple ways. Understanding this is key to using Archer effectively.
+
+### Three Ways to Call DSL Builders
+
+Every DSL builder can be called in three different ways:
+
+```kotlin
+// 1. Standalone with default configuration
+ice {
+    userRepository.get(Main, userId)
+}
+
+// 2. Standalone with explicit configuration
+ice(Configuration.Default) {
+    userRepository.get(Main, userId)
+}
+
+// 3. Inside a Configuration scope
+with(Configuration.Default) {
+    ice {
+        userRepository.get(Main, userId)
+    }
+}
+```
+
+**Important differences:**
+
+- **Method 1 & 2** call the top-level DSL function from `ArcherRaise.kt`
+- **Method 3** calls the DSL function as a member of `Configuration`, implicitly using the scoped configuration
+- All three produce the same result when using `Configuration.Default`, but allow different configuration strategies
+
+### ArcherRaise Context and Configuration Preservation
+
+Every DSL builder provides an `ArcherRaise` context that preserves the parent configuration. The `ArcherRaise` class extends `Configuration`, giving you access to all configuration members within the DSL block.
+
+```kotlin
+// The outer ice uses Configuration.Default
+ice(Configuration.Default) {
+    // Inside here, 'this' is ArcherRaise which extends Configuration
+    // You have access to all Configuration members
+
+    // You can call repository methods
+    userRepository.get(Main, userId)
+
+    // You can also create nested DSL blocks
+    val anotherResult = ice {
+        // This inherits the parent configuration
+        anotherRepository.get(Main, anotherId)
+    }
+}
+```
+
+### Nested Configuration Scoping
+
+You can override the configuration for specific operations by scoping to a different configuration:
+
+```kotlin
+// Outer block uses default configuration
+ice(Configuration.Default) {
+    val user = userRepository.get(Main, userId)
+
+    // Override configuration for a specific operation
+    with(Configuration.ignoreCache()) {
+        archerRecover(
+            block = {
+                // This operation bypasses cache
+                freshDataRepository.get(Main, dataId)
+            },
+            recover = { failure ->
+                raise(failure)
+            }
+        )
+    }
+
+    // Back to default configuration
+    user
+}
+```
+
+### Custom Configuration Example
+
+```kotlin
+// Define a custom configuration
+object StrictConfiguration : Settings {
+    override val mainFallbacks = { _: Failure -> false }
+    override val storageFallbacks = { _: Failure -> false }
+    override val ignoreCache = false
+    override val cache = MemoizedExpirationCache()
+    override fun getCurrentTime() = Clock.System.now()
+}
+
+val strictConfig = Configuration(StrictConfiguration)
+
+// Use it in different ways
+suspend fun getUser(id: Int): Ice<User> {
+    // Method 1: Pass configuration explicitly
+    return ice(strictConfig) {
+        userRepository.get(Main, id)
+    }
+}
+
+suspend fun getUser2(id: Int): Ice<User> = with(strictConfig) {
+    // Method 2: Use configuration scope
+    ice {
+        userRepository.get(Main, id)
+    }
+}
+
+suspend fun getUser3(id: Int): Ice<User> = ice {
+    // Method 3: Default config, but override for specific operation
+    with(strictConfig) {
+        archerRecover(
+            block = { userRepository.get(Main, id) },
+            recover = { failure -> raise(failure) }
+        )
+    }
+}
+```
+
 ## DSL Functions
 
 Configuration provides multiple DSL functions for error handling with different return types:
@@ -130,10 +251,15 @@ suspend fun deleteUser(id: Int): Unit = unit {
 
 ## Using archerRecover
 
+`archerRecover` is a special function that requires a `Settings` context to work. Since `ArcherRaise` (the context inside DSL blocks) extends `Configuration`, and `Configuration` implements `Settings`, `archerRecover` is available within any DSL block.
+
+### Basic Usage
+
 Within any DSL block, you can use `archerRecover` to handle failures explicitly:
 
 ```kotlin
 ice {
+    // Inside ice block, 'this' is ArcherRaise which is a Settings
     archerRecover(
         block = {
             // Try to get user from repository
@@ -167,6 +293,33 @@ ice {
     )
 }
 ```
+
+### Configuration Scoping with archerRecover
+
+You can change the configuration for a specific `archerRecover` call by scoping to a different `Settings`:
+
+```kotlin
+ice(Configuration.Default) {
+    val user = userRepository.get(Main, userId)
+
+    // Use a different configuration for this specific operation
+    with(Configuration.ignoreCache()) {
+        archerRecover(
+            block = {
+                // This bypasses cache due to the ignoreCache configuration
+                freshRepository.get(Main, dataId)
+            },
+            recover = { failure ->
+                raise(failure)
+            }
+        )
+    }
+
+    user
+}
+```
+
+**Important:** `archerRecover` preserves the configuration from its `Settings` context, which means fallback strategies and cache behavior are determined by the active configuration when `archerRecover` is called.
 
 ## Custom Configuration
 
@@ -328,14 +481,53 @@ Default uses `Clock.System.now()`.
 ## Best Practices
 
 1. **Use Default Configuration** - Start with `Configuration.Default` for most cases
+   ```kotlin
+   // Simplest form - uses default configuration
+   ice { userRepository.get(Main, userId) }
+   ```
+
 2. **DSL Functions** - Choose the right DSL based on your return type needs:
    - UI states → `ice`
    - Error handling → `either`
    - Optional values → `nullable`
    - Boolean checks → `bool`
-3. **Custom Settings** - Only create custom settings when you need specific fallback behavior
-4. **Cache Expiration** - Always set expiration times for cached data
-5. **archerRecover** - Use for explicit failure handling within DSL blocks
+
+3. **Configuration Scoping** - Understand the three ways to call DSL builders:
+   ```kotlin
+   // Method 1: Standalone with default (most common)
+   ice { /* ... */ }
+
+   // Method 2: Explicit configuration
+   ice(customConfig) { /* ... */ }
+
+   // Method 3: Configuration scope
+   with(customConfig) { ice { /* ... */ } }
+   ```
+
+4. **ArcherRaise Context** - Remember that DSL blocks provide an `ArcherRaise` context that preserves configuration:
+   ```kotlin
+   ice(Configuration.Default) {
+       // 'this' is ArcherRaise, which preserves the configuration
+       val result = ice { /* inherits parent config */ }
+   }
+   ```
+
+5. **Nested Configuration Override** - Use `with()` to override configuration for specific operations:
+   ```kotlin
+   ice {
+       // Default configuration
+       with(Configuration.ignoreCache()) {
+           // Override just for this operation
+           archerRecover(...)
+       }
+   }
+   ```
+
+6. **Custom Settings** - Only create custom settings when you need specific fallback behavior
+
+7. **Cache Expiration** - Always set expiration times for cached data
+
+8. **archerRecover** - Use for explicit failure handling within DSL blocks, and remember it inherits the active `Settings` context
 
 ## See Also
 
