@@ -107,15 +107,17 @@ val inMemoryCacheConfiguration: (scheduler: TestCoroutineScheduler) -> Settings 
     }
 }
 
-// Usage in tests
+// Usage in tests - use scoping functions
 @Test
 fun testUserRepository() = runTest {
     val testSettings = inMemoryCacheConfiguration(testScheduler)
-    val config = Configuration(testSettings)
 
-    config.ice {
-        // Your test code here
-        userRepository.get(MainSync, userId)
+    // Use settings.configuration extension property and with() for scoping
+    with(testSettings.configuration) {
+        ice {
+            // Your test code here
+            userRepository.get(MainSync, userId)
+        }
     }
 }
 ```
@@ -173,22 +175,23 @@ To create your own testing configuration:
 Here's a complete example of a custom test configuration:
 
 ```kotlin
-import com.m2f.archer.configuration.Configuration
 import com.m2f.archer.configuration.Settings
+import com.m2f.archer.configuration.configuration
 import com.m2f.archer.datasource.InMemoryDataSource
 import com.m2f.archer.failure.Failure
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlin.time.Instant
 
 object TestConfiguration {
-    fun create(scheduler: TestCoroutineScheduler): Configuration {
-        val testSettings = object : Settings {
+    fun create(scheduler: TestCoroutineScheduler): Settings =
+        object : Settings {
             // Use in-memory cache for fast, isolated tests
             override val cache = InMemoryDataSource()
 
-            // No automatic fallbacks in tests for predictable behavior
-            override val mainFallbacks = { _: Failure -> false }
-            override val storageFallbacks = { _: Failure -> false }
+            // Keep default fallbacks - they're usually correct
+            // Only override if you need specific test behavior
+            override val mainFallbacks = Settings.Default.mainFallbacks
+            override val storageFallbacks = Settings.Default.storageFallbacks
 
             // Cache enabled for expiration testing
             override val ignoreCache = false
@@ -197,25 +200,25 @@ object TestConfiguration {
             override fun getCurrentTime(): Instant =
                 Instant.fromEpochMilliseconds(scheduler.currentTime)
         }
-
-        return Configuration(testSettings)
-    }
 }
 
-// Usage in tests
+// Usage in tests - use settings.configuration and scoping
 @Test
 fun testCacheExpiration() = runTest {
-    val config = TestConfiguration.create(testScheduler)
+    val testSettings = TestConfiguration.create(testScheduler)
 
-    config.ice {
-        // Test cache behavior with controlled time
-        val result = repository.get(MainSync, userId)
+    // Use with() for scoping - configuration created at the top of the chain
+    with(testSettings.configuration) {
+        ice {
+            // Test cache behavior with controlled time
+            val result = repository.get(MainSync, userId)
 
-        // Advance time to test expiration
-        testScheduler.advanceTimeBy(6.minutes)
+            // Advance time to test expiration
+            testScheduler.advanceTimeBy(6.minutes)
 
-        // Cache should be expired now
-        val refreshed = repository.get(MainSync, userId)
+            // Cache should be expired now
+            val refreshed = repository.get(MainSync, userId)
+        }
     }
 }
 ```
@@ -224,9 +227,449 @@ fun testCacheExpiration() = runTest {
 
 1. **Always use in-memory cache for unit tests** - Faster and more reliable than database-backed cache
 2. **Use test scheduler** - Enables controlled time advancement for cache expiration testing
-3. **Disable automatic fallbacks in tests** - Makes test behavior more predictable
+3. **Keep default fallbacks** - They handle common error scenarios correctly. Only override for specific test needs
 4. **Create reusable test configurations** - Define once, use across all tests
 5. **Use `Configuration.ignoreCache()`** - When you want to bypass cache entirely in specific tests
+6. **Use scoping functions** - Always use `with(settings.configuration) { ice { ... } }` pattern instead of creating Configuration instances everywhere
+
+## Operations and Fallback Strategies
+
+Understanding operations and how fallbacks work with them is crucial to using Archer effectively. This section explains the relationship between operations, repository strategies, and fallback configurations.
+
+### The Four Operations
+
+Archer provides four operation types that control how data flows between your main data source (typically a remote API) and your store (typically local cache/database):
+
+```kotlin
+import com.m2f.archer.crud.operation.Main
+import com.m2f.archer.crud.operation.Store
+import com.m2f.archer.crud.operation.MainSync
+import com.m2f.archer.crud.operation.StoreSync
+```
+
+#### Main
+
+Fetches data **only from the main data source** (usually remote API). No caching, no fallbacks.
+
+```kotlin
+with(Configuration.Default) {
+    ice {
+        // Only calls the API, doesn't touch the cache
+        userRepository.get(Main, userId)
+    }
+}
+```
+
+**Use when:**
+- You need guaranteed fresh data
+- You're posting/updating data to a server
+- Cache should be bypassed completely
+
+**Behavior:**
+- Calls main data source
+- Returns result or raises failure
+- No fallback to store
+- Does not update cache
+
+#### Store
+
+Fetches data **only from the store** (local cache/database). No network calls, no fallbacks.
+
+```kotlin
+with(Configuration.Default) {
+    ice {
+        // Only reads from cache, never calls the API
+        userRepository.get(Store, userId)
+    }
+}
+```
+
+**Use when:**
+- You want offline-first behavior
+- You know data is already cached
+- You want to display cached data while loading fresh data separately
+
+**Behavior:**
+- Calls store data source
+- Returns cached result or raises failure (e.g., DataNotFound)
+- No fallback to main
+- No network calls
+
+#### MainSync
+
+The **most commonly used operation**. Tries main first, then falls back to store if configured fallback conditions are met, and **syncs successful main responses to the store**.
+
+```kotlin
+with(Configuration.Default) {
+    ice {
+        // Tries API first, falls back to cache on network errors
+        userRepository.get(MainSync, userId)
+    }
+}
+```
+
+**Use when:**
+- You want fresh data with offline fallback
+- This is the default for most use cases
+- You want automatic cache updates on successful fetches
+
+**Behavior:**
+1. Calls main data source
+2. On success: Writes response to store, returns data
+3. On failure: Checks `mainFallbacks` function
+   - If `mainFallbacks(failure)` returns `true`: Falls back to store
+   - If `mainFallbacks(failure)` returns `false`: Raises the failure
+
+**Implementation** (from `archer-core/src/commonMain/kotlin/com/m2f/archer/repository/MainSyncRepository.kt:18`):
+
+```kotlin
+// Simplified version showing the logic
+override suspend fun ArcherRaise.invoke(q: Get<K>): A =
+    archerRecover(
+        block = {
+            // Try to get from main and store it
+            storeDataSource.put(q.key, mainDataSource.get(q.key))
+        },
+        recover = { failure ->
+            if (fallbackChecks(failure)) {
+                // Fallback to store if configured
+                storeDataSource.get(q.key)
+            } else {
+                raise(failure)
+            }
+        }
+    )
+```
+
+#### StoreSync
+
+Tries store first, then falls back to main if configured fallback conditions are met. When falling back to main, it **automatically syncs the data back to store** (by calling MainSync internally).
+
+```kotlin
+with(Configuration.Default) {
+    ice {
+        // Tries cache first, falls back to API if not found
+        userRepository.get(StoreSync, userId)
+    }
+}
+```
+
+**Use when:**
+- You want offline-first with automatic refresh
+- You want to minimize network calls
+- Cache-first is acceptable for your use case
+
+**Behavior:**
+1. Calls store data source
+2. On success: Returns cached data
+3. On failure: Checks `storageFallbacks` function
+   - If `storageFallbacks(failure)` returns `true`: Falls back to MainSync (which fetches from main and updates store)
+   - If `storageFallbacks(failure)` returns `false`: Raises the failure
+
+**Implementation** (from `archer-core/src/commonMain/kotlin/com/m2f/archer/repository/StoreSyncRepository.kt:19`):
+
+```kotlin
+// Simplified version showing the logic
+override suspend fun ArcherRaise.invoke(q: Get<K>): A =
+    archerRecover(
+        block = {
+            storeDataSource.get(q.key)
+        },
+        recover = { failure ->
+            if (fallbackChecks(failure)) {
+                // Fallback to MainSync, which updates the store
+                MainSyncRepository(mainDataSource, storeDataSource, mainFallbackChecks).get(q.key)
+            } else {
+                raise(failure)
+            }
+        }
+    )
+```
+
+### Understanding Fallbacks
+
+Fallbacks control **when to switch from one data source to another** when an operation fails. Archer provides two fallback functions in `Settings`:
+
+#### mainFallbacks
+
+Controls when **MainSync** falls back from main to store.
+
+```kotlin
+// Default configuration (from Settings.Default)
+override val mainFallbacks = { failure: Failure ->
+    failure is DataNotFound ||
+    failure is Invalid ||
+    failure is NotModified ||
+    failure is NoConnection ||
+    failure is ServerFailure ||
+    failure is Redirect ||
+    failure is UnhandledNetworkFailure
+}
+```
+
+**This means:** When using `MainSync`, if the API call fails with any network-related error, Archer will automatically try to return cached data instead.
+
+**Example:**
+```kotlin
+with(Configuration.Default) {
+    ice {
+        // If API fails with NoConnection, automatically returns cached data
+        userRepository.get(MainSync, userId)
+    }
+}
+```
+
+#### storageFallbacks
+
+Controls when **StoreSync** falls back from store to main.
+
+```kotlin
+// Default configuration (from Settings.Default)
+override val storageFallbacks = { failure: Failure ->
+    failure is DataNotFound ||
+    failure is Invalid
+}
+```
+
+**This means:** When using `StoreSync`, if the cache is empty (DataNotFound) or expired (Invalid), Archer will automatically fetch from the API and update the cache.
+
+**Example:**
+```kotlin
+with(Configuration.Default) {
+    ice {
+        // If cache is empty, automatically fetches from API and caches it
+        userRepository.get(StoreSync, userId)
+    }
+}
+```
+
+### When Operations Use Fallbacks
+
+This table shows which operations use which fallback functions:
+
+| Operation | Uses mainFallbacks | Uses storageFallbacks | Syncs to Store |
+|-----------|-------------------|----------------------|----------------|
+| `Main` | ❌ No | ❌ No | ❌ No |
+| `Store` | ❌ No | ❌ No | ❌ No |
+| `MainSync` | ✅ Yes | ❌ No | ✅ Yes (on success) |
+| `StoreSync` | ✅ Yes (via MainSync) | ✅ Yes | ✅ Yes (when falling back) |
+
+### How Repository Strategies Work with Operations
+
+When you create a repository using `cacheStrategy`, Archer creates different repository implementations based on the operation:
+
+```kotlin
+// From Configuration.kt:28
+fun <K, A> cacheStrategy(
+    mainDataSource: GetDataSource<K, A>,
+    storeDataSource: StoreDataSource<K, A>,
+): GetRepositoryStrategy<K, A> = GetRepositoryStrategy { operation ->
+    when (operation) {
+        is Main -> mainDataSource.toRepository()
+        is Store -> storeDataSource.toRepository()
+        is MainSync -> MainSyncRepository(mainDataSource, storeDataSource, mainFallbacks)
+        is StoreSync -> StoreSyncRepository(storeDataSource, mainDataSource, storageFallbacks, mainFallbacks)
+    }
+}
+```
+
+**This means:** The same repository can behave differently based on which operation you pass:
+
+```kotlin
+val userRepository = with(Configuration.Default) {
+    apiDataSource.cacheWith(dbDataSource).expiresIn(5.minutes)
+}
+
+with(Configuration.Default) {
+    ice {
+        // Four different behaviors with the same repository
+        val fresh = userRepository.get(Main, userId)        // API only
+        val cached = userRepository.get(Store, userId)      // Cache only
+        val freshWithFallback = userRepository.get(MainSync, userId)  // API → Cache fallback
+        val cacheFirst = userRepository.get(StoreSync, userId)        // Cache → API fallback
+    }
+}
+```
+
+### Why You Should Rarely Override Fallbacks
+
+The default fallback configurations are designed to handle the most common scenarios correctly:
+
+**✅ Default `mainFallbacks` handles:**
+- Network errors (no connection, server failures)
+- Empty responses (data not found)
+- Invalid/expired cache markers
+- HTTP redirects
+
+**✅ Default `storageFallbacks` handles:**
+- Cache miss (data not found)
+- Expired cache (invalid)
+
+**These defaults work correctly for ~95% of use cases.** Only override fallbacks when you have specific requirements:
+
+```kotlin
+// ❌ Usually NOT needed - defaults are fine
+object StrictSettings : Settings by Settings.Default {
+    override val mainFallbacks = { _: Failure -> false }  // Never fall back
+    override val storageFallbacks = { _: Failure -> false }
+}
+
+// ✅ Rare valid case - custom error handling
+object CustomSettings : Settings by Settings.Default {
+    override val mainFallbacks = { failure: Failure ->
+        // Only fall back on network errors, not on 404s
+        failure is NoConnection || failure is ServerFailure
+    }
+}
+```
+
+### Complete Example: Operations in Practice
+
+Here's a complete example showing how to use operations effectively:
+
+```kotlin
+import com.m2f.archer.configuration.Configuration
+import com.m2f.archer.crud.operation.*
+import kotlin.time.Duration.Companion.minutes
+
+// Setup: Create repository at the top level
+val userRepository = with(Configuration.Default) {
+    apiDataSource.cacheWith(dbDataSource).expiresIn(5.minutes)
+}
+
+// Use different operations for different scenarios
+class UserViewModel {
+    // Load user with offline support
+    suspend fun loadUser(userId: Int): Ice<User> = with(Configuration.Default) {
+        ice {
+            // MainSync: Fresh data with cache fallback
+            userRepository.get(MainSync, userId)
+        }
+    }
+
+    // Force refresh (pull-to-refresh)
+    suspend fun refreshUser(userId: Int): Ice<User> = with(Configuration.Default) {
+        ice {
+            // Main: Always fetch fresh, update cache on success via repository
+            userRepository.get(Main, userId)
+        }
+    }
+
+    // Show cached data while loading
+    suspend fun getCachedUser(userId: Int): User? = with(Configuration.Default) {
+        nullable {
+            // Store: Return cached data immediately, or null
+            userRepository.get(Store, userId)
+        }
+    }
+
+    // Offline-first approach
+    suspend fun getUser(userId: Int): Ice<User> = with(Configuration.Default) {
+        ice {
+            // StoreSync: Try cache first, fetch from API if missing
+            userRepository.get(StoreSync, userId)
+        }
+    }
+}
+```
+
+### Flow: MainSync in Detail
+
+Let's trace what happens with a `MainSync` operation:
+
+```kotlin
+with(Configuration.Default) {
+    ice {
+        userRepository.get(MainSync, userId = 123)
+    }
+}
+```
+
+**Scenario 1: API succeeds**
+1. Call `apiDataSource.get(123)` → Returns `User("Alice")`
+2. Call `dbDataSource.put(123, User("Alice"))` → Caches the user
+3. Return `User("Alice")`
+
+**Scenario 2: API fails with network error, cache has data**
+1. Call `apiDataSource.get(123)` → Raises `NoConnection`
+2. Check `mainFallbacks(NoConnection)` → Returns `true`
+3. Call `dbDataSource.get(123)` → Returns cached `User("Alice")`
+4. Return cached `User("Alice")`
+
+**Scenario 3: API fails with network error, no cache**
+1. Call `apiDataSource.get(123)` → Raises `NoConnection`
+2. Check `mainFallbacks(NoConnection)` → Returns `true`
+3. Call `dbDataSource.get(123)` → Raises `DataNotFound`
+4. Return original error `NoConnection` (not `DataNotFound`)
+
+### Flow: StoreSync in Detail
+
+```kotlin
+with(Configuration.Default) {
+    ice {
+        userRepository.get(StoreSync, userId = 123)
+    }
+}
+```
+
+**Scenario 1: Cache has valid data**
+1. Call `dbDataSource.get(123)` → Returns cached `User("Alice")`
+2. Return `User("Alice")` (no API call!)
+
+**Scenario 2: Cache is empty**
+1. Call `dbDataSource.get(123)` → Raises `DataNotFound`
+2. Check `storageFallbacks(DataNotFound)` → Returns `true`
+3. Fall back to `MainSync`:
+   - Call `apiDataSource.get(123)` → Returns `User("Alice")`
+   - Call `dbDataSource.put(123, User("Alice"))` → Caches it
+4. Return `User("Alice")`
+
+**Scenario 3: Cache is expired (Invalid)**
+1. Call `dbDataSource.get(123)` → Raises `Invalid` (cache expired)
+2. Check `storageFallbacks(Invalid)` → Returns `true`
+3. Fall back to `MainSync`:
+   - Call `apiDataSource.get(123)` → Returns `User("Alice")`
+   - Call `dbDataSource.put(123, User("Alice"))` → Updates cache
+4. Return `User("Alice")`
+
+### Visual Summary
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Configuration                        │
+│  - mainFallbacks: (Failure) -> Boolean                      │
+│  - storageFallbacks: (Failure) -> Boolean                   │
+│  - cache: CacheDataSource                                   │
+└─────────────────────────────────────────────────────────────┘
+                               │
+                               │ creates
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Repository Strategy                       │
+│  Based on Operation, returns appropriate repository         │
+└─────────────────────────────────────────────────────────────┘
+                               │
+          ┌────────────────────┼────────────────────┐
+          │                    │                    │
+          ▼                    ▼                    ▼
+     ┌────────┐          ┌──────────┐        ┌──────────┐
+     │  Main  │          │MainSync  │        │StoreSync │
+     │  Store │          │          │        │          │
+     └────────┘          └──────────┘        └──────────┘
+          │                    │                    │
+      No fallback       Uses mainFallbacks   Uses storageFallbacks
+      Single source                          then mainFallbacks
+```
+
+### Key Takeaways
+
+1. **Use `MainSync` for most cases** - Fresh data with offline fallback is usually what you want
+2. **Use `Main` for critical fresh data** - When you must have up-to-date information
+3. **Use `Store` for offline mode** - When you know data is cached or want to fail fast
+4. **Use `StoreSync` for offline-first** - When minimizing network calls is important
+5. **Keep default fallbacks** - They handle common error scenarios correctly
+6. **Operations are passed at call-time** - Same repository, different behavior based on operation
+7. **Fallbacks only apply to sync operations** - `Main` and `Store` never use fallbacks
 
 ## How DSL Builders Work with Configuration
 
@@ -516,7 +959,7 @@ noCacheConfig.ice {
 
 ### Custom Settings
 
-Implement custom `Settings` for advanced control:
+Implement custom `Settings` for advanced control (though this is rarely needed):
 
 ```kotlin
 object CustomSettings : Settings {
@@ -535,11 +978,11 @@ object CustomSettings : Settings {
     override fun getCurrentTime() = Clock.System.now()
 }
 
-val customConfig = Configuration(CustomSettings)
-
-// Use custom configuration
-customConfig.ice {
-    userRepository.get(MainSync, userId)
+// Use custom configuration with scoping
+with(CustomSettings.configuration) {
+    ice {
+        userRepository.get(MainSync, userId)
+    }
 }
 ```
 
@@ -552,17 +995,22 @@ Configuration provides helper functions for creating repository strategies:
 Create a strategy with custom main and store data sources:
 
 ```kotlin
-val strategy = Configuration.Default.cacheStrategy(
-    mainDataSource = apiDataSource,
-    storeDataSource = dbDataSource
-)
+// Create strategy once at the top level
+val strategy = with(Configuration.Default) {
+    cacheStrategy(
+        mainDataSource = apiDataSource,
+        storeDataSource = dbDataSource
+    )
+}
 
 // Use with different operations
-ice {
-    strategy.get(Main, userId)      // Main only
-    strategy.get(Store, userId)     // Store only
-    strategy.get(MainSync, userId)  // Main → Store
-    strategy.get(StoreSync, userId) // Store → Main
+with(Configuration.Default) {
+    ice {
+        strategy.get(Main, userId)      // Main only
+        strategy.get(Store, userId)     // Store only
+        strategy.get(MainSync, userId)  // Main → Store
+        strategy.get(StoreSync, userId) // Store → Main
+    }
 }
 ```
 
@@ -571,12 +1019,16 @@ ice {
 Create a MainSync repository (main with fallback to store):
 
 ```kotlin
+// Create repository once at the top level
 val repository = with(Configuration.Default) {
     apiDataSource fallbackWith dbDataSource
 }
 
-ice {
-    repository.get(userId)
+// Use in your application code
+with(Configuration.Default) {
+    ice {
+        repository.get(userId)
+    }
 }
 ```
 
@@ -588,20 +1040,27 @@ Add cache expiration to a repository strategy:
 import kotlin.time.Duration.Companion.minutes
 import com.m2f.archer.crud.cache.CacheExpiration
 
-// Expire after duration
-val strategy = apiDataSource
-    .cacheWith(dbDataSource)
-    .expiresIn(5.minutes)
+// Create strategies with expiration at the top level
+val strategy = with(Configuration.Default) {
+    // Expire after duration
+    apiDataSource
+        .cacheWith(dbDataSource)
+        .expiresIn(5.minutes)
+}
 
-// Custom expiration
-val strategy2 = apiDataSource
-    .cacheWith(dbDataSource)
-    .expires(CacheExpiration.After(10.minutes))
+val strategy2 = with(Configuration.Default) {
+    // Custom expiration
+    apiDataSource
+        .cacheWith(dbDataSource)
+        .expires(CacheExpiration.After(10.minutes))
+}
 
-// Never expire
-val strategy3 = apiDataSource
-    .cacheWith(dbDataSource)
-    .expires(CacheExpiration.Never)
+val strategy3 = with(Configuration.Default) {
+    // Never expire
+    apiDataSource
+        .cacheWith(dbDataSource)
+        .expires(CacheExpiration.Never)
+}
 ```
 
 ## Settings Properties
@@ -708,6 +1167,8 @@ Default uses `Clock.System.now()`.
 8. **archerRecover** - Use for explicit failure handling within DSL blocks, and remember it inherits the active `Settings` context
 
 9. **Testing Configurations** - Always use custom testing configurations with `InMemoryDataSource` instead of the default `MemoizedExpirationCache` to avoid database dependencies and improve test performance. See [Cache Implementation and Testing](#cache-implementation-and-testing) for examples
+
+10. **Create Configuration at the Top** - Use `settings.configuration` to create Configuration from Settings, and create it once at the top of your call chain rather than creating Configuration instances throughout your code
 
 ## See Also
 
