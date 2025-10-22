@@ -250,9 +250,9 @@ class UserViewModel(
             _userState.value = Ice.Idle
 
             val operation = if (forceRefresh) {
-                Main
+                MainSync  // Fetch from main and sync to store
             } else {
-                StoreSync
+                StoreSync  // Fetch from store, fallback to main if needed
             }
 
             _userState.value = ice {
