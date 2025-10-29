@@ -57,6 +57,40 @@ sealed interface <#A: in kotlin/Any?, #B: out kotlin/Any?> com.m2f.archer.reposi
 
 sealed interface <#A: kotlin/Any?> com.m2f.archer.query/Query // com.m2f.archer.query/Query|null[0]
 
+sealed interface <#A: out kotlin/Any?> com.m2f.archer.crud/Ice { // com.m2f.archer.crud/Ice|null[0]
+    final class <#A1: kotlin/Any?> Content : com.m2f.archer.crud/Ice<#A1> { // com.m2f.archer.crud/Ice.Content|null[0]
+        constructor <init>(#A1) // com.m2f.archer.crud/Ice.Content.<init>|<init>(1:0){}[0]
+
+        final val value // com.m2f.archer.crud/Ice.Content.value|{}value[0]
+            final fun <get-value>(): #A1 // com.m2f.archer.crud/Ice.Content.value.<get-value>|<get-value>(){}[0]
+
+        final fun component1(): #A1 // com.m2f.archer.crud/Ice.Content.component1|component1(){}[0]
+        final fun copy(#A1 = ...): com.m2f.archer.crud/Ice.Content<#A1> // com.m2f.archer.crud/Ice.Content.copy|copy(1:0){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.crud/Ice.Content.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.m2f.archer.crud/Ice.Content.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.m2f.archer.crud/Ice.Content.toString|toString(){}[0]
+    }
+
+    final class Error : com.m2f.archer.crud/Ice<kotlin/Nothing> { // com.m2f.archer.crud/Ice.Error|null[0]
+        constructor <init>(com.m2f.archer.failure/Failure) // com.m2f.archer.crud/Ice.Error.<init>|<init>(com.m2f.archer.failure.Failure){}[0]
+
+        final val error // com.m2f.archer.crud/Ice.Error.error|{}error[0]
+            final fun <get-error>(): com.m2f.archer.failure/Failure // com.m2f.archer.crud/Ice.Error.error.<get-error>|<get-error>(){}[0]
+
+        final fun component1(): com.m2f.archer.failure/Failure // com.m2f.archer.crud/Ice.Error.component1|component1(){}[0]
+        final fun copy(com.m2f.archer.failure/Failure = ...): com.m2f.archer.crud/Ice.Error // com.m2f.archer.crud/Ice.Error.copy|copy(com.m2f.archer.failure.Failure){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.crud/Ice.Error.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.m2f.archer.crud/Ice.Error.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.m2f.archer.crud/Ice.Error.toString|toString(){}[0]
+    }
+
+    final object Idle : com.m2f.archer.crud/Ice<kotlin/Nothing> { // com.m2f.archer.crud/Ice.Idle|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.crud/Ice.Idle.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // com.m2f.archer.crud/Ice.Idle.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // com.m2f.archer.crud/Ice.Idle.toString|toString(){}[0]
+    }
+}
+
 sealed interface com.m2f.archer.crud.cache/CacheExpiration { // com.m2f.archer.crud.cache/CacheExpiration|null[0]
     final class After : com.m2f.archer.crud.cache/CacheExpiration { // com.m2f.archer.crud.cache/CacheExpiration.After|null[0]
         constructor <init>(kotlin.time/Duration) // com.m2f.archer.crud.cache/CacheExpiration.After.<init>|<init>(kotlin.time.Duration){}[0]
@@ -314,40 +348,6 @@ open class com.m2f.archer.configuration/Configuration : com.m2f.archer.configura
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?> com.m2f.archer.query/KeyQuery : com.m2f.archer.query/Query<#B> { // com.m2f.archer.query/KeyQuery|null[0]
     open val key // com.m2f.archer.query/KeyQuery.key|{}key[0]
         open fun <get-key>(): #A // com.m2f.archer.query/KeyQuery.key.<get-key>|<get-key>(){}[0]
-}
-
-sealed class <#A: out kotlin/Any?> com.m2f.archer.crud/Ice { // com.m2f.archer.crud/Ice|null[0]
-    final class <#A1: kotlin/Any?> Content : com.m2f.archer.crud/Ice<#A1> { // com.m2f.archer.crud/Ice.Content|null[0]
-        constructor <init>(#A1) // com.m2f.archer.crud/Ice.Content.<init>|<init>(1:0){}[0]
-
-        final val value // com.m2f.archer.crud/Ice.Content.value|{}value[0]
-            final fun <get-value>(): #A1 // com.m2f.archer.crud/Ice.Content.value.<get-value>|<get-value>(){}[0]
-
-        final fun component1(): #A1 // com.m2f.archer.crud/Ice.Content.component1|component1(){}[0]
-        final fun copy(#A1 = ...): com.m2f.archer.crud/Ice.Content<#A1> // com.m2f.archer.crud/Ice.Content.copy|copy(1:0){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.crud/Ice.Content.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // com.m2f.archer.crud/Ice.Content.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // com.m2f.archer.crud/Ice.Content.toString|toString(){}[0]
-    }
-
-    final class Error : com.m2f.archer.crud/Ice<kotlin/Nothing> { // com.m2f.archer.crud/Ice.Error|null[0]
-        constructor <init>(com.m2f.archer.failure/Failure) // com.m2f.archer.crud/Ice.Error.<init>|<init>(com.m2f.archer.failure.Failure){}[0]
-
-        final val error // com.m2f.archer.crud/Ice.Error.error|{}error[0]
-            final fun <get-error>(): com.m2f.archer.failure/Failure // com.m2f.archer.crud/Ice.Error.error.<get-error>|<get-error>(){}[0]
-
-        final fun component1(): com.m2f.archer.failure/Failure // com.m2f.archer.crud/Ice.Error.component1|component1(){}[0]
-        final fun copy(com.m2f.archer.failure/Failure = ...): com.m2f.archer.crud/Ice.Error // com.m2f.archer.crud/Ice.Error.copy|copy(com.m2f.archer.failure.Failure){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.crud/Ice.Error.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // com.m2f.archer.crud/Ice.Error.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // com.m2f.archer.crud/Ice.Error.toString|toString(){}[0]
-    }
-
-    final object Idle : com.m2f.archer.crud/Ice<kotlin/Nothing> { // com.m2f.archer.crud/Ice.Idle|null[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // com.m2f.archer.crud/Ice.Idle.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // com.m2f.archer.crud/Ice.Idle.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // com.m2f.archer.crud/Ice.Idle.toString|toString(){}[0]
-    }
 }
 
 sealed class com.m2f.archer.failure/Message { // com.m2f.archer.failure/Message|null[0]

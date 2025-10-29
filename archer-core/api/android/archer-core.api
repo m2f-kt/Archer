@@ -113,7 +113,7 @@ public abstract interface class com/m2f/archer/crud/GetRepositoryStrategy {
 	public abstract fun create (Lcom/m2f/archer/crud/operation/Operation;)Lcom/m2f/archer/repository/Repository;
 }
 
-public abstract class com/m2f/archer/crud/Ice {
+public abstract interface class com/m2f/archer/crud/Ice {
 }
 
 public final class com/m2f/archer/crud/Ice$Content : com/m2f/archer/crud/Ice {
