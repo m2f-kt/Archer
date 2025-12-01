@@ -65,17 +65,17 @@ val repositoryStrategy = remoteDataSource cacheWith store expiresIn 5.minutes
 
 // Use the repository with different result wrappers
 val resultIce = ice {
-    repository.get(StoreSync, 0)
+    repositoryStrategy.get(StoreSync, 0)
 }
 // resultIce: Ice.Content("0")
 
 val resultEither = either {
-    repository.get(StoreSync, 0)
+    repositoryStrategy.get(StoreSync, 0)
 }
 // resultEither: Either.Right("0")
 
 val resultNullable = nullable {
-    repository.get(StoreSync, 0)
+    repositoryStrategy.get(StoreSync, 0)
 }
 // resultNullable: "0"
 ```

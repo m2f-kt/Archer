@@ -114,16 +114,16 @@ val repositoryStrategy = remoteDataSource cacheWith store expiresIn 5.minutes
 
 // ice stands for Idle | Content | Error
 val resultIce = ice {
-    repository.get(StoreSync, 0)
+    repositoryStrategy.get(StoreSync, 0)
 }
 
 // Arrow's Either
 val resultEither = either {
-    repository.get(StoreSync, 0)
+    repositoryStrategy.get(StoreSync, 0)
 }
 
 val resultNullable = nullable {
-    repository.get(StoreSync, 0)
+    repositoryStrategy.get(StoreSync, 0)
 }
 
 val resultFailingIce = ice {
