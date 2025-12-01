@@ -1,3 +1,9 @@
 package com.m2f.archer.crud.cache.memcache
 
-expect inline fun <reified A> getMetaInformation(key: String): CacheMetaInformation
+inline fun <reified A> getMetaInformation(key: String): CacheMetaInformation =
+    CacheMetaInformation(
+        key = key,
+        classIdentifier = A::class.let {
+            it.simpleName ?: "Unknown"
+        }
+    )
