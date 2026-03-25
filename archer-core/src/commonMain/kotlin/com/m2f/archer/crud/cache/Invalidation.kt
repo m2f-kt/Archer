@@ -18,3 +18,18 @@ suspend inline fun <reified A> ArcherRaise.invalidateCache(
 
     cache.put(info, Instant.DISTANT_PAST)
 }
+
+/**
+ * Invalidates all cached expiration entries at once.
+ *
+ * This clears every entry in the expiration registry, causing all
+ * cached repositories to treat their data as expired on the next read
+ * and fall back to the main (network) data source.
+ *
+ * Only works when the underlying [cache] implements [ClearableCache]
+ * (which [com.m2f.archer.crud.cache.memcache.MemoizedExpirationCache] does by default).
+ * If the cache does not implement [ClearableCache], this is a no-op.
+ */
+suspend fun ArcherRaise.invalidateAllCaches() {
+    (cache as? ClearableCache)?.clearAll()
+}

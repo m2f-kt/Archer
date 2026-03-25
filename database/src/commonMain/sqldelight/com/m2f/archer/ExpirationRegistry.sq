@@ -16,3 +16,6 @@ VALUES (?, ?, ?, ?, ?);
 
 deleteInstant:
 DELETE FROM ExpirationRegistry WHERE key = ? AND hash = ?;
+
+deleteAll:
+DELETE FROM ExpirationRegistry;

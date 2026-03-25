@@ -7,7 +7,9 @@ import com.m2f.archer.ExpirationRegistryQueries
 import com.m2f.archer.crud.ArcherRaise
 import com.m2f.archer.crud.GetRepository
 import com.m2f.archer.crud.cache.CacheDataSource
+import com.m2f.archer.crud.cache.ClearableCache
 import com.m2f.archer.crud.cache.memcache.deps.queriesRepo
+import com.m2f.archer.crud.either
 import com.m2f.archer.failure.DataEmpty
 import com.m2f.archer.failure.DataNotFound
 import com.m2f.archer.query.Delete
@@ -22,7 +24,8 @@ import kotlin.time.Instant
 class MemoizedExpirationCache(
     private val repo: GetRepository<Unit, ExpirationRegistryQueries> = queriesRepo
 ) :
-    CacheDataSource<CacheMetaInformation, Instant> {
+    CacheDataSource<CacheMetaInformation, Instant>,
+    ClearableCache {
 
     private val mutex: Mutex = Mutex()
 
@@ -58,4 +61,13 @@ class MemoizedExpirationCache(
             val queries = repo.get(Unit)
             queries.transaction { queries.deleteInstant(key = q.key.key, hash = q.key.hashCode().toLong()) }
         }
+
+    override suspend fun clearAll() {
+        either {
+            mutex.withLock {
+                val queries = repo.get(Unit)
+                queries.deleteAll()
+            }
+        }
+    }
 }
